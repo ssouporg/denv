@@ -38,5 +38,3 @@ github:alebellu:denv:examples/expert-system-env.denv :
 	EXPOSE ex/expert-system
 
 denv add github:alebellu:ex:ex/expert-system-env
-
-<iframe frameborder="0" style="width:100%;height:547px" src="https://www.draw.io/?chrome=0&db=0#G0B9dE1L5Sg5TcZXdnMFhzQ05XU1U"></iframe>
