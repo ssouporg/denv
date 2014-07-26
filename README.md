@@ -22,6 +22,12 @@ github:alebellu:denv:examples/worker-env.denv :
 
 denv add github:alebellu:denv:examples/worker-env
 
+dog | bird | cat
+----|------|----
+foo | foo  | foo
+bar | bar  | bar
+baz | baz  | baz
+
 github:alebellu:denv:examples/web-env.denv :
 
 	ENV worker-env
