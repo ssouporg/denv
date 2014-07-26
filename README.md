@@ -3,6 +3,8 @@ denv
 
 A manager for container based environments.
 
+Commands:
+
     defs          list the environment definitions
     def <envdef>  list the images used by <envdef>
                        -a, --all: also show details: volumes, linked images
@@ -21,12 +23,6 @@ github:alebellu:denv:examples/worker-env.denv :
 	EXPOSE worker
 
 denv add github:alebellu:denv:examples/worker-env
-
-dog | bird | cat
-----|------|----
-foo | foo  | foo
-bar | bar  | bar
-baz | baz  | baz
 
 github:alebellu:denv:examples/web-env.denv :
 
