@@ -7,11 +7,13 @@ A manager for container based environments.
 
 Commands:
 
-    defs          list the environment definitions
-    def		  show the definition of a specific environment
+    envs          list the environment definitions
+    env		  show the definition of a specific environment
     add		  add a new environment definition
-    run  	  run a new environment
-    envs          list the running environments
+    apps	  list the applications
+    app		  show the definition of a specific application
+    run  	  run an application in a specific environment
+    ps            list the running applications for one or all environments
     start	  start an environment
     stop	  stop an environment
     rm  	  remove an environment
@@ -69,14 +71,14 @@ These systems can be run inside containers:
 - worker image: ex/worker
 - expert-system image: ex/expert-system
 
-Lets define an environment for the worker to run in:
+Lets define an application for the worker:
 
-github:alebellu:denv:examples/worker-env.denv :
+github:alebellu:denv:examples/worker-app.denv :
 
 	IMAGES ex/worker
 	EXPOSE worker
 
-we can then add the environement to our denv runtime:
+we can then add the application to our denv runtime:
 
 denv add github:alebellu:denv:examples/worker-env
 
