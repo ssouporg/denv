@@ -21,6 +21,23 @@ Commands:
 
 ## defs
 
+## def
+
+## add
+
+## run
+
+## envs
+
+## start
+
+## stop
+
+## rm
+
+## clone
+
+
 # Sample use case
 
 Many real work systems are composed by multiple interoperating applications,
