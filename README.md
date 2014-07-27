@@ -13,11 +13,11 @@ Commands:
     apps          list the registered applications
     addapp        register a new application
     app           show the definition of a specific application
-    run  	  run an application in a specific environment
+    run           run an application in a specific environment
     ps            list the running applications for one or more environments
-    start	  start an environment
-    stop	  stop an environment
-    clone	  clone an environement
+    start         start an environment
+    stop          stop an environment
+    clone         clone an environement
 
 ## defs
 
