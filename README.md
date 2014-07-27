@@ -19,6 +19,8 @@ Commands:
     rm <envid>    remove the environment with the id specified
     clone <envid> clone an environement
 
+## defs
+
 # Sample use case
 
 Many real work systems are composed by multiple interoperating applications,
