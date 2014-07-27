@@ -9,7 +9,7 @@ Commands:
 
     envs          list the environments
     create        add a new environment
-    rm  	  remove an environment
+    rm            remove an environment
     apps          list the registered applications
     addapp        register a new application
     app           show the definition of a specific application
