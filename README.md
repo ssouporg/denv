@@ -71,46 +71,44 @@ These systems can be run inside containers:
 - worker image: ex/worker
 - expert-system image: ex/expert-system
 
-- denv envs
+  denv envs
 
-- denv envs
+  ENVIRONMENT
 
-ENVIRONMENT
+  denv create integration
+  denv create acceptance
+  denv create production
 
-- denv create integration
-- denv create acceptance
-- denv create production
+  denv envs
 
-- denv envs
+  ENVIRONMENT
 
-ENVIRONMENT
+  integration
+  acceptance
+  production
 
-integration
-acceptance
-production
+  denv addapp github:alebellu:denv:ex/webapp --name webapp
 
-- denv addapp github:alebellu:denv:ex/webapp --name webapp
-
-- denv apps
+  denv apps
 
 APPLICATION						ID			NAME
 
 github:alebellu:denv:ex/webapp		a9e8d8e3	webapp
 
-- denv app webapp
+  denv app webapp
 
 IMAGE ex/db
 IMAGE ex/web LINK ex/db
 EXPOSE ex/web
 
-- denv run webapp -e integration
+  denv run webapp -e integration
 
-- docker ps
+  docker ps
 
-CONTAINER   IMAGE     STATUS   NAME
+  CONTAINER   IMAGE     STATUS      NAME
 
-d8092343         ex/db       running     integration-webapp-ex-db
-a1b28734         ex/web    running     integration-webapp-ex-web
+  d8092343    ex/db     running     integration-webapp-ex-db
+  a1b28734    ex/web    running     integration-webapp-ex-web
 
 
 
