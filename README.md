@@ -8,20 +8,23 @@ A manager for container based environments.
 Commands:
 
     defs          list the environment definitions
-    def <envdef>  list the images used by <envdef>
-                       -a, --all: also show details: volumes, linked images
-    add		add a new environment definition
-    run <envdef>  run a new environment
-                       -n, --name <name>: give the new environment the name specified
+    def		  show the definition of a specific environment
+    add		  add a new environment definition
+    run  	  run a new environment
     envs          list the running environments
-    start <envid> start the environment with the id specified
-    stop <envid>  stop the environment with the id specified
-    rm <envid>    remove the environment with the id specified
-    clone <envid> clone an environement
+    start	  start an environment
+    stop	  stop an environment
+    rm  	  remove an environment
+    clone	  clone an environement
 
 ## defs
 
+List the environment definitions
+
 ## def
+
+def <envdef>  list the images used by <envdef>
+                       -a, --all: also show details: volumes, linked images
 
 ## add
 
@@ -29,15 +32,26 @@ If no file arguments are specified, the standard input is used.
 
 ## run
 
+    run <envdef>  run a new environment
+                       -n, --name <name>: give the new environment the name specified
+
 ## envs
 
 ## start
 
+    start <envid> start the environment with the id specified
+
 ## stop
+
+    stop <envid>  stop the environment with the id specified
 
 ## rm
 
+    rm <envid>    remove the environment with the id specified
+
 ## clone
+
+    clone <envid> clone an environement
 
 
 # Sample use case
