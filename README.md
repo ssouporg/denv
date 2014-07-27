@@ -43,7 +43,7 @@ If no file arguments are specified, the standard input is used.
 # Sample use case
 
 Many real work systems are composed by multiple interoperating applications,
-just think about microservices architectures like the ones used by Amazon, Netflix and many others.
+just think about microservices architectures.
 
 Now imagine the following three interoperating systems:
 - a web application, with its database, managing operational data and exposing a REST api
