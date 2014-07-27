@@ -83,5 +83,5 @@ denv add github:alebellu:ex:ex/expert-system-env
 
 # Architecture
 
-<a href="http://tinypic.com?ref=1zqt53n" target="_blank"><img src="http://i61.tinypic.com/1zqt53n.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
+<a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
 
