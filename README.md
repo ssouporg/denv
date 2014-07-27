@@ -7,16 +7,16 @@ A manager for container based environments.
 
 Commands:
 
-    envs          list the environment definitions
-    env		  show the definition of a specific environment
-    add		  add a new environment definition
-    apps	  list the applications
-    app		  show the definition of a specific application
+    envs          list the environments
+    create        add a new environment
+    rm  	  remove an environment
+    apps          list the registered applications
+    addapp        register a new application
+    app           show the definition of a specific application
     run  	  run an application in a specific environment
-    ps            list the running applications for one or all environments
+    ps            list the running applications for one or more environments
     start	  start an environment
     stop	  stop an environment
-    rm  	  remove an environment
     clone	  clone an environement
 
 ## defs
