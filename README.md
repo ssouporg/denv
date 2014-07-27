@@ -25,6 +25,8 @@ Commands:
 
 ## add
 
+If no file arguments are specified, the standard input is used.
+
 ## run
 
 ## envs
