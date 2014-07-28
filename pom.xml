@@ -10,10 +10,8 @@
     <version>0.1.0</version>
     <modules>
         <module>denv-server</module>
-        <module>denv-client</module>
         <module>denv-web</module>
         <module>denv-cli</module>
     </modules>
-
 
 </project>

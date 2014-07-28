@@ -14,8 +14,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.spring.platform</groupId>
-                <artifactId>platform-bom</artifactId>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
                 <version>1.1.4.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -39,6 +39,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>0.9.0</version>
         </dependency>
     </dependencies>
 
