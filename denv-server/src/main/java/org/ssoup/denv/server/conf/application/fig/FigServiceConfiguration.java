@@ -182,4 +182,10 @@ public class FigServiceConfiguration implements ServiceConfiguration {
         if (dns instanceof String) return new String[]{(String)dns};
         return (String[])dns;
     }
+
+    @Override
+    public VolumeInfo[] getVolumeInfos() {
+        // TODO
+        return new VolumeInfo[0];
+    }
 }
