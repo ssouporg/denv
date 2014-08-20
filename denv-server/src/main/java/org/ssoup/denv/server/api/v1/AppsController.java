@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.ssoup.denv.server.api.AbstractController;
-import org.ssoup.denv.server.domain.Environment;
+import org.ssoup.denv.server.domain.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
-import org.ssoup.denv.server.service.EnvsService;
+import org.ssoup.denv.server.service.runtime.EnvironmentManager;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * User: ALB
@@ -25,11 +25,11 @@ public class AppsController extends AbstractController {
 
     private static final Logger logger = LoggerFactory.getLogger(AppsController.class);
 
-    private final EnvsService envsService;
+    private final EnvironmentManager environmentManager;
 
     @Autowired
-    public AppsController(EnvsService envsService) {
-        this.envsService = envsService;
+    public AppsController(EnvironmentManager environmentManager) {
+        this.environmentManager = environmentManager;
     }
 
     // For the use of verbs in this controller see:
@@ -79,8 +79,8 @@ public class AppsController extends AbstractController {
 
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<List<Environment>> listEnvironments() throws DenvException {
-        List<Environment> envs = envsService.listEnvironments();
-        return new ResponseEntity<List<Environment>>(envs, HttpStatus.OK);
+    ResponseEntity<Collection<Environment>> listEnvironments() throws DenvException {
+        Collection<Environment> envs = environmentManager.listEnvironments();
+        return new ResponseEntity<Collection<Environment>>(envs, HttpStatus.OK);
     }
 }
