@@ -4,9 +4,9 @@ import com.github.dockerjava.client.model.ContainerCreateResponse;
 import com.github.dockerjava.client.model.ContainerInspectResponse;
 import com.github.dockerjava.client.model.ExposedPort;
 import com.github.dockerjava.client.model.Ports;
-import org.ssoup.denv.server.domain.conf.application.ServiceConfiguration;
-import org.ssoup.denv.server.domain.container.Container;
-import org.ssoup.denv.server.domain.container.Image;
+import org.ssoup.denv.server.domain.conf.application.VolumeConfiguration;
+import org.ssoup.denv.server.domain.runtime.container.Container;
+import org.ssoup.denv.server.domain.runtime.container.Image;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +23,13 @@ public class DockerContainer implements Container {
 
     private String hostname;
     private Map<Integer, Integer> portMapping;
-    private ServiceConfiguration.VolumeInfo[] volumes ;
+    private VolumeConfiguration[] volumes ;
     private ContainerCreateResponse containerCreateResponse;
     private ContainerInspectResponse containerInspectResponse;
 
     private boolean running;
 
-    public DockerContainer(ContainerCreateResponse containerCreateResponse, ContainerInspectResponse containerInspectResponse, Image image , ServiceConfiguration.VolumeInfo[] volumes) {
+    public DockerContainer(ContainerCreateResponse containerCreateResponse, ContainerInspectResponse containerInspectResponse, Image image , VolumeConfiguration[] volumes) {
         this.containerCreateResponse = containerCreateResponse;
         this.containerInspectResponse = containerInspectResponse;
         this.id = this.containerCreateResponse.getId();
@@ -115,7 +115,7 @@ public class DockerContainer implements Container {
         this.hostname = hostname;
     }
 
-    public ServiceConfiguration.VolumeInfo[] getVolumeInfos() {
+    public VolumeConfiguration[] getVolumes() {
         return volumes;
     }
 

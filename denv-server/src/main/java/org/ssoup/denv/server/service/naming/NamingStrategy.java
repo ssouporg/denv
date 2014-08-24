@@ -1,9 +1,9 @@
 package org.ssoup.denv.server.service.naming;
 
 import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.container.Container;
-import org.ssoup.denv.server.domain.container.Image;
-import org.ssoup.denv.server.domain.environment.Environment;
+import org.ssoup.denv.server.domain.runtime.container.Container;
+import org.ssoup.denv.server.domain.runtime.container.Image;
+import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
 
 /**

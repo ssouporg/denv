@@ -9,7 +9,7 @@ public abstract class AbstractController {
 
     protected HttpHeaders defaultResponseHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/json");
+        headers.add("Content-type", "application/x-yaml");
         return headers;
     }
 }

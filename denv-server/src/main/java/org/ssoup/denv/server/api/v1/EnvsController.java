@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.ssoup.denv.server.api.AbstractController;
-import org.ssoup.denv.server.domain.environment.Environment;
+import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
-import org.ssoup.denv.server.service.runtime.EnvironmentManager;
+import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 
 import java.util.Collection;
 
@@ -17,16 +19,21 @@ import java.util.Collection;
  * User: ALB
  */
 @RestController
-@RequestMapping("/api/v1/envs")
+@RequestMapping(EnvsController.PATH)
 public class EnvsController extends AbstractController {
+
+    public static final String PATH = "/api/v1/envs";
 
     private static final Logger logger = LoggerFactory.getLogger(EnvsController.class);
 
     private final EnvironmentManager environmentManager;
 
+    private final ApplicationConfigurationManager applicationConfigurationManager;
+
     @Autowired
-    public EnvsController(EnvironmentManager environmentManager) {
+    public EnvsController(EnvironmentManager environmentManager, ApplicationConfigurationManager applicationConfigurationManager) {
         this.environmentManager = environmentManager;
+        this.applicationConfigurationManager = applicationConfigurationManager;
     }
 
     // For the use of verbs in this controller see:
@@ -34,8 +41,8 @@ public class EnvsController extends AbstractController {
     // - http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
 
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<String> createEnvironemntConfiguration(@RequestBody String environmentConfiguration) throws DenvException {
-            String resourceId = null;
+    public @ResponseBody ResponseEntity<String> createEnvironment(@RequestBody String applicationConfiguration) throws DenvException {
+        String resourceId = null;
             /*SSOUPUtil.generateObjectId();
             String resourceUri = SSOUPUtil.buildObjectUri(resourceType, resourceId);
             OntResource metaInfo = SSOUPUtil.getResourceByType(resourceModel, Ssoup.MetaInfo);

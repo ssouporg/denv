@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.application.ServiceConfiguration;
-import org.ssoup.denv.server.domain.container.ContainerizationException;
-import org.ssoup.denv.server.domain.container.AbstractContainerManager;
-import org.ssoup.denv.server.domain.container.Container;
-import org.ssoup.denv.server.domain.container.Image;
-import org.ssoup.denv.server.domain.container.ImageManager;
-import org.ssoup.denv.server.domain.environment.Environment;
+import org.ssoup.denv.server.domain.conf.application.VolumeConfiguration;
+import org.ssoup.denv.server.exception.ContainerizationException;
+import org.ssoup.denv.server.service.runtime.container.AbstractContainerManager;
+import org.ssoup.denv.server.domain.runtime.container.Container;
+import org.ssoup.denv.server.domain.runtime.container.Image;
+import org.ssoup.denv.server.service.runtime.container.ImageManager;
+import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
 import org.ssoup.denv.server.service.versioning.VersioningPolicy;
@@ -92,7 +92,7 @@ public class DockerContainerManager extends AbstractContainerManager {
     }
 
     @Override
-    public Container createContainer(Environment env, String containerName, Image image, String command, Integer[] ports, ServiceConfiguration.VolumeInfo[] volumes) throws ContainerizationException {
+    public Container createContainer(Environment env, String containerName, Image image, String command, Integer[] ports, VolumeConfiguration[] volumes) throws ContainerizationException {
         ContainerCreateResponse containerCreateResponse = null;
         ContainerInspectResponse containerInspectResponse = null;
         try {
@@ -113,8 +113,8 @@ public class DockerContainerManager extends AbstractContainerManager {
             createContainerConfig.withTty(false);
             List<Volume> volumesList = new ArrayList<Volume>();
             if (volumes != null) {
-                for (ServiceConfiguration.VolumeInfo volumeInfo : volumes) {
-                    volumesList.add(new Volume(volumeInfo.getName()));
+                for (VolumeConfiguration volumeConfiguration : volumes) {
+                    volumesList.add(new Volume(volumeConfiguration.getPath()));
                     
                 }
             }

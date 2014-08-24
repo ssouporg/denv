@@ -1,8 +1,8 @@
 package org.ssoup.denv.server.service.naming;
 
 import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.application.Application;
-import org.ssoup.denv.server.domain.environment.Environment;
+import org.ssoup.denv.server.domain.runtime.application.Application;
+import org.ssoup.denv.server.domain.runtime.environment.Environment;
 
 /**
  * User: ALB

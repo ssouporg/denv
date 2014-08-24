@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>denv</groupId>
+            <artifactId>denv-server-panamax</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>denv</groupId>
             <artifactId>denv-server-fig</artifactId>
             <version>${version}</version>
         </dependency>

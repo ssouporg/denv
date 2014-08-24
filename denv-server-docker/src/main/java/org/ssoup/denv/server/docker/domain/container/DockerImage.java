@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.docker.domain.container;
 
-import org.ssoup.denv.server.domain.container.Image;
+import org.ssoup.denv.server.domain.runtime.container.Image;
 
 /**
  * User: ALB

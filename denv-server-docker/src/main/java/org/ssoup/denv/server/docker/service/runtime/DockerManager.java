@@ -5,11 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.server.domain.container.ContainerManager;
-import org.ssoup.denv.server.domain.container.ImageManager;
-import org.ssoup.denv.server.domain.application.ApplicationFactory;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
-import org.ssoup.denv.server.service.runtime.AbstractApplicationManager;
+import org.ssoup.denv.server.service.runtime.application.AbstractApplicationManager;
+import org.ssoup.denv.server.service.runtime.container.ContainerManager;
+import org.ssoup.denv.server.service.runtime.container.ImageManager;
 
 /**
  * User: ALB
@@ -23,8 +22,8 @@ public class DockerManager extends AbstractApplicationManager {
     private DockerClient dockerClient;
 
     @Autowired
-    public DockerManager(ImageManager imageManager, ContainerManager containerManager, ApplicationFactory applicationFactory, NamingStrategy namingStrategy) {
-        super(imageManager, containerManager, applicationFactory, namingStrategy);
+    public DockerManager(ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+        super(imageManager, containerManager, namingStrategy);
         // this.dockerClient = new DockerClient(dockerEnvironmentConfiguration.getDockerAddress());
     }
 

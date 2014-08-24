@@ -16,6 +16,7 @@
         <module>denv-server-fig</module>
         <module>denv-server-rundeck</module>
         <module>denv-server-integration-test</module>
+        <module>denv-server-panamax</module>
     </modules>
 
     <dependencyManagement>
