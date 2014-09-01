@@ -7,9 +7,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.ssoup.denv.common.api.DenvApiEndpoints;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.DenvApplicationConfiguration;
 import org.ssoup.denv.server.api.AbstractController;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.application.DenvApplicationConfiguration;
 import org.ssoup.denv.server.exception.DenvException;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 
@@ -19,10 +20,8 @@ import java.util.Collection;
  * User: ALB
  */
 @RestController
-@RequestMapping(AppsConfigsController.PATH)
+@RequestMapping(DenvApiEndpoints.APPS_CONFIGS)
 public class AppsConfigsController extends AbstractController {
-
-    public static final String PATH = "/api/v1/apps/configs";
 
     private static final Logger logger = LoggerFactory.getLogger(AppsConfigsController.class);
 
@@ -35,7 +34,7 @@ public class AppsConfigsController extends AbstractController {
 
     // For the use of verbs in this controller see:
     // - http://stackoverflow.com/questions/630453/put-vs-post-in-rest
-    // - http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
+    // - http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-common
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<String> createApplicationConfiguration(
             @RequestBody DenvApplicationConfiguration appConfig
@@ -43,7 +42,7 @@ public class AppsConfigsController extends AbstractController {
         applicationConfigurationManager.registerApplicationConfiguration(appConfig);
 
         HttpHeaders responseHeaders = defaultResponseHeaders();
-        responseHeaders.set("Location", AppsConfigsController.PATH + "/" + appConfig.getName());
+        responseHeaders.set("Location", DenvApiEndpoints.APPS_CONFIGS + "/" + appConfig.getName());
         return new ResponseEntity<String>(appConfig.getName(), responseHeaders, HttpStatus.CREATED);
     }
 

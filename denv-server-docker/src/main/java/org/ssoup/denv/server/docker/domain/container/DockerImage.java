@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.docker.domain.container;
 
+import org.ssoup.denv.common.model.application.ImageConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 
 /**
@@ -11,9 +12,11 @@ public class DockerImage implements Image {
     private String id;
     private String name;
     private String tag;
-    private com.github.dockerjava.client.model.Image dockerImage;
+    private com.github.dockerjava.api.model.Image dockerImage;
+    private ImageConfiguration conf;
 
-    public DockerImage(com.github.dockerjava.client.model.Image dockerImage) {
+    public DockerImage(ImageConfiguration imageConf, com.github.dockerjava.api.model.Image dockerImage) {
+        this.conf = imageConf;
         this.dockerImage = dockerImage;
         this.id = this.dockerImage.getId();
         String[] toks = this.dockerImage.getRepoTags()[0].split(":");
@@ -36,7 +39,11 @@ public class DockerImage implements Image {
         return tag;
     }
 
-    public com.github.dockerjava.client.model.Image getDockerImage() {
+    public com.github.dockerjava.api.model.Image getDockerImage() {
         return dockerImage;
+    }
+
+    public ImageConfiguration getConf() {
+        return conf;
     }
 }

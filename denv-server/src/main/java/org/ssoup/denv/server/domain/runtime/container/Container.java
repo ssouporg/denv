@@ -1,6 +1,7 @@
 package org.ssoup.denv.server.domain.runtime.container;
 
-import org.ssoup.denv.server.domain.conf.application.VolumeConfiguration;
+import org.ssoup.denv.common.model.application.LinkConfiguration;
+import org.ssoup.denv.common.model.application.VolumeConfiguration;
 
 import java.util.Map;
 
@@ -18,8 +19,6 @@ public interface Container {
     String getHostname();
 
     Map<Integer, Integer> getPortMapping();
-
-    VolumeConfiguration[] getVolumes();
 
     Image getImage();
 

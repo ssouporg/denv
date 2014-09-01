@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.domain.runtime.application;
 
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 
 import java.util.Collection;
@@ -23,13 +23,13 @@ public class DenvApplication implements Application {
     }
 
     @Override
-    public void registerContainer(String imageType, Container container) {
-        this.containers.put(imageType, container);
+    public void registerContainer(String imageName, Container container) {
+        this.containers.put(imageName, container);
     }
 
     @Override
-    public Container getContainer(String imageType) {
-        return this.containers.get(imageType);
+    public Container getContainer(String imageName) {
+        return this.containers.get(imageName);
     }
 
     @Override

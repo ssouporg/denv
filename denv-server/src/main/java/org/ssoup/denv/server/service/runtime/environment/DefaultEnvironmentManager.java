@@ -3,7 +3,9 @@ package org.ssoup.denv.server.service.runtime.environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.server.domain.conf.node.NodeConfiguration;
+import org.ssoup.denv.common.model.environment.DenvEnvironmentConfiguration;
+import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;
@@ -12,6 +14,8 @@ import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.event.EnvsEvent;
 import org.ssoup.denv.server.event.EnvsEventHandler;
 import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.server.service.conf.node.NodeManager;
 import org.ssoup.denv.server.service.naming.ContainerEnvsInfo;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
 import org.ssoup.denv.server.service.runtime.application.ApplicationManager;
@@ -30,7 +34,11 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
     // used to generate next env id
     private int maxEnvironmentIdInUse = 0;
 
+    private NodeManager nodeManager;
+
     private NamingStrategy namingStrategy;
+
+    private ApplicationConfigurationManager applicationConfigurationManager;
 
     private ApplicationManager applicationManager;
 
@@ -41,8 +49,10 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
     private List<EnvsEventHandler> eventHandlers = new ArrayList<EnvsEventHandler>();
 
     @Autowired
-    public DefaultEnvironmentManager(NamingStrategy namingStrategy, ApplicationManager applicationManager, ContainerManager containerManager) {
+    public DefaultEnvironmentManager(NodeManager nodeManager, NamingStrategy namingStrategy, ApplicationConfigurationManager applicationConfigurationManager, ApplicationManager applicationManager, ContainerManager containerManager) {
+        this.nodeManager = nodeManager;
         this.namingStrategy = namingStrategy;
+        this.applicationConfigurationManager = applicationConfigurationManager;
         this.applicationManager = applicationManager;
         this.containerManager = containerManager;
     }
@@ -60,11 +70,13 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
                 if (env == null) {
                     Image image = container.getImage();
                     String version = image.getTag();
-                    env = register(envId, version, node);
+                    String appConfName = ""; // TODO
+                    EnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(new String[]{}, appConfName);
+                    env = registerEnvironment(envId, envConf, node);
                 }
                 Application application = containerInfo.getApp();
                 if (application == null) {
-                    application = applicationManager.createApplication(env, containerInfo.getAppConf());
+                    application = applicationManager.createApplication(env);
                     env.registerApp(application);
                 }
                 application.registerContainer(containerInfo.getImageType(), container);
@@ -73,32 +85,40 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
     }
 
     @Override
-    public Environment create(String version, NodeConfiguration node) throws DenvException {
-        String envId = generateEnvironmentId();
-        Environment environment = register(envId, version, node);
-        applicationManager.createApplications(environment);
-        return environment;
+    public Environment createEnvironment(EnvironmentConfiguration envConf) throws DenvException {
+        return createEnvironment(envConf, nodeManager.getDefaultNode());
     }
 
     @Override
-    public void start(Environment env) throws DenvException {
-        applicationManager.startApplications(env);
+    public Environment createEnvironment(EnvironmentConfiguration envConf, NodeConfiguration node) throws DenvException {
+        String envId = generateEnvironmentId();
+        Environment env = registerEnvironment(envId, envConf, node);
+        applicationManager.createApplication(env);
+        return env;
     }
+
     @Override
-    public void stop(Environment env) throws DenvException {
-        applicationManager.stopApplications(env);
+    public void startEnvironment(Environment env) throws DenvException {
+        applicationManager.startApplication(env, env.getApplication());
     }
+
     @Override
-    public void delete(Environment env) throws DenvException {
-        applicationManager.deleteApplications(env);
+    public void stopEnvironment(Environment env) throws DenvException {
+        applicationManager.stopApplication(env, env.getApplication());
     }
+
     @Override
-    public Environment register(String envId, String version, NodeConfiguration node) throws DenvException {
+    public void deleteEnvironment(Environment env) throws DenvException {
+        applicationManager.deleteApplication(env, env.getApplication());
+    }
+
+    @Override
+    public Environment registerEnvironment(String envId, EnvironmentConfiguration envConf, NodeConfiguration node) throws DenvException {
         int intEnvId = Integer.parseInt(envId);
         if (intEnvId > maxEnvironmentIdInUse) {
             maxEnvironmentIdInUse = intEnvId;
         }
-        Environment environment = new DenvEnvironment(envId, version, node);
+        Environment environment = new DenvEnvironment(envId, envConf, node);
         getEnvironments().put(envId, environment);
         return environment;
     }

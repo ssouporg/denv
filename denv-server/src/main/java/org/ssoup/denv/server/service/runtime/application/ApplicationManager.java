@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.runtime.application;
 
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.service.runtime.container.ContainerManager;
@@ -19,14 +19,7 @@ public interface ApplicationManager {
     ImageManager getImageManager();
     ContainerManager getContainerManager();
 
-    void createApplications(Environment env) throws DenvException;
-
-    void startApplications(Environment environment) throws DenvException;
-    void stopApplications(Environment environment) throws ContainerizationException;
-
-    void deleteApplications(Environment env) throws DenvException;
-
-    Application createApplication(Environment env, ApplicationConfiguration appConf) throws DenvException;
+    Application createApplication(Environment env) throws DenvException;
 
     void startApplication(Environment env, Application application) throws DenvException;
 

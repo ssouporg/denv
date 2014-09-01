@@ -1,12 +1,9 @@
 package org.ssoup.denv.server.domain.runtime.environment;
 
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
-import org.ssoup.denv.server.domain.conf.node.NodeConfiguration;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: ALB
@@ -14,18 +11,15 @@ import java.util.Map;
  */
 public class DenvEnvironment implements Environment {
 
-    private NodeConfiguration node;
-
     private String id;
-    private String version;
+    private NodeConfiguration node;
+    private EnvironmentConfiguration environmentConfiguration;
+    private Application app;
 
-    private Map<String, ApplicationConfiguration> applicationConfigurationMap = new HashMap<String, ApplicationConfiguration>();
-    private Map<String, Application> apps = new HashMap<String, Application>();
-
-    public DenvEnvironment(String id, String version, NodeConfiguration node) {
+    public DenvEnvironment(String id, EnvironmentConfiguration environmentConfiguration, NodeConfiguration node) {
         this.node = node;
+        this.environmentConfiguration = environmentConfiguration;
         this.id = id;
-        this.version = version;
     }
 
     @Override
@@ -39,33 +33,23 @@ public class DenvEnvironment implements Environment {
     }
 
     @Override
-    public String getVersion() {
-        return version;
+    public EnvironmentConfiguration getEnvironmentConfiguration() {
+        return environmentConfiguration;
     }
 
     @Override
-    public ApplicationConfiguration getApplicationConfiguration(String applicationName) {
-        return applicationConfigurationMap.get(applicationName);
+    public ApplicationConfiguration getApplicationConfiguration() {
+        return environmentConfiguration.getApplicationConfiguration();
     }
 
     @Override
-    public Collection<ApplicationConfiguration> getApplicationConfigurations() {
-        return applicationConfigurationMap.values();
-    }
-
-    @Override
-    public Application getApplication(String appName) {
-        return apps.get(appName);
+    public Application getApplication() {
+        return app;
     }
 
     @Override
     public void registerApp(Application app) {
-        apps.put(app.getName(), app);
-    }
-
-    @Override
-    public Collection<Application> getApplications() {
-        return apps.values();
+        this.app = app;
     }
 
     public void setId(String id) {

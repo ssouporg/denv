@@ -2,9 +2,14 @@ package org.ssoup.denv.server.service.runtime.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ImageConfiguration;
+import org.ssoup.denv.common.model.application.LinkConfiguration;
+import org.ssoup.denv.common.model.application.PortConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
+import org.ssoup.denv.server.domain.runtime.application.DenvApplication;
 import org.ssoup.denv.server.domain.runtime.container.Container;
+import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.exception.DenvException;
@@ -43,50 +48,18 @@ public abstract class AbstractApplicationManager implements ApplicationManager {
     }
 
     @Override
-    public void createApplications(Environment env) throws DenvException {
-        for (ApplicationConfiguration appConf : env.getApplicationConfigurations()) {
-            this.createApplication(env, appConf);
-        }
-    }
-
-    @Override
-    public void startApplications(Environment env) throws DenvException {
-        for (Application application : env.getApplications()) {
-            this.startApplication(env, application);
-        }
-    }
-
-    @Override
-    public void stopApplications(Environment env) throws ContainerizationException {
-        for (Application application : env.getApplications()) {
-            this.stopApplication(env, application);
-        }
-    }
-
-    @Override
-    public void deleteApplications(Environment env) throws DenvException {
-        for (Application application : env.getApplications()) {
-            this.deleteApplication(env, application);
-        }
-    }
-
-    @Override
-    public Application createApplication(Environment env, ApplicationConfiguration appConf) throws DenvException {
-        /*Application newApplication = applicationFactory.createApplication(appConf.getName(), appConf);
-        for (ServiceConfiguration serviceConf : appConf.()) {
-            Image image = imageManager.findOrBuildImage(env, appConf, serviceConf.getImage());
-            String command = getCmd(env, serviceConf);
-            String containerName = namingStrategy.generateContainerName(env, appConf, serviceConf.getImage());
-            Container container = containerManager.createContainer(
-                    env, containerName, image, command,
-                    serviceConf.getPorts() != null ? serviceConf.getPorts().values().toArray(new Integer[0]) : null,
-                    serviceConf.getVolumeInfos()
-            );
-            newApplication.registerContainer(serviceConf.getImage(), container);
+    public Application createApplication(Environment env) throws DenvException {
+        ApplicationConfiguration appConf = env.getApplicationConfiguration();
+        Application newApplication = new DenvApplication(appConf.getName(), appConf);
+        for (ImageConfiguration imageConf : appConf.getImages()) {
+            Image image = imageManager.findOrBuildImage(env, imageConf);
+            String command = null; // getCmd(env, serviceConf);
+            String containerName = namingStrategy.generateContainerName(env, imageConf.getName());
+            Container container = containerManager.createContainer(env, containerName, imageConf, image, command);
+            newApplication.registerContainer(imageConf.getName(), container);
         }
         env.registerApp(newApplication);
-        return newApplication;*/
-        return null;
+        return newApplication;
     }
 
     /*private String getCmd(Environment env, ImageConfiguration imageConfiguration) {
@@ -98,16 +71,55 @@ public abstract class AbstractApplicationManager implements ApplicationManager {
     }*/
 
     @Override
-    public void startApplication(Environment env, Application application) throws DenvException {
-        for (Container container : application.getContainers()) {
-            containerManager.startContainer(env, container);
-        }
+    public void startApplication(Environment env, Application app) throws DenvException {
+        // start all containers in order of dependencies
+        boolean allContainersStarted = false;
+        while (!allContainersStarted) {
+            allContainersStarted = true;
+            for (Container container : app.getContainers()) {
+                if (container.isRunning()) {
+                    continue;
+                }
 
+                boolean allLinkedContainersStarted = true;
+                ImageConfiguration imageConf = container.getImage().getConf();
+                if (imageConf.getLinks() != null) {
+                    for (LinkConfiguration link : imageConf.getLinks()) {
+                        Container linkedContainer = app.getContainer(link.getService());
+                        if (linkedContainer == null) {
+                            throw new DenvException("Could not find container for image " + link.getService());
+                        }
+                        if (!linkedContainer.isRunning()) {
+                            allLinkedContainersStarted = false;
+                            break;
+                        }
+                        /*
+                        ImageConfiguration linkedImageConf = app.getConf().getImageConfigurationByName(link.getService());
+                        for (PortConfiguration port : linkedImageConf.getPorts()) {
+                            if (!containerManager.isContainerListeningOnPort(linkedContainer, port)) {
+                                allLinkedContainersStarted = false;
+                                break;
+                            }
+                        }*/
+                    }
+                }
+                if (allLinkedContainersStarted) {
+                    containerManager.startContainer(env, container);
+                    allContainersStarted = false;
+                }
+            }
+            if (!allContainersStarted) {
+                try {
+                    Thread.sleep(5000); // allow 5 seconds for dependent containers to start
+                } catch (InterruptedException e) {
+                }
+            }
+        }
     }
 
     @Override
-    public void stopApplication(Environment env, Application application) throws ContainerizationException {
-        for (Container container : application.getContainers()) {
+    public void stopApplication(Environment env, Application app) throws ContainerizationException {
+        for (Container container : app.getContainers()) {
             containerManager.stopContainer(env, container);
         }
     }

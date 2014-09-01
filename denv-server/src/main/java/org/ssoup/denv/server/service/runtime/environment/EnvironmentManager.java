@@ -1,6 +1,7 @@
 package org.ssoup.denv.server.service.runtime.environment;
 
-import org.ssoup.denv.server.domain.conf.node.NodeConfiguration;
+import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.event.EnvsEventHandler;
 import org.ssoup.denv.server.exception.DenvException;
@@ -15,15 +16,17 @@ public interface EnvironmentManager {
 
     void registerExistingEnvironments() throws DenvException;
 
-    Environment create(String version, NodeConfiguration node) throws DenvException;
+    Environment createEnvironment(EnvironmentConfiguration envConf) throws DenvException;
 
-    void start(Environment env) throws DenvException;
+    Environment createEnvironment(EnvironmentConfiguration envConf, NodeConfiguration node) throws DenvException;
 
-    void stop(Environment env) throws DenvException;
+    void startEnvironment(Environment env) throws DenvException;
 
-    void delete(Environment env) throws DenvException;
+    void stopEnvironment(Environment env) throws DenvException;
 
-    Environment register(String envId, String version, NodeConfiguration node) throws DenvException;
+    void deleteEnvironment(Environment env) throws DenvException;
+
+    Environment registerEnvironment(String envId, EnvironmentConfiguration environmentConfiguration, NodeConfiguration node) throws DenvException;
 
     Collection<Environment> listEnvironments() throws DenvException;
 

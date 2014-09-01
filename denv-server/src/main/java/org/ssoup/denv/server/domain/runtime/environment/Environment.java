@@ -1,29 +1,24 @@
 package org.ssoup.denv.server.domain.runtime.environment;
 
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.node.NodeConfiguration;
-
-import java.util.Collection;
 
 /**
  * User: ALB
  * Date: 27/02/14 09:08
  */
 public interface Environment {
-    String getVersion();
-
     String getId();
+
+    EnvironmentConfiguration getEnvironmentConfiguration();
 
     NodeConfiguration getNode();
 
-    ApplicationConfiguration getApplicationConfiguration(String applicationName);
+    ApplicationConfiguration getApplicationConfiguration();
 
-    Collection<ApplicationConfiguration> getApplicationConfigurations();
-
-    Application getApplication(String appName);
+    Application getApplication();
 
     void registerApp(Application app);
-
-    Collection<Application> getApplications();
 }

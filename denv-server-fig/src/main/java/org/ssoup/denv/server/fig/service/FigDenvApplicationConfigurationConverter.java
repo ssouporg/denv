@@ -2,8 +2,8 @@ package org.ssoup.denv.server.fig.service;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.application.DenvApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.DenvApplicationConfiguration;
 import org.ssoup.denv.server.fig.domain.conf.FigApplicationConfiguration;
 import org.ssoup.denv.server.fig.domain.conf.FigServiceConfiguration;
 

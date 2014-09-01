@@ -2,8 +2,8 @@ package org.ssoup.denv.server.panamax.service;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.application.DenvApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.DenvApplicationConfiguration;
 import org.ssoup.denv.server.panamax.domain.conf.PanamaxApplicationConfiguration;
 
 import java.util.ArrayList;

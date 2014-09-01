@@ -1,12 +1,13 @@
 package org.ssoup.denv.server.service.runtime.container;
 
-import org.ssoup.denv.server.domain.runtime.container.Image;
-import org.ssoup.denv.server.service.admin.AdminClient;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ImageConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
+import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.server.service.admin.AdminClient;
+import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
 import org.ssoup.denv.server.service.versioning.VersioningPolicy;
 
@@ -32,24 +33,29 @@ public abstract class AbstractImageManager implements ImageManager {
     }
 
     @Override
-    public Image findOrBuildImage(Environment env, ApplicationConfiguration appConf, String imageType) throws DenvException {
-        Image image = this.findImage(env, appConf, imageType);
-        /* TODO
+    public Image findOrBuildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
+        Image image = this.findImage(env, imageConf);
         if (image == null) {
-            Image baseImage = this.findImage(config.getString("baseImage"));
-            // A) Go via Rundeck
-                // run a command to keep container alive
-                String[] command = new String[]{"tail", "-F", "/var/log/dmesg"};
-                String containerName = getNamingStrategy().generateContainerName(env, appConf, imageType);
-                Container container = getContainerManager().createContainer(env, containerName, baseImage, command, null, null);
-                adminClient.deployApplication(container.getHostname(), appConf);
-            // or B)
-                // String[] command = new String[]{"apt-get", "install", "synaptiq-sqo=" + application.getVersion()};
-                // Container container = containerizationManager.startNewContainer(env, baseImage, command);
-            getContainerManager().saveContainerAsApplicationImage(env, container, appConf, "Web");
-            return this.findImage(env, appConf, imageType);
-        }*/
+            image = buildImage(env, imageConf);
+        }
         return image;
+    }
+
+    protected Image buildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
+        /*
+        Image baseImage = this.findImage(config.getString("baseImage"));
+        // A) Go via Rundeck
+            // run a command to keep container alive
+            String[] command = new String[]{"tail", "-F", "/var/log/dmesg"};
+            String containerName = getNamingStrategy().generateContainerName(env, appConf, imageType);
+            Container container = getContainerManager().createContainer(env, containerName, baseImage, command, null, null);
+            adminClient.deployApplication(container.getHostname(), appConf);
+        // or B)
+            // String[] command = new String[]{"apt-get", "install", "synaptiq-sqo=" + application.getVersion()};
+            // Container container = containerizationManager.startNewContainer(env, baseImage, command);
+        getContainerManager().saveContainerAsApplicationImage(env, container, appConf, "Web");
+        */
+        return this.findImage(env, imageConf);
     }
 
     protected ImageInfo extractImageInfoFromName(String imageName) throws DenvException {

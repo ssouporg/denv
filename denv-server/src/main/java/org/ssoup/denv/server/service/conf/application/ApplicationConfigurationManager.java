@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.conf.application;
 
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 
 import java.util.Collection;
 

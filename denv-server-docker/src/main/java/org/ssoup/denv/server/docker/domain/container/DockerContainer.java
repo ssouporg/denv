@@ -1,10 +1,9 @@
 package org.ssoup.denv.server.docker.domain.container;
 
-import com.github.dockerjava.client.model.ContainerCreateResponse;
-import com.github.dockerjava.client.model.ContainerInspectResponse;
-import com.github.dockerjava.client.model.ExposedPort;
-import com.github.dockerjava.client.model.Ports;
-import org.ssoup.denv.server.domain.conf.application.VolumeConfiguration;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Ports;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 
@@ -16,27 +15,25 @@ import java.util.Map;
  * Date: 09/01/14 11:21
  */
 public class DockerContainer implements Container {
-
     private String id;
     private String[] names;
     private Image image;
 
     private String hostname;
     private Map<Integer, Integer> portMapping;
-    private VolumeConfiguration[] volumes ;
-    private ContainerCreateResponse containerCreateResponse;
-    private ContainerInspectResponse containerInspectResponse;
+
+    private CreateContainerResponse containerCreateResponse;
+    private InspectContainerResponse containerInspectResponse;
 
     private boolean running;
 
-    public DockerContainer(ContainerCreateResponse containerCreateResponse, ContainerInspectResponse containerInspectResponse, Image image , VolumeConfiguration[] volumes) {
+    public DockerContainer(CreateContainerResponse containerCreateResponse, InspectContainerResponse containerInspectResponse, Image image) {
         this.containerCreateResponse = containerCreateResponse;
         this.containerInspectResponse = containerInspectResponse;
         this.id = this.containerCreateResponse.getId();
         this.image = image;
         this.running = this.containerInspectResponse.getState().isRunning();
         fillPortMapping(containerInspectResponse);
-        this.volumes = volumes;
     }
 
     public DockerContainer(String id, Image image, boolean running) {
@@ -45,7 +42,7 @@ public class DockerContainer implements Container {
         this.running = running;
     }
 
-    public DockerContainer(com.github.dockerjava.client.model.Container dockerContainer, ContainerInspectResponse containerInspectResponse, Image image) {
+    public DockerContainer(com.github.dockerjava.api.model.Container dockerContainer, InspectContainerResponse containerInspectResponse, Image image) {
         this.containerInspectResponse = containerInspectResponse;
         this.id = dockerContainer.getId();
         if (dockerContainer.getNames() != null) {
@@ -59,7 +56,7 @@ public class DockerContainer implements Container {
         fillPortMapping(containerInspectResponse);
     }
 
-    private void fillPortMapping(ContainerInspectResponse containerInspectResponse) {
+    private void fillPortMapping(InspectContainerResponse containerInspectResponse) {
         this.portMapping = new HashMap<Integer, Integer>();
         if (containerInspectResponse.getNetworkSettings() != null && containerInspectResponse.getNetworkSettings().getPorts() != null) {
             Ports ports = containerInspectResponse.getNetworkSettings().getPorts();
@@ -115,10 +112,6 @@ public class DockerContainer implements Container {
         this.hostname = hostname;
     }
 
-    public VolumeConfiguration[] getVolumes() {
-        return volumes;
-    }
-
     @Override
     public Map<Integer, Integer> getPortMapping() {
         return portMapping;
@@ -126,5 +119,9 @@ public class DockerContainer implements Container {
 
     public void setPortMapping(Map<Integer, Integer> portMapping) {
         this.portMapping = portMapping;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

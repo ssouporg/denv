@@ -1,6 +1,5 @@
 package org.ssoup.denv.server.docker.service.runtime;
 
-import com.github.dockerjava.client.DockerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,6 @@ import org.ssoup.denv.server.service.runtime.container.ImageManager;
 public class DockerManager extends AbstractApplicationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DockerManager.class);
-
-    private DockerClient dockerClient;
 
     @Autowired
     public DockerManager(ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {

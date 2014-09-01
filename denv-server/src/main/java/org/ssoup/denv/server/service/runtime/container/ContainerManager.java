@@ -1,7 +1,6 @@
 package org.ssoup.denv.server.service.runtime.container;
 
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.conf.application.VolumeConfiguration;
+import org.ssoup.denv.common.model.application.*;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.domain.runtime.container.Image;
@@ -21,9 +20,9 @@ public interface ContainerManager {
 
     List<Container> getAllRunningContainers() throws ContainerizationException;
 
-    Container findContainer(Environment env, String containerName) throws DenvException;
+    Container findContainer(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
 
-    Container createContainer(Environment env, String containerName, Image image, String command, Integer[] ports, VolumeConfiguration[] volumes) throws ContainerizationException;
+    Container createContainer(Environment env, String containerName, ImageConfiguration imageConf, Image image, String command) throws ContainerizationException;
 
     Container startContainer(Environment env, Container container) throws ContainerizationException;
 
@@ -38,4 +37,6 @@ public interface ContainerManager {
     InputStream getResource(Container container, String resourcePath) throws ContainerizationException;
 
     InputStream getFolder(Container container, String folderPath) throws ContainerizationException;
+
+    boolean isContainerListeningOnPort(Container linkedContainer, PortConfiguration port);
 }

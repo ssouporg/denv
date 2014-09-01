@@ -11,6 +11,7 @@
 
     <artifactId>denv-cli</artifactId>
     <version>${parent.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

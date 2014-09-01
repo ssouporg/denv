@@ -22,7 +22,7 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.ssoup.denv.server.api.converter.AbstractDenvYamlMessageConverter;
+import org.ssoup.denv.common.converter.AbstractDenvYamlMessageConverter;
 import org.ssoup.denv.server.fig.domain.conf.FigApplicationConfiguration;
 import org.ssoup.denv.server.fig.domain.conf.FigServiceConfiguration;
 import org.yaml.snakeyaml.Yaml;

@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.ssoup.denv.common.api.DenvApiEndpoints;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.environment.DenvEnvironmentConfiguration;
 import org.ssoup.denv.server.api.AbstractController;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 
 import java.util.Collection;
@@ -19,10 +21,8 @@ import java.util.Collection;
  * User: ALB
  */
 @RestController
-@RequestMapping(EnvsController.PATH)
+@RequestMapping(DenvApiEndpoints.ENVS)
 public class EnvsController extends AbstractController {
-
-    public static final String PATH = "/api/v1/envs";
 
     private static final Logger logger = LoggerFactory.getLogger(EnvsController.class);
 
@@ -38,48 +38,22 @@ public class EnvsController extends AbstractController {
 
     // For the use of verbs in this controller see:
     // - http://stackoverflow.com/questions/630453/put-vs-post-in-rest
-    // - http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
-
+    // - http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-common
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<String> createEnvironment(@RequestBody String applicationConfiguration) throws DenvException {
-        String resourceId = null;
-            /*SSOUPUtil.generateObjectId();
-            String resourceUri = SSOUPUtil.buildObjectUri(resourceType, resourceId);
-            OntResource metaInfo = SSOUPUtil.getResourceByType(resourceModel, Ssoup.MetaInfo);
-            if (metaInfo == null) {
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-            }
-            Resource resource = metaInfo.getPropertyResourceValue(Ssoup.main_object);
-            if (resource == null) {
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-            }
-            ResourceUtils.renameResource(resource, resourceUri);
-            crudService.createResource(resourceType, resourceId, resourceModel);
-            HttpHeaders responseHeaders = defaultResponseHeaders();
-            responseHeaders.set("Location", resourceUri);
-            return new ResponseEntity<String>(resourceId, responseHeaders, HttpStatus.CREATED);
-        } catch (ResourceNotFoundException ex) {
-            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
-        }*/
-        return null;
+    public @ResponseBody ResponseEntity<String> createEnvironment
+        (@RequestBody DenvEnvironmentConfiguration environmentConfiguration) throws DenvException {
+        if (environmentConfiguration.getApplicationConfigurationName() != null) {
+            ApplicationConfiguration applicationConfiguration =
+                    applicationConfigurationManager.getApplicationConfiguration(environmentConfiguration.getApplicationConfigurationName());
+            environmentConfiguration.setApplicationConfiguration(applicationConfiguration);
+        }
+        Environment env = environmentManager.createEnvironment(environmentConfiguration);
+        environmentManager.startEnvironment(env);
+        return new ResponseEntity<String>(env.getId(), HttpStatus.OK);
     }
 
     /*@RequestMapping(method = RequestMethod.PUT, value = "/{resourceId}")
     public ResponseEntity<Void> createOrUpdateNamedResource(@PathVariable String resourceRestName, @PathVariable String resourceId, @RequestBody Model resourceModel) throws SSOUPException {
-        OntClass resourceType = ssoupService.findClassWithRestName(resourceRestName);
-        try {
-            if (ssoupService.resourceExists(resourceType, resourceId)) {
-                crudService.replaceResource(resourceType, resourceId, resourceModel);
-                return new ResponseEntity<Void>(HttpStatus.OK);
-            } else {
-                String resourceUri = crudService.createResource(resourceType, resourceId, resourceModel);
-                HttpHeaders responseHeaders = defaultResponseHeaders();
-                responseHeaders.set("Location", resourceUri);
-                return new ResponseEntity<Void>(responseHeaders, HttpStatus.CREATED);
-            }
-        } catch (ResourceNotFoundException ex) {
-            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-        }
     }*/
 
     @RequestMapping(method = RequestMethod.GET)
@@ -87,5 +61,13 @@ public class EnvsController extends AbstractController {
     ResponseEntity<Collection<Environment>> listEnvironments() throws DenvException {
         Collection<Environment> envs = environmentManager.listEnvironments();
         return new ResponseEntity<Collection<Environment>>(envs, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{envId}")
+    public @ResponseBody ResponseEntity<Void> deleteEnvironment
+            (@PathVariable String envId) throws DenvException {
+        Environment env = environmentManager.findEnvironment(envId);
+        environmentManager.deleteEnvironment(env);
+        return new ResponseEntity<Void>(HttpStatus.OK);
     }
 }

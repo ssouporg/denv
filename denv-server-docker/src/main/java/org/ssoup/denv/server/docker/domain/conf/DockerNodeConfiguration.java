@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.docker.domain.conf;
 
-import org.ssoup.denv.server.domain.conf.node.AbstractNodeConfiguration;
+import org.ssoup.denv.common.model.node.AbstractNodeConfiguration;
 
 /**
  * User: ALB
@@ -11,6 +11,12 @@ public class DockerNodeConfiguration extends AbstractNodeConfiguration {
     private String name;
     private String dockerHost;
     private int dockerPort = 4243;
+
+    public DockerNodeConfiguration(String name, String dockerHost, int dockerPort) {
+        this.name = name;
+        this.dockerHost = dockerHost;
+        this.dockerPort = dockerPort;
+    }
 
     public String getDockerHost() {
         return dockerHost;

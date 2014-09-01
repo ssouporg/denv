@@ -1,7 +1,7 @@
 package org.ssoup.denv.server.service.versioning;
 
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.server.domain.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 
 /**
@@ -13,6 +13,6 @@ public class IdentityVersioningPolicy implements VersioningPolicy {
 
     @Override
     public String getAppVersion(Environment env, ApplicationConfiguration appConf) {
-        return env.getVersion();
+        return "1.0"; // env.getVersion();
     }
 }
