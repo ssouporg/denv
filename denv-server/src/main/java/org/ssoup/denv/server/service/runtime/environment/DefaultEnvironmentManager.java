@@ -15,6 +15,7 @@ import org.ssoup.denv.server.event.EnvsEvent;
 import org.ssoup.denv.server.event.EnvsEventHandler;
 import org.ssoup.denv.server.exception.DenvException;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.server.service.conf.environment.EnvironmentConfigurationManager;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
 import org.ssoup.denv.server.service.naming.ContainerEnvsInfo;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
@@ -38,6 +39,8 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
 
     private NamingStrategy namingStrategy;
 
+    private EnvironmentConfigurationManager environmentConfigurationManager;
+
     private ApplicationConfigurationManager applicationConfigurationManager;
 
     private ApplicationManager applicationManager;
@@ -49,9 +52,10 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
     private List<EnvsEventHandler> eventHandlers = new ArrayList<EnvsEventHandler>();
 
     @Autowired
-    public DefaultEnvironmentManager(NodeManager nodeManager, NamingStrategy namingStrategy, ApplicationConfigurationManager applicationConfigurationManager, ApplicationManager applicationManager, ContainerManager containerManager) {
+    public DefaultEnvironmentManager(NodeManager nodeManager, NamingStrategy namingStrategy, EnvironmentConfigurationManager environmentConfigurationManager, ApplicationConfigurationManager applicationConfigurationManager, ApplicationManager applicationManager, ContainerManager containerManager) {
         this.nodeManager = nodeManager;
         this.namingStrategy = namingStrategy;
+        this.environmentConfigurationManager = environmentConfigurationManager;
         this.applicationConfigurationManager = applicationConfigurationManager;
         this.applicationManager = applicationManager;
         this.containerManager = containerManager;
@@ -69,9 +73,8 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
                 Environment env = containerInfo.getEnv();
                 if (env == null) {
                     Image image = container.getImage();
-                    String version = image.getTag();
-                    String appConfName = ""; // TODO
-                    EnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(new String[]{}, appConfName);
+                    String envConfId = ""; // TODO
+                    EnvironmentConfiguration envConf = environmentConfigurationManager.getEnvironmentConfiguration(envConfId);
                     env = registerEnvironment(envId, envConf, node);
                 }
                 Application application = containerInfo.getApp();

@@ -1,12 +1,12 @@
 package org.ssoup.denv.server.service.conf.application;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.server.persistence.repository.ApplicationConfigRepository;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: ALB
@@ -16,20 +16,29 @@ import java.util.Map;
 @Scope("singleton")
 public class DenvApplicationConfigurationManager implements ApplicationConfigurationManager {
 
-    private Map<String, ApplicationConfiguration> applicationConfigurationMap = new HashMap<String, ApplicationConfiguration>();
+    private ApplicationConfigRepository applicationConfigRepository;
+
+    @Autowired
+    public DenvApplicationConfigurationManager(ApplicationConfigRepository applicationConfigRepository) {
+        this.applicationConfigRepository = applicationConfigRepository;
+    }
 
     @Override
     public ApplicationConfiguration getApplicationConfiguration(String applicationConfigurationName) {
-        return applicationConfigurationMap.get(applicationConfigurationName);
+        return applicationConfigRepository.findOne(applicationConfigurationName);
     }
 
     @Override
     public Collection<String> listApplicationConfigurationNames() {
-        return applicationConfigurationMap.keySet();
+        List<String> appConfNames = new ArrayList<String>();
+        for (ApplicationConfiguration appConf : applicationConfigRepository.findAll()) {
+            appConfNames.add(appConf.getName());
+        }
+        return appConfNames;
     }
 
     @Override
     public void registerApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
-        applicationConfigurationMap.put(applicationConfiguration.getName(), applicationConfiguration);
+        applicationConfigRepository.save(applicationConfiguration);
     }
 }

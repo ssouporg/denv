@@ -19,6 +19,7 @@
         <module>denv-server-integration-test</module>
         <module>denv-cli</module>
         <module>denv-web</module>
+        <module>denv-server-mongodb</module>
     </modules>
 
     <dependencyManagement>

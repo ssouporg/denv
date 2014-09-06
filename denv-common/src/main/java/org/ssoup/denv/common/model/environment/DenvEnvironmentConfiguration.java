@@ -11,6 +11,7 @@ import java.util.Collection;
  */
 public class DenvEnvironmentConfiguration implements EnvironmentConfiguration {
 
+    private String id;
     private Collection<String> labels;
     private String applicationConfigurationName;
     private ApplicationConfiguration applicationConfiguration;
@@ -18,7 +19,8 @@ public class DenvEnvironmentConfiguration implements EnvironmentConfiguration {
     public DenvEnvironmentConfiguration() {
     }
 
-    public DenvEnvironmentConfiguration(String[] labels, String applicationConfigurationName) {
+    public DenvEnvironmentConfiguration(String id, String[] labels, String applicationConfigurationName) {
+        this.id = id;
         this.labels = Arrays.asList(labels);
         this.applicationConfigurationName = applicationConfigurationName;
     }
@@ -53,5 +55,14 @@ public class DenvEnvironmentConfiguration implements EnvironmentConfiguration {
 
     public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
         this.applicationConfiguration = applicationConfiguration;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>denv</groupId>
+            <artifactId>denv-server-mongodb</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>denv</groupId>
             <artifactId>denv-server-docker</artifactId>
             <version>${version}</version>
         </dependency>

@@ -32,11 +32,18 @@ import static org.junit.Assert.*;
 @SpringApplicationConfiguration(classes = Denv.class)
 @WebAppConfiguration
 @IntegrationTest
-public class BasicTest {
+public class DenvClientTest {
 
-    private Logger logger = LoggerFactory.getLogger(BasicTest.class);
+    private Logger logger = LoggerFactory.getLogger(DenvClientTest.class);
 
+    public static final String FIG_ENV_CONF_ID = "Wordpress Fig - integration";
+    public static final String[] FIG_ENV_CONF_LABELS = {"Fig", "Wordpress", "Integration"};
+    public static final String FIG_ENV_FILE_NAME = "fig/fig_app.yml";
     public static final String FIG_APP_CONF_NAME = "testApp";
+
+    public static final String PANAMAX_ENV_CONF_ID = "Wordpress Panamax - integration";
+    public static final String[] PANAMAX_ENV_CONF_LABELS = {"Panamax", "Wordpress", "Integration"};
+    public static final String PANAMAX_ENV_FILE_NAME = "panamax/panamax_app.pmx";
     public static final String PANAMAX_APP_CONF_NAME = "Wordpress with MySQL";
 
     @Inject
@@ -63,7 +70,7 @@ public class BasicTest {
     @Test
     public void registerFigApp() throws IOException {
         String appName = FIG_APP_CONF_NAME;
-        String figApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("fig_app.yml"));
+        String figApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(FIG_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
         ResponseEntity<String> createResponseEntity = denvClient.sendCreateAppsConfigsFigRequest(appName, figApplicationConfiguration);
         ResponseEntity<Collection> listResponseEntity = denvClient.sendGetAppsConfigsListRequest();
@@ -78,7 +85,7 @@ public class BasicTest {
 
     @Test
     public void registerPanamaxApp() throws IOException {
-        String panamaxApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("panamax_app.pmx"));
+        String panamaxApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(PANAMAX_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
         ResponseEntity<String> createResponseEntity = denvClient.sendCreateAppsConfigsPanamaxRequest(panamaxApplicationConfiguration);
         ResponseEntity<Collection> listResponseEntity = denvClient.sendGetAppsConfigsListRequest();
@@ -97,7 +104,7 @@ public class BasicTest {
 
         String envId = null;
         try {
-            DenvEnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(new String[]{}, FIG_APP_CONF_NAME);
+            DenvEnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_LABELS, FIG_APP_CONF_NAME);
             ResponseEntity<String> createResponseEntity = denvClient.sendCreateEnvRequest(envConf);
             envId = createResponseEntity.getBody();
             assertNotNull(envId);
@@ -114,7 +121,7 @@ public class BasicTest {
 
         String envId = null;
         try {
-            DenvEnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(new String[]{}, PANAMAX_APP_CONF_NAME);
+            DenvEnvironmentConfiguration envConf = new DenvEnvironmentConfiguration(PANAMAX_ENV_CONF_ID, PANAMAX_ENV_CONF_LABELS, PANAMAX_APP_CONF_NAME);
             ResponseEntity<String> createResponseEntity = denvClient.sendCreateEnvRequest(envConf);
             envId = createResponseEntity.getBody();
             assertNotNull(envId);
@@ -132,12 +139,12 @@ public class BasicTest {
 
         String figEnvId = null, panamaxEnvId = null;
         try {
-            DenvEnvironmentConfiguration figEnvConf = new DenvEnvironmentConfiguration(new String[]{}, FIG_APP_CONF_NAME);
+            DenvEnvironmentConfiguration figEnvConf = new DenvEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_LABELS, FIG_APP_CONF_NAME);
             ResponseEntity<String> createFigResponseEntity = denvClient.sendCreateEnvRequest(figEnvConf);
             figEnvId = createFigResponseEntity.getBody();
             assertNotNull(figEnvId);
 
-            DenvEnvironmentConfiguration panamaxEnvConf = new DenvEnvironmentConfiguration(new String[]{}, PANAMAX_APP_CONF_NAME);
+            DenvEnvironmentConfiguration panamaxEnvConf = new DenvEnvironmentConfiguration(PANAMAX_ENV_CONF_ID, PANAMAX_ENV_CONF_LABELS, PANAMAX_APP_CONF_NAME);
             ResponseEntity<String> createPanamaxResponseEntity = denvClient.sendCreateEnvRequest(panamaxEnvConf);
             panamaxEnvId = createPanamaxResponseEntity.getBody();
             assertNotNull(panamaxEnvId);

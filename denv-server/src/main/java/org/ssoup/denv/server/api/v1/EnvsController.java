@@ -13,6 +13,7 @@ import org.ssoup.denv.server.api.AbstractController;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.server.service.conf.environment.EnvironmentConfigurationManager;
 import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 
 import java.util.Collection;
@@ -28,11 +29,14 @@ public class EnvsController extends AbstractController {
 
     private final EnvironmentManager environmentManager;
 
+    private final EnvironmentConfigurationManager environmentConfigurationManager;
+
     private final ApplicationConfigurationManager applicationConfigurationManager;
 
     @Autowired
-    public EnvsController(EnvironmentManager environmentManager, ApplicationConfigurationManager applicationConfigurationManager) {
+    public EnvsController(EnvironmentManager environmentManager, EnvironmentConfigurationManager environmentConfigurationManager, ApplicationConfigurationManager applicationConfigurationManager) {
         this.environmentManager = environmentManager;
+        this.environmentConfigurationManager = environmentConfigurationManager;
         this.applicationConfigurationManager = applicationConfigurationManager;
     }
 
@@ -42,11 +46,7 @@ public class EnvsController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<String> createEnvironment
         (@RequestBody DenvEnvironmentConfiguration environmentConfiguration) throws DenvException {
-        if (environmentConfiguration.getApplicationConfigurationName() != null) {
-            ApplicationConfiguration applicationConfiguration =
-                    applicationConfigurationManager.getApplicationConfiguration(environmentConfiguration.getApplicationConfigurationName());
-            environmentConfiguration.setApplicationConfiguration(applicationConfiguration);
-        }
+        environmentConfigurationManager.registerEnvironmentConfiguration(environmentConfiguration);
         Environment env = environmentManager.createEnvironment(environmentConfiguration);
         environmentManager.startEnvironment(env);
         return new ResponseEntity<String>(env.getId(), HttpStatus.OK);
