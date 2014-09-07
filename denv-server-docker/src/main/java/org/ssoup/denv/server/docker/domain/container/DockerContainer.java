@@ -27,6 +27,17 @@ public class DockerContainer implements Container {
 
     private boolean running;
 
+    public DockerContainer() {
+    }
+
+    public DockerContainer(Container container) {
+        this.id = container.getId();
+        this.names = container.getAllNames();
+        this.hostname = container.getHostname();
+        this.portMapping = container.getPortMapping();
+        this.running = container.isRunning();
+    }
+
     public DockerContainer(CreateContainerResponse containerCreateResponse, InspectContainerResponse containerInspectResponse, Image image) {
         this.containerCreateResponse = containerCreateResponse;
         this.containerInspectResponse = containerInspectResponse;
@@ -90,6 +101,12 @@ public class DockerContainer implements Container {
         this.names = names;
     }
 
+    @Override
+    public String getImageId() {
+        return image != null ? image.getId() : null;
+    }
+
+    @Override
     public Image getImage() {
         return image;
     }

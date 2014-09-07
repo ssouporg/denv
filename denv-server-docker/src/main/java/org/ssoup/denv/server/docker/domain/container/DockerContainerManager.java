@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
-import org.ssoup.denv.common.model.application.*;
+import org.ssoup.denv.common.model.config.application.*;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;

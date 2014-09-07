@@ -3,9 +3,8 @@ package org.ssoup.denv.server.service.runtime.environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.environment.DenvEnvironmentConfiguration;
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
-import org.ssoup.denv.common.model.node.NodeConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;
@@ -22,7 +21,8 @@ import org.ssoup.denv.server.service.naming.NamingStrategy;
 import org.ssoup.denv.server.service.runtime.application.ApplicationManager;
 import org.ssoup.denv.server.service.runtime.container.ContainerManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: ALB
@@ -47,8 +47,6 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
 
     private ContainerManager containerManager;
 
-    private Map<String, Environment> environments = new HashMap<String, Environment>();
-
     private List<EnvsEventHandler> eventHandlers = new ArrayList<EnvsEventHandler>();
 
     @Autowired
@@ -63,7 +61,6 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
 
     @Override
     public void registerExistingEnvironments() throws DenvException {
-        environments = new HashMap<String, Environment>();
         // read current environments via container manager
         for (Container container : getContainerManager().getAllContainers()) {
             NodeConfiguration node = null; // TODO: use the correct node
@@ -80,7 +77,7 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
                 Application application = containerInfo.getApp();
                 if (application == null) {
                     application = applicationManager.createApplication(env);
-                    env.registerApp(application);
+                    env.setApplication(application);
                 }
                 application.registerContainer(containerInfo.getImageType(), container);
             }
@@ -122,24 +119,14 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
             maxEnvironmentIdInUse = intEnvId;
         }
         Environment environment = new DenvEnvironment(envId, envConf, node);
-        getEnvironments().put(envId, environment);
+        // TODO environmentRepository.save(environment);
         return environment;
-    }
-
-    @Override
-    public Collection<Environment> listEnvironments() throws DenvException {
-        return getEnvironments().values();
     }
 
     private synchronized String generateEnvironmentId() {
         //return UUID.randomUUID().toString();
         maxEnvironmentIdInUse++;
         return Integer.toString(maxEnvironmentIdInUse);
-    }
-
-    @Override
-    public Environment findEnvironment(String envId) throws DenvException {
-        return getEnvironments().get(envId);
     }
 
     @Override
@@ -155,14 +142,6 @@ public class DefaultEnvironmentManager implements EnvironmentManager {
 
     protected ContainerManager getContainerManager() {
         return this.containerManager;
-    }
-
-    public Map<String, Environment> getEnvironments() throws DenvException {
-        return environments;
-    }
-
-    public Environment getEnvironment(String envId) throws DenvException {
-        return getEnvironments().get(envId);
     }
 
     public NamingStrategy getNamingStrategy() {

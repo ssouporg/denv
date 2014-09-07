@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Configuration
 public class ApiConfig extends WebMvcConfigurerAdapter {
-
+/*
     @Autowired
     private DenvConverterManager denvConverterManager;
 
@@ -28,5 +28,5 @@ public class ApiConfig extends WebMvcConfigurerAdapter {
 
     public void setDenvConverterManager(DenvConverterManager denvConverterManager) {
         this.denvConverterManager = denvConverterManager;
-    }
+    }*/
 }

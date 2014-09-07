@@ -4,23 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.ssoup.denv.common.api.DenvApiEndpoints;
 import org.ssoup.denv.common.converter.DenvConverterManager;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.config.application.InMemoryDenvApplicationConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * User: ALB
@@ -45,16 +42,16 @@ public class DenvClient {
     @PostConstruct
     public void init() {
         restTemplate = new TestRestTemplate();
-        List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+        /*List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
         denvConverterManager.addConverters(converters);
-        restTemplate.setMessageConverters(converters);
+        restTemplate.setMessageConverters(converters);*/
         restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
     }
 
     protected HttpHeaders defaultRequestHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-yaml");
-        headers.add("Accept", "application/x-yaml");
+        headers.add("Content-type", MediaType.APPLICATION_JSON_VALUE);
+        // headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         return headers;
     }
 
@@ -62,80 +59,61 @@ public class DenvClient {
         return restTemplate;
     }
 
-    public ResponseEntity<String> sendCreateAppsConfigsDenvRequest(String appConf) {
+    public ResponseEntity<String> sendCreateAppConfigRequest(ApplicationConfiguration appConf) {
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.POST,
-                new HttpEntity<String>(appConf, defaultRequestHeaders()),
+                new HttpEntity<ApplicationConfiguration>(appConf, defaultRequestHeaders()),
                 String.class
         );
     }
 
-    public ResponseEntity<Collection> sendGetAppsConfigsListRequest() {
+    public ResponseEntity<PagedResources> sendGetAppConfigsListRequest() {
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
-                Collection.class
+                PagedResources.class
         );
     }
 
-    public ResponseEntity<ApplicationConfiguration> sendGetAppsConfigsRequest(String appConfName) {
+    public ResponseEntity<Resource<InMemoryDenvApplicationConfiguration>> sendGetAppConfigRequest(String appConfName) {
+        ParameterizedTypeReference<Resource<InMemoryDenvApplicationConfiguration>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<InMemoryDenvApplicationConfiguration>>() {};
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfName}",
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
-                ApplicationConfiguration.class,
+                parameterizedTypeReference,
                 appConfName
         );
     }
 
-    public ResponseEntity<String> sendCreateEnvRequest(EnvironmentConfiguration environmentConfiguration) {
+    public ResponseEntity<String> sendCreateEnvConfigRequest(EnvironmentConfiguration environmentConfiguration) {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS,
+                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS,
                 HttpMethod.POST,
                 new HttpEntity<EnvironmentConfiguration>(environmentConfiguration, defaultRequestHeaders()),
                 String.class
         );
     }
 
-    public ResponseEntity<String> sendListEnvsRequest() {
+    public ResponseEntity<String> sendListEnvConfigsRequest() {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS,
+                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 String.class
         );
     }
 
-    public ResponseEntity<Void> sendDeleteEnvRequest(String envId) {
+    public ResponseEntity<Void> sendDeleteEnvConfigRequest(String envId) {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS + "/{envId}",
+                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS + "/{envId}",
                 HttpMethod.DELETE,
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 Void.class,
                 envId
-        );
-    }
-
-    // FIG and PANAMAX api
-
-    public ResponseEntity<String> sendCreateAppsConfigsFigRequest(String appConfigName, String appConf) {
-        return getRestTemplate().exchange(
-                getBaseUrl() + DenvApiEndpoints.FIG_APPS_CONFIGS + "/{appConfigName}",
-                HttpMethod.POST,
-                new HttpEntity<String>(appConf, defaultRequestHeaders()),
-                String.class,
-                appConfigName
-        );
-    }
-
-    public ResponseEntity<String> sendCreateAppsConfigsPanamaxRequest(String appConf) {
-        return getRestTemplate().exchange(
-                getBaseUrl() + DenvApiEndpoints.PANAMAX_APPS_CONFIGS,
-                HttpMethod.POST,
-                new HttpEntity<String>(appConf, defaultRequestHeaders()),
-                String.class
         );
     }
 

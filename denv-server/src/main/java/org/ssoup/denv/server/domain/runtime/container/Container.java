@@ -1,7 +1,6 @@
 package org.ssoup.denv.server.domain.runtime.container;
 
-import org.ssoup.denv.common.model.application.LinkConfiguration;
-import org.ssoup.denv.common.model.application.VolumeConfiguration;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Map;
 
@@ -20,6 +19,9 @@ public interface Container {
 
     Map<Integer, Integer> getPortMapping();
 
+    String getImageId();
+
+    @JsonIgnore
     Image getImage();
 
     boolean isRunning();

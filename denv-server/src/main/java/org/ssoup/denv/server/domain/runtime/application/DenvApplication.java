@@ -1,6 +1,5 @@
 package org.ssoup.denv.server.domain.runtime.application;
 
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 
 import java.util.Collection;
@@ -14,12 +13,12 @@ import java.util.Map;
 public class DenvApplication implements Application {
 
     private String name;
-    private ApplicationConfiguration conf;
+    private String applicationConfigurationName;
     private Map<String, Container> containers = new HashMap<String, Container>();
 
-    public DenvApplication(String name, ApplicationConfiguration conf) {
+    public DenvApplication(String name, String applicationConfigurationName) {
         this.name = name;
-        this.conf = conf;
+        this.applicationConfigurationName = applicationConfigurationName;
     }
 
     @Override
@@ -43,7 +42,11 @@ public class DenvApplication implements Application {
     }
 
     @Override
-    public ApplicationConfiguration getConf() {
-        return conf;
+    public String getApplicationConfigurationName() {
+        return applicationConfigurationName;
+    }
+
+    public void setApplicationConfigurationName(String applicationConfigurationName) {
+        this.applicationConfigurationName = applicationConfigurationName;
     }
 }

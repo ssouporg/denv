@@ -1,9 +1,14 @@
 package org.ssoup.denv.common.converter;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.hateoas.hal.Jackson2HalModule;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,10 +40,21 @@ public class DenvConverterManager {
     }
 
     public void addConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(denvEnvironmentConfigurationConverter);
+        // in order to support hateoas and avoid : Unrecognized field "_links" (class org.springframework.hateoas.PagedResources)
+        // http://stackoverflow.com/questions/23239052/why-does-resttemplate-not-bind-response-representation-to-pagedresources
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.registerModule(new Jackson2HalModule());
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(MediaType.parseMediaTypes("application/hal+json"));
+        converter.setObjectMapper(mapper);
+
+        converters.add(0, converter);
+        /*converters.add(denvEnvironmentConfigurationConverter);
         converters.add(denvApplicationConfigurationConverter);
         converters.add(collectionMessageConverter);
-        converters.add(stringHttpMessageConverter);
+        converters.add(stringHttpMessageConverter);*/
     }
 
     public DenvEnvironmentConfigurationConverter getDenvEnvironmentConfigurationConverter() {

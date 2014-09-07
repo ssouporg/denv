@@ -1,8 +1,11 @@
 package org.ssoup.denv.server.domain.runtime.environment;
 
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
-import org.ssoup.denv.common.model.node.NodeConfiguration;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
 
 /**
@@ -10,15 +13,20 @@ import org.ssoup.denv.server.domain.runtime.application.Application;
  * Date: 27/02/14 09:08
  */
 public interface Environment {
+    @Id
     String getId();
 
+    String getEnvironmentConfigurationId();
+
+    @JsonIgnore
     EnvironmentConfiguration getEnvironmentConfiguration();
 
+    @JsonIgnore
     NodeConfiguration getNode();
-
-    ApplicationConfiguration getApplicationConfiguration();
 
     Application getApplication();
 
-    void registerApp(Application app);
+    void setApplication(Application app);
+
+    boolean isStarted();
 }

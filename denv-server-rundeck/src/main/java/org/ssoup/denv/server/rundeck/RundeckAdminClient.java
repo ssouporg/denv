@@ -2,7 +2,7 @@ package org.ssoup.denv.server.rundeck;
 
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.server.service.admin.AbstractAdminClient;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
 
 /**
  * User: ALB

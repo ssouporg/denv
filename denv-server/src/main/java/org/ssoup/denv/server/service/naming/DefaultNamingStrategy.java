@@ -2,8 +2,7 @@ package org.ssoup.denv.server.service.naming;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.application.ImageConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;

@@ -3,9 +3,9 @@ package org.ssoup.denv.server.service.conf.environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.environment.DenvEnvironmentConfiguration;
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+//import org.ssoup.denv.common.model.config.environment.DenvEnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
 import org.ssoup.denv.server.persistence.repository.EnvironmentConfigRepository;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 
@@ -15,9 +15,9 @@ import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationMa
  */
 @Service
 @Scope("singleton")
-public class DenvEnvironmentConfigurationManager implements EnvironmentConfigurationManager {
+public class DenvEnvironmentConfigurationManager<T extends EnvironmentConfiguration> implements EnvironmentConfigurationManager<T> {
 
-    private EnvironmentConfigRepository environmentConfigRepository;
+    private EnvironmentConfigRepository<T> environmentConfigRepository;
 
     private ApplicationConfigurationManager applicationConfigurationManager;
 
@@ -28,16 +28,16 @@ public class DenvEnvironmentConfigurationManager implements EnvironmentConfigura
     }
 
     @Override
-    public EnvironmentConfiguration getEnvironmentConfiguration(String id) {
+    public T getEnvironmentConfiguration(String id) {
         return environmentConfigRepository.findOne(id);
     }
 
     @Override
-    public void registerEnvironmentConfiguration(EnvironmentConfiguration environmentConfiguration) {
+    public void registerEnvironmentConfiguration(T environmentConfiguration) {
         if (environmentConfiguration.getApplicationConfigurationName() != null) {
             ApplicationConfiguration applicationConfiguration =
                     applicationConfigurationManager.getApplicationConfiguration(environmentConfiguration.getApplicationConfigurationName());
-            ((DenvEnvironmentConfiguration)environmentConfiguration).setApplicationConfiguration(applicationConfiguration);
+            //((DenvEnvironmentConfiguration)environmentConfiguration).setApplicationConfiguration(applicationConfiguration);
         }
         environmentConfigRepository.save(environmentConfiguration);
     }

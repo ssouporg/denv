@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.docker.domain.conf;
 
-import org.ssoup.denv.common.model.node.AbstractNodeConfiguration;
+import org.ssoup.denv.common.model.config.node.AbstractNodeConfiguration;
 
 /**
  * User: ALB

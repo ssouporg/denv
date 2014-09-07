@@ -3,7 +3,7 @@ package org.ssoup.denv.server.service.conf.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
 import org.ssoup.denv.server.persistence.repository.ApplicationConfigRepository;
 
 import java.util.*;
@@ -14,9 +14,9 @@ import java.util.*;
  */
 @Service
 @Scope("singleton")
-public class DenvApplicationConfigurationManager implements ApplicationConfigurationManager {
+public class DenvApplicationConfigurationManager<T extends ApplicationConfiguration> implements ApplicationConfigurationManager<T> {
 
-    private ApplicationConfigRepository applicationConfigRepository;
+    private ApplicationConfigRepository<T> applicationConfigRepository;
 
     @Autowired
     public DenvApplicationConfigurationManager(ApplicationConfigRepository applicationConfigRepository) {
@@ -24,7 +24,7 @@ public class DenvApplicationConfigurationManager implements ApplicationConfigura
     }
 
     @Override
-    public ApplicationConfiguration getApplicationConfiguration(String applicationConfigurationName) {
+    public T getApplicationConfiguration(String applicationConfigurationName) {
         return applicationConfigRepository.findOne(applicationConfigurationName);
     }
 
@@ -38,7 +38,7 @@ public class DenvApplicationConfigurationManager implements ApplicationConfigura
     }
 
     @Override
-    public void registerApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+    public void registerApplicationConfiguration(T applicationConfiguration) {
         applicationConfigRepository.save(applicationConfiguration);
     }
 }

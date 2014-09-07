@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.runtime.container;
 
-import org.ssoup.denv.common.model.application.*;
+import org.ssoup.denv.common.model.config.application.*;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.domain.runtime.container.Image;

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
-import org.ssoup.denv.common.model.application.ImageConfiguration;
+import org.ssoup.denv.common.model.config.application.ImageConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.ContainerizationException;

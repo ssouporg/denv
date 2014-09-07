@@ -1,6 +1,5 @@
 package org.ssoup.denv.server.service.runtime.application;
 
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.service.runtime.container.ContainerManager;

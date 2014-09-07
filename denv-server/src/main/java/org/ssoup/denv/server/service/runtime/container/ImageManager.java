@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.runtime.container;
 
-import org.ssoup.denv.common.model.application.ImageConfiguration;
+import org.ssoup.denv.common.model.config.application.ImageConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.DenvException;

@@ -1,12 +1,10 @@
 package org.ssoup.denv.server.service.runtime.environment;
 
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
-import org.ssoup.denv.common.model.node.NodeConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.node.NodeConfiguration;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.event.EnvsEventHandler;
 import org.ssoup.denv.server.exception.DenvException;
-
-import java.util.Collection;
 
 /**
  * User: ALB
@@ -24,13 +22,9 @@ public interface EnvironmentManager {
 
     void stopEnvironment(Environment env) throws DenvException;
 
-    void deleteEnvironment(Environment env) throws DenvException;
-
     Environment registerEnvironment(String envId, EnvironmentConfiguration environmentConfiguration, NodeConfiguration node) throws DenvException;
 
-    Collection<Environment> listEnvironments() throws DenvException;
-
-    Environment findEnvironment(String envId) throws DenvException;
+    public void deleteEnvironment(Environment env) throws DenvException;
 
     void addEventHandler(EnvsEventHandler eventHandler);
 }

@@ -23,8 +23,8 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.environment.DenvEnvironmentConfiguration;
-import org.ssoup.denv.common.model.environment.EnvironmentConfiguration;
+//import org.ssoup.denv.common.model.config.environment.DenvEnvironmentConfiguration;
+import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -44,7 +44,8 @@ public class DenvEnvironmentConfigurationConverter extends AbstractDenvYamlMessa
 
     @Override
     protected EnvironmentConfiguration readInternal(Class<? extends EnvironmentConfiguration> aClass, HttpInputMessage httpInputMessage) throws IOException, HttpMessageNotReadableException {
-        return getYaml().loadAs(httpInputMessage.getBody(), DenvEnvironmentConfiguration.class);
+        //return getYaml().loadAs(httpInputMessage.getBody(), DenvEnvironmentConfiguration.class);
+        return null;
     }
 
     @Override

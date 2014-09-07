@@ -2,10 +2,9 @@ package org.ssoup.denv.server.service.runtime.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.application.ImageConfiguration;
-import org.ssoup.denv.common.model.application.LinkConfiguration;
-import org.ssoup.denv.common.model.application.PortConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+import org.ssoup.denv.common.model.config.application.ImageConfiguration;
+import org.ssoup.denv.common.model.config.application.LinkConfiguration;
 import org.ssoup.denv.server.domain.runtime.application.Application;
 import org.ssoup.denv.server.domain.runtime.application.DenvApplication;
 import org.ssoup.denv.server.domain.runtime.container.Container;
@@ -13,6 +12,7 @@ import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
 import org.ssoup.denv.server.exception.ContainerizationException;
 import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.naming.NamingStrategy;
 import org.ssoup.denv.server.service.runtime.container.ContainerManager;
 import org.ssoup.denv.server.service.runtime.container.ImageManager;
@@ -27,13 +27,16 @@ public abstract class AbstractApplicationManager implements ApplicationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractApplicationManager.class);
 
+    private ApplicationConfigurationManager applicationConfigurationManager;
+
     private ImageManager imageManager;
 
     private ContainerManager containerManager;
 
     private NamingStrategy namingStrategy;
 
-    public AbstractApplicationManager(ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+    public AbstractApplicationManager(ApplicationConfigurationManager applicationConfigurationManager, ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+        this.applicationConfigurationManager = applicationConfigurationManager;
         this.imageManager = imageManager;
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
@@ -49,8 +52,9 @@ public abstract class AbstractApplicationManager implements ApplicationManager {
 
     @Override
     public Application createApplication(Environment env) throws DenvException {
-        ApplicationConfiguration appConf = env.getApplicationConfiguration();
-        Application newApplication = new DenvApplication(appConf.getName(), appConf);
+        ApplicationConfiguration appConf = applicationConfigurationManager.getApplicationConfiguration(
+                env.getEnvironmentConfiguration().getApplicationConfigurationName());
+        Application newApplication = new DenvApplication(appConf.getName(), appConf.getName());
         for (ImageConfiguration imageConf : appConf.getImages()) {
             Image image = imageManager.findOrBuildImage(env, imageConf);
             String command = null; // getCmd(env, serviceConf);
@@ -58,7 +62,7 @@ public abstract class AbstractApplicationManager implements ApplicationManager {
             Container container = containerManager.createContainer(env, containerName, imageConf, image, command);
             newApplication.registerContainer(imageConf.getName(), container);
         }
-        env.registerApp(newApplication);
+        env.setApplication(newApplication);
         return newApplication;
     }
 

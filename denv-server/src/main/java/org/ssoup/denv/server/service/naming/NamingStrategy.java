@@ -1,7 +1,6 @@
 package org.ssoup.denv.server.service.naming;
 
-import org.ssoup.denv.common.model.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.application.ImageConfiguration;
+import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
 import org.ssoup.denv.server.domain.runtime.container.Container;
 import org.ssoup.denv.server.domain.runtime.container.Image;
 import org.ssoup.denv.server.domain.runtime.environment.Environment;
