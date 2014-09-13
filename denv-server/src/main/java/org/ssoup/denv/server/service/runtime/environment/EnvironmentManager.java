@@ -1,10 +1,12 @@
 package org.ssoup.denv.server.service.runtime.environment;
 
-import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
-import org.ssoup.denv.common.model.config.node.NodeConfiguration;
-import org.ssoup.denv.server.domain.runtime.environment.Environment;
+import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
+import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.server.event.EnvsEventHandler;
-import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.core.exception.DenvException;
+
+import java.util.Collection;
 
 /**
  * User: ALB
@@ -14,17 +16,15 @@ public interface EnvironmentManager {
 
     void registerExistingEnvironments() throws DenvException;
 
-    Environment createEnvironment(EnvironmentConfiguration envConf) throws DenvException;
+    Environment createEnvironment(Collection<Application> apps, Collection<String> labels) throws DenvException;
 
-    Environment createEnvironment(EnvironmentConfiguration envConf, NodeConfiguration node) throws DenvException;
+    Environment createEnvironment(Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
 
-    void startEnvironment(Environment env) throws DenvException;
-
-    void stopEnvironment(Environment env) throws DenvException;
-
-    Environment registerEnvironment(String envId, EnvironmentConfiguration environmentConfiguration, NodeConfiguration node) throws DenvException;
+    Environment createEnvironment(String envId, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
 
     public void deleteEnvironment(Environment env) throws DenvException;
 
     void addEventHandler(EnvsEventHandler eventHandler);
+
+    void applyChanges(Environment asIsEnv, Environment toBeEnv);
 }

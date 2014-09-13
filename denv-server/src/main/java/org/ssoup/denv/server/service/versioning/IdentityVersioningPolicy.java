@@ -1,8 +1,8 @@
 package org.ssoup.denv.server.service.versioning;
 
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
-import org.ssoup.denv.server.domain.runtime.environment.Environment;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.runtime.Environment;
 
 /**
  * User: ALB

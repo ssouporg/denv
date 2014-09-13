@@ -1,8 +1,19 @@
 package org.ssoup.denv.server.persistence.mongodb.domain.config;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.ssoup.denv.common.model.config.application.*;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
+import org.ssoup.denv.core.containerization.domain.conf.application.ImageConfiguration;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
+import org.ssoup.denv.server.persistence.mongodb.annotation.CascadeSave;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,200 +21,39 @@ import java.util.Collection;
  * Date: 11/08/14 15:35
  */
 @Document(collection="applicationConfiguration")
-public class MongoDenvApplicationConfiguration implements ApplicationConfiguration {
+public class MongoDenvApplicationConfiguration extends ContainerizedApplicationConfigurationImpl {
 
-    private String name;
-    private String description;
-    private String documentation;
-    private Collection<ImageConfigurationImpl> images;
+    @DBRef(lazy = false)
+    @CascadeSave
+    @JsonProperty("images")
+    private Collection<MongoDenvImageConfiguration> imageConfs;
 
-    public static class ImageConfigurationImpl implements ImageConfiguration {
-        private String name;
-        private String source;
-        private String description;
-        private Collection<EnvironmentVariableConfigurationImpl> environment;
-        private Collection<LinkConfigurationImpl> links;
-        private Collection<PortConfigurationImpl> ports;
-        private Collection<VolumeConfigurationImpl> volumes;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getSource() {
-            return source;
-        }
-
-        public void setSource(String source) {
-            this.source = source;
-        }
-
-        public Collection<EnvironmentVariableConfigurationImpl> getEnvironment() {
-            return environment;
-        }
-
-        public void setEnvironment(Collection<EnvironmentVariableConfigurationImpl> environment) {
-            this.environment = environment;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public Collection<PortConfigurationImpl> getPorts() {
-            return ports;
-        }
-
-        public void setPorts(Collection<PortConfigurationImpl> ports) {
-            this.ports = ports;
-        }
-
-        public Collection<LinkConfigurationImpl> getLinks() {
-            return links;
-        }
-
-        public void setLinks(Collection<LinkConfigurationImpl> links) {
-            this.links = links;
-        }
-
-        @Override
-        public Collection<VolumeConfigurationImpl> getVolumes() {
-            return volumes;
-        }
-
-        public void setVolumes(Collection<VolumeConfigurationImpl> volumes) {
-            this.volumes = volumes;
-        }
-    }
-
-    public static class EnvironmentVariableConfigurationImpl implements EnvironmentVariableConfiguration {
-        private String variable;
-        private String value;
-
-        public String getVariable() {
-            return variable;
-        }
-
-        public void setVariable(String variable) {
-            this.variable = variable;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
-
-    public static class LinkConfigurationImpl implements LinkConfiguration {
-        private String service;
-        private String alias;
-
-        public String getService() {
-            return service;
-        }
-
-        public void setService(String service) {
-            this.service = service;
-        }
-
-        public String getAlias() {
-            return alias;
-        }
-
-        public void setAlias(String alias) {
-            this.alias = alias;
-        }
-    }
-
-    public static class PortConfigurationImpl implements PortConfiguration {
-        private int hostPort;
-        private int containerPort;
-
-        public int getHostPort() {
-            return hostPort;
-        }
-
-        public void setHostPort(int hostPort) {
-            this.hostPort = hostPort;
-        }
-
-        public int getContainerPort() {
-            return containerPort;
-        }
-
-        public void setContainerPort(int containerPort) {
-            this.containerPort = containerPort;
-        }
-    }
-
-    public static class VolumeConfigurationImpl implements VolumeConfiguration {
-        private String hostPath;
-        private String containerPath;
-
-        public String getHostPath() {
-            return hostPath;
-        }
-
-        public void setHostPath(String hostPath) {
-            this.hostPath = hostPath;
-        }
-
-        public String getContainerPath() {
-            return containerPath;
-        }
-
-        public void setContainerPath(String containerPath) {
-            this.containerPath = containerPath;
-        }
-
-        public String getPath() {
-            if (hostPath == null) return containerPath;
-            if (containerPath == null) return  hostPath;
-            return hostPath + ":" + containerPath;
-        }
-    }
-
+    @Override
+    @Transient
+    @JsonIgnore
     public Collection<ImageConfigurationImpl> getImages() {
-        return this.images;
+        Collection<ImageConfigurationImpl> imgs = new ArrayList<ImageConfigurationImpl>();
+        imgs.addAll(imageConfs);
+        return imgs;
     }
 
-    public ImageConfiguration getImageConfigurationByName(String imageName) {
-        for (ImageConfiguration imageConf : images) {
-            if (imageConf.getName().equals(imageName)) {
-                return imageConf;
-            }
-        }
-        return null;
-    }
-
+    @Override
     public void setImages(Collection<ImageConfigurationImpl> images) {
-        this.images = images;
+        super.setImages(images);
+        this.imageConfs = new ArrayList();
+        for (ImageConfiguration image : images) {
+            imageConfs.add(new MongoDenvImageConfiguration(image));
+        }
     }
 
-    public String getName() {
-        return name;
+    public Collection<MongoDenvImageConfiguration> getImageConfs() {
+        return this.imageConfs;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setImageConfs(Collection<MongoDenvImageConfiguration> imageConfs) {
+        this.imageConfs = imageConfs;
+        Collection<ImageConfigurationImpl> imgs = new ArrayList<ImageConfigurationImpl>();
+        imgs.addAll(imageConfs);
+        super.setImages(imgs);
     }
 }

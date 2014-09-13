@@ -3,10 +3,12 @@ package org.ssoup.denv.server.service.conf.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
-import org.ssoup.denv.server.persistence.repository.ApplicationConfigRepository;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.server.persistence.ApplicationConfigRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * User: ALB
@@ -24,17 +26,17 @@ public class DenvApplicationConfigurationManager<T extends ApplicationConfigurat
     }
 
     @Override
-    public T getApplicationConfiguration(String applicationConfigurationName) {
-        return applicationConfigRepository.findOne(applicationConfigurationName);
+    public T getApplicationConfiguration(String applicationConfigurationId) {
+        return applicationConfigRepository.findOne(applicationConfigurationId);
     }
 
     @Override
-    public Collection<String> listApplicationConfigurationNames() {
-        List<String> appConfNames = new ArrayList<String>();
+    public Collection<String> listApplicationConfigurationIds() {
+        List<String> appConfIds = new ArrayList<String>();
         for (ApplicationConfiguration appConf : applicationConfigRepository.findAll()) {
-            appConfNames.add(appConf.getName());
+            appConfIds.add(appConf.getId());
         }
-        return appConfNames;
+        return appConfIds;
     }
 
     @Override

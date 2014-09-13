@@ -1,94 +1,52 @@
 package org.ssoup.denv.server.persistence.mongodb.domain.runtime;
 
 import org.springframework.data.annotation.Transient;
-import org.ssoup.denv.server.domain.runtime.container.Container;
-import org.ssoup.denv.server.domain.runtime.container.Image;
-
-import java.util.Map;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.ssoup.denv.server.containerization.domain.runtime.AbstractContainer;
+import org.ssoup.denv.server.containerization.domain.runtime.Container;
+import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.server.persistence.mongodb.annotation.CascadeSave;
 
 /**
  * User: ALB
  * Date: 09/01/14 11:21
  */
-public class MongoDenvContainer implements Container {
-    private String id;
-    private String[] names;
-    private String imageId;
+public class MongoDenvContainer extends AbstractContainer {
 
-    private String hostname;
-    private Map<Integer, Integer> portMapping;
-
-    private boolean running;
+    @DBRef
+    @CascadeSave
+    @Field("image")
+    private Image imageForMongo;
 
     public MongoDenvContainer() {
     }
 
     public MongoDenvContainer(Container container) {
-        this.id = container.getId();
-        this.names = container.getAllNames();
-        this.imageId = container.getImage() != null ? container.getImage().getId() : null;
-        this.hostname = container.getHostname();
-        this.portMapping = container.getPortMapping();
-        this.running = container.isRunning();
+        super(container);
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getName() {
-        return names != null && names.length > 0 ? names[0] : null;
-    }
-
-    @Override
-    public String[] getAllNames() {
-        return names;
-    }
-
-    public void setNames(String[] names) {
-        this.names = names;
-    }
-
-    public String getImageId() {
-        return this.imageId;
+    public MongoDenvContainer(String id, Image image, boolean running) {
+        super(id, image, running);
     }
 
     @Override
     @Transient
     public Image getImage() {
-        throw new UnsupportedOperationException();
+        return this.getImage();
     }
 
     @Override
-    public boolean isRunning() {
-        return this.running;
+    public void setImage(Image image) {
+        super.setImage(image);
+        this.imageForMongo = image;
     }
 
-    @Override
-    public String getHostname() {
-        return hostname;
+    public Image getImageForMongo() {
+        return imageForMongo;
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    @Override
-    public Map<Integer, Integer> getPortMapping() {
-        return portMapping;
-    }
-
-    public void setPortMapping(Map<Integer, Integer> portMapping) {
-        this.portMapping = portMapping;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
+    public void setImageForMongo(Image imageForMongo) {
+        this.imageForMongo = imageForMongo;
     }
 }

@@ -68,8 +68,8 @@ Now imagine the following three interoperating systems:
 
 These systems can be run inside containers:
 - web app images: ex/web, ex/db
-- worker image: ex/worker
-- expert-system image: ex/expert-system
+- worker imageForMongo: ex/worker
+- expert-system imageForMongo: ex/expert-system
 
   denv envs
 

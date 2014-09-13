@@ -9,9 +9,10 @@
     <packaging>pom</packaging>
     <version>0.1.0</version>
     <modules>
-        <module>denv-common</module>
+        <module>denv-core</module>
         <module>denv-client</module>
         <module>denv-server</module>
+        <module>denv-server-containerization</module>
         <module>denv-server-rundeck</module>
         <module>denv-server-docker</module>
         <module>denv-server-fig</module>
@@ -20,6 +21,7 @@
         <module>denv-cli</module>
         <module>denv-web</module>
         <module>denv-server-mongodb</module>
+        <module>denv-core-containerization</module>
     </modules>
 
     <dependencyManagement>

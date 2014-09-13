@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
-import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.server.service.conf.node.DenvNodeManager;
 
 import javax.annotation.PostConstruct;

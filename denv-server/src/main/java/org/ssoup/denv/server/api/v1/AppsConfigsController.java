@@ -3,9 +3,6 @@ package org.ssoup.denv.server.api.v1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.ssoup.denv.common.api.DenvApiEndpoints;
 import org.ssoup.denv.server.api.AbstractController;
 import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 
@@ -35,8 +32,8 @@ public class AppsConfigsController extends AbstractController {
         applicationConfigurationManager.registerApplicationConfiguration(appConfig);
 
         HttpHeaders responseHeaders = defaultResponseHeaders();
-        responseHeaders.set("Location", DenvApiEndpoints.APPS_CONFIGS + "/" + appConfig.getName());
-        return new ResponseEntity<String>(appConfig.getName(), responseHeaders, HttpStatus.CREATED);
+        responseHeaders.set("Location", DenvApiEndpoints.APPS_CONFIGS + "/" + appConfig.getId());
+        return new ResponseEntity<String>(appConfig.getId(), responseHeaders, HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET)

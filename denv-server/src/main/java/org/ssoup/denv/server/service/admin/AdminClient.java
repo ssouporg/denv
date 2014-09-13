@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.admin;
 
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 
 /**
  * User: ALB

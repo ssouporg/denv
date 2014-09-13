@@ -1,6 +1,6 @@
 package org.ssoup.denv.server.service.conf.application;
 
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 
 import java.util.Collection;
 
@@ -9,7 +9,7 @@ import java.util.Collection;
  * Date: 11/08/14 14:00
  */
 public interface ApplicationConfigurationManager<T extends ApplicationConfiguration> {
-    T getApplicationConfiguration(String applicationConfigurationName);
-    Collection<String> listApplicationConfigurationNames();
+    T getApplicationConfiguration(String applicationConfigurationId);
+    Collection<String> listApplicationConfigurationIds();
     void registerApplicationConfiguration(T applicationConfiguration);
 }

@@ -10,12 +10,18 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.ssoup.denv.common.api.DenvApiEndpoints;
-import org.ssoup.denv.common.converter.DenvConverterManager;
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.config.application.InMemoryDenvApplicationConfiguration;
-import org.ssoup.denv.common.model.config.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.api.DenvApiEndpoints;
+import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
+import org.ssoup.denv.core.converter.DenvConverterManager;
+import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
+import org.ssoup.denv.core.exception.DenvHttpException;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
+import org.ssoup.denv.core.model.runtime.Environment;
 
 import javax.annotation.PostConstruct;
 
@@ -59,13 +65,29 @@ public class DenvClient {
         return restTemplate;
     }
 
-    public ResponseEntity<String> sendCreateAppConfigRequest(ApplicationConfiguration appConf) {
+    public String createContainerizedAppConfig(ContainerizedApplicationConfiguration appConf) throws DenvHttpException {
+        ResponseEntity<String> res = sendCreateContainerizedAppConfigRequest(appConf);
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody();
+    }
+
+    public ResponseEntity<String> sendCreateContainerizedAppConfigRequest(ContainerizedApplicationConfiguration appConf) {
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.POST,
-                new HttpEntity<ApplicationConfiguration>(appConf, defaultRequestHeaders()),
+                new HttpEntity<ApplicationConfigurationImpl>(new ContainerizedApplicationConfigurationImpl(appConf), defaultRequestHeaders()),
                 String.class
         );
+    }
+
+    public PagedResources listAppConfigs() throws DenvHttpException {
+        ResponseEntity<PagedResources> res = sendGetAppConfigsListRequest();
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody();
     }
 
     public ResponseEntity<PagedResources> sendGetAppConfigsListRequest() {
@@ -77,39 +99,70 @@ public class DenvClient {
         );
     }
 
-    public ResponseEntity<Resource<InMemoryDenvApplicationConfiguration>> sendGetAppConfigRequest(String appConfName) {
-        ParameterizedTypeReference<Resource<InMemoryDenvApplicationConfiguration>> parameterizedTypeReference =
-                new ParameterizedTypeReference<Resource<InMemoryDenvApplicationConfiguration>>() {};
+    public ContainerizedApplicationConfiguration getContainerizedAppConfig(String appConfId) throws DenvHttpException {
+        ResponseEntity<Resource<ContainerizedApplicationConfigurationImpl>> res = sendGetContainerizedAppConfigRequest(appConfId);
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody().getContent();
+    }
+
+    public ResponseEntity<Resource<ContainerizedApplicationConfigurationImpl>> sendGetContainerizedAppConfigRequest(String appConfId) {
+        ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>>() {};
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfName}",
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 parameterizedTypeReference,
-                appConfName
+                appConfId
         );
     }
 
-    public ResponseEntity<String> sendCreateEnvConfigRequest(EnvironmentConfiguration environmentConfiguration) {
+    public String createEnv(DenvEnvironment env) throws DenvHttpException {
+        ResponseEntity<String> res = sendCreateEnvRequest(env);
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody();
+    }
+
+    public ResponseEntity<String> sendCreateEnvRequest(DenvEnvironment environment) {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS,
+                getBaseUrl() + DenvApiEndpoints.ENVS,
                 HttpMethod.POST,
-                new HttpEntity<EnvironmentConfiguration>(environmentConfiguration, defaultRequestHeaders()),
+                new HttpEntity<DenvEnvironment>(environment, defaultRequestHeaders()),
                 String.class
         );
     }
 
-    public ResponseEntity<String> sendListEnvConfigsRequest() {
+    public PagedResources listEnvs() throws DenvHttpException {
+        ResponseEntity<PagedResources> res = sendListEnvsRequest();
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody();
+    }
+
+    public ResponseEntity<PagedResources> sendListEnvsRequest() {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS,
+                getBaseUrl() + DenvApiEndpoints.ENVS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
-                String.class
+                PagedResources.class
         );
     }
 
-    public ResponseEntity<Void> sendDeleteEnvConfigRequest(String envId) {
+    public void deleteEnv(String envId) throws DenvHttpException {
+        ResponseEntity<Void> res = sendDeleteEnvRequest(envId);
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+    }
+
+    public ResponseEntity<Void> sendDeleteEnvRequest(String envId) {
         return restTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENVS_CONFIGS + "/{envId}",
+                getBaseUrl() + DenvApiEndpoints.ENVS + "/{envId}",
                 HttpMethod.DELETE,
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 Void.class,

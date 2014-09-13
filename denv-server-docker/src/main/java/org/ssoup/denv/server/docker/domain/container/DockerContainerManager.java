@@ -5,23 +5,27 @@ import com.github.dockerjava.api.DockerException;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.Link;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.ssoup.denv.core.containerization.domain.conf.application.*;
+import org.ssoup.denv.core.exception.DenvException;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.runtime.Environment;
+import org.ssoup.denv.server.containerization.domain.runtime.Container;
+import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.server.containerization.exception.ContainerizationException;
+import org.ssoup.denv.server.containerization.service.container.AbstractContainerManager;
+import org.ssoup.denv.server.containerization.service.container.ImageManager;
+import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
-import org.ssoup.denv.common.model.config.application.*;
-import org.ssoup.denv.server.domain.runtime.container.Container;
-import org.ssoup.denv.server.domain.runtime.container.Image;
-import org.ssoup.denv.server.domain.runtime.environment.Environment;
-import org.ssoup.denv.server.exception.ContainerizationException;
-import org.ssoup.denv.server.exception.DenvException;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
-import org.ssoup.denv.server.service.naming.NamingStrategy;
-import org.ssoup.denv.server.service.runtime.container.AbstractContainerManager;
-import org.ssoup.denv.server.service.runtime.container.ImageManager;
 import org.ssoup.denv.server.service.versioning.VersioningPolicy;
 
 import java.io.InputStream;
@@ -61,7 +65,7 @@ public class DockerContainerManager extends AbstractContainerManager {
     protected void registerExistingContainers() {
         for (com.github.dockerjava.api.model.Container dockerContainer : getDockerClient().listContainersCmd().withShowAll(true).exec()) {
             try {
-                Image image = getImageManager().findImage(null, null); // dockerContainer.getImage()); // TODO: extract the environment and the image configuration somehow
+                Image image = getImageManager().findImage(null, null); // dockerContainer.getImageForMongo()); // TODO: extract the environment and the image configuration somehow
                 InspectContainerResponse containerInspectResponse = getDockerClient().inspectContainerCmd(dockerContainer.getId()).exec();
                 this.registerContainer(dockerContainer.getId(), new DockerContainer(dockerContainer, containerInspectResponse, image));
             } catch (Exception e) {
@@ -178,9 +182,9 @@ public class DockerContainerManager extends AbstractContainerManager {
             /*if (dockerContainer.getVolumes() != null) {
                 for (ServiceConfiguration.VolumeInfo volumeInfo : dockerContainer.getVolumeInfos()) {
                     if (volumeInfo.getHostDir() != null) {
-                        binds.add(volumeInfo.getHostDir() + ":" + volumeInfo.getName() + ":rw");
+                        binds.add(volumeInfo.getHostDir() + ":" + volumeInfo.getId() + ":rw");
                     } else {
-                        binds.add(volumeInfo.getName());
+                        binds.add(volumeInfo.getId());
                     }
                 }
             }*/
@@ -210,6 +214,8 @@ public class DockerContainerManager extends AbstractContainerManager {
     public void stopContainer(Environment env, Container container) throws ContainerizationException {
         try {
             getDockerClient().killContainerCmd(container.getId()).exec();
+            InspectContainerResponse containerInspectResponse = getDockerClient().inspectContainerCmd(container.getId()).exec();
+            container.setRunning(containerInspectResponse.getState().isRunning());
         } catch (DockerException e) {
             throw new ContainerizationException(e);
         }

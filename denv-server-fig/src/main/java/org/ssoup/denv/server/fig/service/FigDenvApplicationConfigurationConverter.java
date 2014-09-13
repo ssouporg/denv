@@ -2,8 +2,9 @@ package org.ssoup.denv.server.fig.service;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.common.model.config.application.ApplicationConfiguration;
-import org.ssoup.denv.common.model.config.application.InMemoryDenvApplicationConfiguration;
+import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
+import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.server.fig.domain.conf.FigApplicationConfiguration;
 import org.ssoup.denv.server.fig.domain.conf.FigServiceConfiguration;
 import org.yaml.snakeyaml.Yaml;
@@ -19,40 +20,40 @@ import java.util.Map;
 @Scope("singleton")
 public class FigDenvApplicationConfigurationConverter {
 
-    public ApplicationConfiguration convertApplicationConfiguration(String appConfName, String figAppConfig) {
+    public ContainerizedApplicationConfiguration convertApplicationConfiguration(String appConfId, String figAppConfig) {
         FigApplicationConfiguration figAppConfiguration = readFigAppConfiguration(figAppConfig);
-        InMemoryDenvApplicationConfiguration appConf = new InMemoryDenvApplicationConfiguration();
-        appConf.setName(appConfName);
-        appConf.setImages(new ArrayList<InMemoryDenvApplicationConfiguration.ImageConfigurationImpl>());
+        ContainerizedApplicationConfigurationImpl appConf = new ContainerizedApplicationConfigurationImpl();
+        appConf.setId(appConfId);
+        appConf.setImages(new ArrayList<ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl>());
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
-            InMemoryDenvApplicationConfiguration.ImageConfigurationImpl appImage = new InMemoryDenvApplicationConfiguration.ImageConfigurationImpl();
-            appImage.setName(serviceName);
+            ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl();
+            appImage.setId(serviceName);
             appImage.setSource(serviceConfiguration.getImage());
             // environment variables
-            appImage.setEnvironment(new ArrayList<InMemoryDenvApplicationConfiguration.EnvironmentVariableConfigurationImpl>());
+            appImage.setEnvironment(new ArrayList<ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl>());
             if (serviceConfiguration.getEnvironment() != null) {
                 for (String environmentVariableName : serviceConfiguration.getEnvironment().keySet()) {
-                    InMemoryDenvApplicationConfiguration.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new InMemoryDenvApplicationConfiguration.EnvironmentVariableConfigurationImpl();
+                    ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl();
                     appEnvironmentVariable.setVariable(environmentVariableName);
                     appEnvironmentVariable.setValue(serviceConfiguration.getEnvironment().get(environmentVariableName));
                     appImage.getEnvironment().add(appEnvironmentVariable);
                 }
             }
             // links
-            appImage.setLinks(new ArrayList<InMemoryDenvApplicationConfiguration.LinkConfigurationImpl>());
+            appImage.setLinks(new ArrayList<ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl>());
             if (serviceConfiguration.getLinks() != null) {
                 for (String link : serviceConfiguration.getLinks()) {
-                    InMemoryDenvApplicationConfiguration.LinkConfigurationImpl appLink = new InMemoryDenvApplicationConfiguration.LinkConfigurationImpl();
+                    ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl appLink = new ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl();
                     appLink.setService(link);
                     appImage.getLinks().add(appLink);
                 }
             }
             // ports
-            appImage.setPorts(new ArrayList<InMemoryDenvApplicationConfiguration.PortConfigurationImpl>());
+            appImage.setPorts(new ArrayList<ContainerizedApplicationConfigurationImpl.PortConfigurationImpl>());
             if (serviceConfiguration.getPorts() != null) {
                 for (String port : serviceConfiguration.getPorts()) {
-                    InMemoryDenvApplicationConfiguration.PortConfigurationImpl appPort = new InMemoryDenvApplicationConfiguration.PortConfigurationImpl();
+                    ContainerizedApplicationConfigurationImpl.PortConfigurationImpl appPort = new ContainerizedApplicationConfigurationImpl.PortConfigurationImpl();
                     if (port.contains(":")) {
                         int index = port.indexOf(':');
                         appPort.setHostPort(Integer.parseInt(port.substring(0, index)));
@@ -64,10 +65,10 @@ public class FigDenvApplicationConfigurationConverter {
                 }
             }
             // volumes
-            appImage.setVolumes(new ArrayList<InMemoryDenvApplicationConfiguration.VolumeConfigurationImpl>());
+            appImage.setVolumes(new ArrayList<ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl>());
             if (serviceConfiguration.getVolumes() != null) {
                 for (String vol : serviceConfiguration.getVolumes()) {
-                    InMemoryDenvApplicationConfiguration.VolumeConfigurationImpl appVolume = new InMemoryDenvApplicationConfiguration.VolumeConfigurationImpl();
+                    ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl appVolume = new ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl();
                     if (vol.contains(":")) {
                         int index = vol.indexOf(':');
                         appVolume.setHostPath(vol.substring(0, index));

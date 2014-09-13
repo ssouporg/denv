@@ -16,7 +16,12 @@
     <dependencies>
         <dependency>
             <groupId>denv</groupId>
-            <artifactId>denv-common</artifactId>
+            <artifactId>denv-core</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>denv</groupId>
+            <artifactId>denv-core-containerization</artifactId>
             <version>${version}</version>
         </dependency>
 

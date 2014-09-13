@@ -1,7 +1,7 @@
 package org.ssoup.denv.server.service.conf.node;
 
-import org.ssoup.denv.common.model.config.node.NodeConfiguration;
-import org.ssoup.denv.server.exception.DenvException;
+import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
+import org.ssoup.denv.core.exception.DenvException;
 
 import java.util.Collection;
 

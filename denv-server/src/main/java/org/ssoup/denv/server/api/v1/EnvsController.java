@@ -1,18 +1,6 @@
 package org.ssoup.denv.server.api.v1;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.ssoup.denv.common.api.DenvApiEndpoints;
 import org.ssoup.denv.server.api.AbstractController;
-import org.ssoup.denv.server.domain.runtime.environment.Environment;
-import org.ssoup.denv.server.exception.DenvException;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
-import org.ssoup.denv.server.service.conf.environment.EnvironmentConfigurationManager;
-import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 
 /**
  * User: ALB

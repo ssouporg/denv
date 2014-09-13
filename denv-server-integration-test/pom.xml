@@ -41,6 +41,11 @@
         </dependency>
         <dependency>
             <groupId>denv</groupId>
+            <artifactId>denv-server-containerization</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>denv</groupId>
             <artifactId>denv-client</artifactId>
             <version>${version}</version>
         </dependency>
