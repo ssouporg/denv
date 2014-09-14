@@ -8,6 +8,7 @@ import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
 import org.ssoup.denv.core.model.runtime.Application;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.Environment;
+import org.ssoup.denv.server.containerization.domain.runtime.ContainerizedApplication;
 import org.ssoup.denv.server.containerization.domain.runtime.ContainerizedApplicationImpl;
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
@@ -72,7 +73,10 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
     protected Environment newEnvironmentInstance(String envId, Collection<Application> apps, NodeConfiguration node) throws DenvException {
         Collection<Application> capps = new ArrayList<Application>();
         for (Application app : apps) {
-            capps.add(new ContainerizedApplicationImpl(app));
+            ContainerizedApplication capp = new ContainerizedApplicationImpl(app);
+            capp.setDeployed(false);
+            capp.setStarted(false);
+            capps.add(capp);
         }
         Environment environment = new DenvEnvironment(envId, capps, node);
         return environment;

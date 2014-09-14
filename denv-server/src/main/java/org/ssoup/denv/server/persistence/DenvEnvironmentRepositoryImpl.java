@@ -1,7 +1,6 @@
 package org.ssoup.denv.server.persistence;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 
 /**

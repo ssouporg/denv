@@ -14,7 +14,12 @@ public class DockerImage extends AbstractImage {
     public DockerImage() {
     }
 
+    public DockerImage(String id, String name, String tag, ImageConfiguration imageConf){
+        super(id, name, tag, imageConf);
+    }
+
     public DockerImage(ImageConfiguration imageConf, com.github.dockerjava.api.model.Image dockerImage) {
+        this.setConf(imageConf);
         this.dockerImage = dockerImage;
         this.setId(this.dockerImage.getId());
         String[] toks = this.dockerImage.getRepoTags()[0].split(":");

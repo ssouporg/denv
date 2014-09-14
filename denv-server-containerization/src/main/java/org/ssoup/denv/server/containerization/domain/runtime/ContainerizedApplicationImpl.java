@@ -39,7 +39,7 @@ public class ContainerizedApplicationImpl extends ApplicationImpl implements Con
     }
 
     @Override
-    public void registerContainer(String imageName, Container container) {
-        this.containers.put(imageName, container);
+    public void registerContainer(String imageId, Container container) {
+        this.containers.put(imageId, container);
     }
 }

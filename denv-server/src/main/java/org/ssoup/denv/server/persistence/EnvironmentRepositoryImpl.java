@@ -17,17 +17,15 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
 
     private ApplicationContext applicationContext;
 
-    private ApplicationConfigRepository applicationConfigRepository;
-
     private EnvironmentManager environmentManager;
 
     private ApplicationManager applicationManager;
 
     @Autowired
-    public EnvironmentRepositoryImpl(ApplicationContext applicationContext, ApplicationConfigRepository applicationConfigRepository, EnvironmentManager environmentManager) {
+    public EnvironmentRepositoryImpl(ApplicationContext applicationContext, EnvironmentManager environmentManager, ApplicationManager applicationManager) {
         this.applicationContext = applicationContext;
-        this.applicationConfigRepository = applicationConfigRepository;
         this.environmentManager = environmentManager;
+        this.applicationManager = applicationManager;
     }
 
     @Override

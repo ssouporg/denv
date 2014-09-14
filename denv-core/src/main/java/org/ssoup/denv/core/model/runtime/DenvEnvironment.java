@@ -69,6 +69,10 @@ public class DenvEnvironment implements Environment {
 
     @Override
     public void setApplications(Collection<Application> apps) {
+        if (apps == null) {
+            this.apps.clear();
+            return;
+        }
         for (Application app : apps) {
             this.apps.put(app.getId(), app);
         }

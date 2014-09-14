@@ -63,6 +63,7 @@ public abstract class AbstractContainerizedApplicationManager implements Contain
             Container container = containerManager.createContainer(env, containerName, imageConf, image, command);
             capp.registerContainer(imageConf.getId(), container);
         }
+        app.setDeployed(true);
     }
 
     /*private String getCmd(Environment env, ImageConfiguration imageConfiguration) {

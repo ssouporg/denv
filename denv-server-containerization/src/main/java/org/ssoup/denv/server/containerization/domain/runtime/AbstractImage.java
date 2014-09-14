@@ -17,6 +17,7 @@ public abstract class AbstractImage implements Image {
     }
 
     public AbstractImage(String id, String name, String tag, ImageConfiguration imageConf) {
+        this.id = id;
         this.conf = imageConf;
         this.name = name;
         this.tag = tag;

@@ -4,6 +4,7 @@ import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
 import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.model.runtime.ApplicationImpl;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.server.event.EnvsEvent;
@@ -73,7 +74,14 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
         if (intEnvId > maxEnvironmentIdInUse) {
             maxEnvironmentIdInUse = intEnvId;
         }*/
-        Environment environment = new DenvEnvironment(envId, apps, node);
+        Collection<Application> capps = new ArrayList<Application>();
+        for (Application app : apps) {
+            Application capp = new ApplicationImpl(app);
+            capp.setDeployed(false);
+            capp.setStarted(false);
+            capps.add(capp);
+        }
+        Environment environment = new DenvEnvironment(envId, capps, node);
         return environment;
     }
 

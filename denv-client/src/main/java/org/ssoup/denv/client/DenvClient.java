@@ -3,6 +3,8 @@ package org.ssoup.denv.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
@@ -10,18 +12,13 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.ssoup.denv.core.api.DenvApiEndpoints;
 import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
-import org.ssoup.denv.core.converter.DenvConverterManager;
 import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
 import org.ssoup.denv.core.exception.DenvHttpException;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
-import org.ssoup.denv.core.model.runtime.Environment;
 
 import javax.annotation.PostConstruct;
 
@@ -34,15 +31,12 @@ public class DenvClient {
 
     private Logger logger = LoggerFactory.getLogger(DenvClient.class);
 
+    @Value("${DENV_SERVER_URL}")
     private String baseUrl;
 
     private RestTemplate restTemplate;
 
-    private DenvConverterManager denvConverterManager;
-
-    @Autowired
-    public DenvClient(DenvConverterManager denvConverterManager) {
-        this.denvConverterManager = denvConverterManager;
+    public DenvClient() {
     }
 
     @PostConstruct
@@ -136,20 +130,22 @@ public class DenvClient {
         );
     }
 
-    public PagedResources listEnvs() throws DenvHttpException {
-        ResponseEntity<PagedResources> res = sendListEnvsRequest();
+    public PagedResources<DenvEnvironment> listEnvs() throws DenvHttpException {
+        ResponseEntity<PagedResources<DenvEnvironment>> res = sendListEnvsRequest();
         if (!res.getStatusCode().is2xxSuccessful()) {
             throw new DenvHttpException(res);
         }
         return res.getBody();
     }
 
-    public ResponseEntity<PagedResources> sendListEnvsRequest() {
+    public ResponseEntity<PagedResources<DenvEnvironment>> sendListEnvsRequest() {
+        ParameterizedTypeReference<PagedResources<DenvEnvironment>> parameterizedTypeReference =
+                new ParameterizedTypeReference<PagedResources<DenvEnvironment>>() {};
         return restTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENVS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
-                PagedResources.class
+                parameterizedTypeReference
         );
     }
 

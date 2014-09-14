@@ -18,6 +18,13 @@ public class ApplicationImpl implements Application {
     public ApplicationImpl() {
     }
 
+    public ApplicationImpl(Application app) {
+        this.id = app.getId();
+        this.applicationConfigurationId = app.getApplicationConfigurationId();
+        this.setStarted(app.isStarted());
+        this.setDeployed(app.isDeployed());
+    }
+
     public ApplicationImpl(String id, String applicationConfigurationId) {
         this.id = id;
         this.applicationConfigurationId = applicationConfigurationId;

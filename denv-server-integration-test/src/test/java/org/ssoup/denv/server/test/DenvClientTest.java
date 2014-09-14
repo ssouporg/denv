@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.hateoas.PagedResources;
@@ -62,12 +61,6 @@ public class DenvClientTest {
     @Inject
     private DenvClient denvClient;
 
-    @Value("${server.address}")
-    private String serverAddress;
-
-    @Value("${server.port}")
-    private int serverPort;
-
 /*    @Mock
     private AdminClient adminClient;
 
@@ -77,7 +70,6 @@ public class DenvClientTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        denvClient.setBaseUrl("http://" + serverAddress + ":" + serverPort);
     }
 
     @Test
@@ -169,13 +161,5 @@ public class DenvClientTest {
         app.setDeployed(true);
         app.setStarted(true);
         return Arrays.asList(app);
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
     }
 }
