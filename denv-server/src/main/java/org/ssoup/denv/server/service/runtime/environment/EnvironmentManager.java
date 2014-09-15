@@ -22,6 +22,8 @@ public interface EnvironmentManager {
 
     Environment createEnvironment(String envId, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
 
+    Environment addApplications(Environment env, Collection<Application> apps) throws DenvException;
+
     public void deleteEnvironment(Environment env) throws DenvException;
 
     void addEventHandler(EnvsEventHandler eventHandler);

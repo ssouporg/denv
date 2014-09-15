@@ -2,15 +2,11 @@ package org.ssoup.denv.cli.command;
 
 import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.client.DenvClient;
-import org.ssoup.denv.core.exception.DenvHttpException;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
-import org.ssoup.denv.core.model.runtime.Environment;
-//import org.ssoup.denv.client.DenvClient;
 
 /**
  * User: ALB
@@ -34,9 +30,7 @@ public class CommandEnvs implements DenvCommand {
     public void execute() {
         try {
             PagedResources<DenvEnvironment> envs = denvClient.listEnvs();
-            for (DenvEnvironment env : envs.getContent()) {
-                console.println(env.getId());
-            }
+            console.printEnvs(envs.getContent());
         } catch (Exception e) {
             console.error("An error occurred retrieving environments");
             e.printStackTrace();

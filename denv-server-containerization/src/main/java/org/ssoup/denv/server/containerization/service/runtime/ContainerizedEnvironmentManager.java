@@ -70,7 +70,7 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
     }
 
     @Override
-    protected Environment newEnvironmentInstance(String envId, Collection<Application> apps, NodeConfiguration node) throws DenvException {
+    protected Collection<Application> convertApplications(Collection<Application> apps) throws DenvException {
         Collection<Application> capps = new ArrayList<Application>();
         for (Application app : apps) {
             ContainerizedApplication capp = new ContainerizedApplicationImpl(app);
@@ -78,8 +78,7 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
             capp.setStarted(false);
             capps.add(capp);
         }
-        Environment environment = new DenvEnvironment(envId, capps, node);
-        return environment;
+        return capps;
     }
 
     public ContainerManager getContainerManager() {

@@ -55,7 +55,7 @@ public abstract class AbstractContainerizedApplicationManager implements Contain
     @Override
     public void deployApplication(Environment env, Application app) throws DenvException {
         ContainerizedApplication capp = (ContainerizedApplication)app;
-        ContainerizedApplicationConfiguration cappConf = (ContainerizedApplicationConfiguration)applicationConfigurationManager.getApplicationConfiguration(app.getApplicationConfigurationId());
+        ContainerizedApplicationConfiguration cappConf = (ContainerizedApplicationConfiguration)applicationConfigurationManager.getApplicationConfiguration(capp.getApplicationConfigurationId());
         for (ImageConfiguration imageConf : cappConf.getImages()) {
             Image image = imageManager.findOrBuildImage(env, imageConf);
             String command = null; // getCmd(env, serviceConf);

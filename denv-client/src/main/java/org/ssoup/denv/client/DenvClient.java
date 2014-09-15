@@ -1,15 +1,17 @@
 package org.ssoup.denv.client;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.hal.Jackson2HalModule;
 import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +23,7 @@ import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 
 /**
  * User: ALB
@@ -34,29 +37,41 @@ public class DenvClient {
     @Value("${DENV_SERVER_URL}")
     private String baseUrl;
 
-    private RestTemplate restTemplate;
+    //private RestTemplate restTemplate;
+
+    private RestTemplate hateoasRestTemplate;
+
+    private MediaType HATEOAS_MEDIA_TYPE;
 
     public DenvClient() {
     }
 
     @PostConstruct
     public void init() {
-        restTemplate = new TestRestTemplate();
-        /*List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
-        denvConverterManager.addConverters(converters);
-        restTemplate.setMessageConverters(converters);*/
-        restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
+        HATEOAS_MEDIA_TYPE = MediaType.parseMediaType("application/hal+json");
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.registerModule(new Jackson2HalModule());
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Arrays.asList(HATEOAS_MEDIA_TYPE));
+        converter.setObjectMapper(mapper);
+
+        hateoasRestTemplate = new RestTemplate(Arrays.<HttpMessageConverter<?>> asList(converter));
+        hateoasRestTemplate.setErrorHandler(new DefaultResponseErrorHandler());
+
+        //restTemplate = new RestTemplate(Arrays.<HttpMessageConverter<?>> asList(new MappingJackson2HttpMessageConverter()));
+        //restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
     }
 
     protected HttpHeaders defaultRequestHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", MediaType.APPLICATION_JSON_VALUE);
+        headers.add("Content-type", HATEOAS_MEDIA_TYPE.toString());
+        headers.add("Accept", HATEOAS_MEDIA_TYPE.toString());
+        //headers.add("Content-type", MediaType.APPLICATION_JSON_VALUE);
         // headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         return headers;
-    }
-
-    protected RestTemplate getRestTemplate() {
-        return restTemplate;
     }
 
     public String createContainerizedAppConfig(ContainerizedApplicationConfiguration appConf) throws DenvHttpException {
@@ -68,7 +83,7 @@ public class DenvClient {
     }
 
     public ResponseEntity<String> sendCreateContainerizedAppConfigRequest(ContainerizedApplicationConfiguration appConf) {
-        return restTemplate.exchange(
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.POST,
                 new HttpEntity<ApplicationConfigurationImpl>(new ContainerizedApplicationConfigurationImpl(appConf), defaultRequestHeaders()),
@@ -76,20 +91,22 @@ public class DenvClient {
         );
     }
 
-    public PagedResources listAppConfigs() throws DenvHttpException {
-        ResponseEntity<PagedResources> res = sendGetAppConfigsListRequest();
+    public PagedResources<ContainerizedApplicationConfigurationImpl> listAppConfigs() throws DenvHttpException {
+        ResponseEntity<PagedResources<ContainerizedApplicationConfigurationImpl>> res = sendGetAppConfigsListRequest();
         if (!res.getStatusCode().is2xxSuccessful()) {
             throw new DenvHttpException(res);
         }
         return res.getBody();
     }
 
-    public ResponseEntity<PagedResources> sendGetAppConfigsListRequest() {
-        return restTemplate.exchange(
+    public ResponseEntity<PagedResources<ContainerizedApplicationConfigurationImpl>> sendGetAppConfigsListRequest() {
+        ParameterizedTypeReference<PagedResources<ContainerizedApplicationConfigurationImpl>> parameterizedTypeReference =
+                new ParameterizedTypeReference<PagedResources<ContainerizedApplicationConfigurationImpl>>() {};
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
-                PagedResources.class
+                parameterizedTypeReference
         );
     }
 
@@ -104,7 +121,7 @@ public class DenvClient {
     public ResponseEntity<Resource<ContainerizedApplicationConfigurationImpl>> sendGetContainerizedAppConfigRequest(String appConfId) {
         ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>> parameterizedTypeReference =
                 new ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>>() {};
-        return restTemplate.exchange(
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfName}",
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
@@ -121,12 +138,30 @@ public class DenvClient {
         return res.getBody();
     }
 
-    public ResponseEntity<String> sendCreateEnvRequest(DenvEnvironment environment) {
-        return restTemplate.exchange(
+    public ResponseEntity<String> sendCreateEnvRequest(DenvEnvironment env) {
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENVS,
                 HttpMethod.POST,
-                new HttpEntity<DenvEnvironment>(environment, defaultRequestHeaders()),
+                new HttpEntity<DenvEnvironment>(env, defaultRequestHeaders()),
                 String.class
+        );
+    }
+
+    public String updateEnv(DenvEnvironment env) throws DenvHttpException {
+        ResponseEntity<String> res = sendUpdateEnvRequest(env);
+        if (!res.getStatusCode().is2xxSuccessful()) {
+            throw new DenvHttpException(res);
+        }
+        return res.getBody();
+    }
+
+    public ResponseEntity<String> sendUpdateEnvRequest(DenvEnvironment env) {
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENVS + "/{envId}",
+                HttpMethod.PUT,
+                new HttpEntity<DenvEnvironment>(env, defaultRequestHeaders()),
+                String.class,
+                env.getId()
         );
     }
 
@@ -141,7 +176,7 @@ public class DenvClient {
     public ResponseEntity<PagedResources<DenvEnvironment>> sendListEnvsRequest() {
         ParameterizedTypeReference<PagedResources<DenvEnvironment>> parameterizedTypeReference =
                 new ParameterizedTypeReference<PagedResources<DenvEnvironment>>() {};
-        return restTemplate.exchange(
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENVS,
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
@@ -157,7 +192,7 @@ public class DenvClient {
     }
 
     public ResponseEntity<Void> sendDeleteEnvRequest(String envId) {
-        return restTemplate.exchange(
+        return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENVS + "/{envId}",
                 HttpMethod.DELETE,
                 new HttpEntity<Void>(defaultRequestHeaders()),

@@ -4,6 +4,9 @@ import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
+import org.ssoup.denv.client.DenvClient;
+import org.ssoup.denv.core.exception.DenvHttpException;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
 /**
  * User: ALB
@@ -15,21 +18,21 @@ public class CommandCreateEnv implements DenvCommand {
 
     private DenvConsole console;
 
-    //private DenvClient denvClient;
+    private DenvClient denvClient;
 
     @Autowired
-    public CommandCreateEnv(DenvConsole console /*, DenvClient denvClient*/) {
+    public CommandCreateEnv(DenvConsole console , DenvClient denvClient) {
         this.console = console;
-        //this.denvClient = denvClient;
+        this.denvClient = denvClient;
     }
 
     @Override
     public void execute() {
-       /* try {
-            Environment env = null;
+       try {
+            DenvEnvironment env = null;
             denvClient.createEnv(env);
         } catch (DenvHttpException e) {
             console.error("An error occurred creating the environment");
-        }*/
+        }
     }
 }

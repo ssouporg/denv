@@ -63,6 +63,16 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
     }
 
     @Override
+    public Environment addApplications(Environment env, Collection<Application> apps) throws DenvException {
+        Collection<Application> capps = convertApplications(apps);
+        for (Application app : capps) {
+            env.addApplication(app);
+            applicationManager.deployApplication(env, app);
+        }
+        return env;
+    }
+
+    @Override
     public void deleteEnvironment(Environment env) throws DenvException {
         for (Application app : env.getApplications()) {
             applicationManager.deleteApplication(env, app);
@@ -74,6 +84,11 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
         if (intEnvId > maxEnvironmentIdInUse) {
             maxEnvironmentIdInUse = intEnvId;
         }*/
+        Environment environment = new DenvEnvironment(envId, convertApplications(apps), node);
+        return environment;
+    }
+
+    protected Collection<Application> convertApplications(Collection<Application> apps) throws DenvException {
         Collection<Application> capps = new ArrayList<Application>();
         for (Application app : apps) {
             Application capp = new ApplicationImpl(app);
@@ -81,8 +96,7 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
             capp.setStarted(false);
             capps.add(capp);
         }
-        Environment environment = new DenvEnvironment(envId, capps, node);
-        return environment;
+        return capps;
     }
 
     private synchronized String generateEnvironmentId() {

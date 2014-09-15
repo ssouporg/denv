@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.test;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.ssoup.denv.Denv;
+import org.ssoup.denv.core.exception.DenvHttpException;
+
+import java.io.IOException;
 
 /**
  * User: ALB
@@ -17,8 +21,22 @@ import org.ssoup.denv.Denv;
 @SpringApplicationConfiguration(classes = Denv.class)
 @WebAppConfiguration
 @IntegrationTest
-public class DenvCLITest {
+public class DenvCLITest extends DenvTestBase {
 
     private Logger logger = LoggerFactory.getLogger(DenvCLITest.class);
 
+    @Test
+    public void testListEnvs() throws IOException, DenvHttpException {
+        registerPanamaxAppConfig();
+
+        try {
+            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_APP_CONF_ID);
+
+            runCLICommand("envs");
+            String res = getConsoleOutput();
+            assert(res.contains(INTEGRATION_ENV_ID));
+        } finally {
+            deleteEnvironment(INTEGRATION_ENV_ID);
+        }
+    }
 }

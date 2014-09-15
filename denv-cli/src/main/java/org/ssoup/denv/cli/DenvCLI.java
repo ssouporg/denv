@@ -44,6 +44,11 @@ public class DenvCLI implements CommandLineRunner {
     }
 
     public void run(String[] args) {
+        if (args.length == 0) {
+            jc.usage();
+            return;
+        }
+
         try {
             jc.parse(args);
             String commandName = jc.getParsedCommand();

@@ -40,10 +40,12 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
             if (actualEnv == null) {
                 // if not existing create a new environment
                 actualEnv = (T)environmentManager.createEnvironment(env.getId(), env.getApplications(), env.getLabels(), null);
+            } else {
+                actualEnv = (T)environmentManager.addApplications(actualEnv, env.getApplications());
             }
             for (Application app : env.getApplications()) {
                 Application actualApp = actualEnv.getApplication(app.getId());
-                if (app.isStarted() && !actualApp.isStarted()) {
+                if (app.isStarted() && (actualApp == null || !actualApp.isStarted())) {
                     applicationManager.startApplication(actualEnv, actualApp);
                 } else if (!app.isStarted() && actualApp.isStarted()) {
                     applicationManager.stopApplication(actualEnv, actualApp);
