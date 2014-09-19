@@ -10,18 +10,16 @@
     <version>0.1.0</version>
     <modules>
         <module>denv-core</module>
+        <module>denv-core-containerization</module>
         <module>denv-client</module>
         <module>denv-server</module>
         <module>denv-server-containerization</module>
         <module>denv-server-rundeck</module>
         <module>denv-server-docker</module>
-        <module>denv-server-fig</module>
-        <module>denv-server-panamax</module>
-        <module>denv-server-integration-test</module>
+        <module>denv-server-mongodb</module>
         <module>denv-cli</module>
         <module>denv-web</module>
-        <module>denv-server-mongodb</module>
-        <module>denv-core-containerization</module>
+        <module>denv-integration-test</module>
     </modules>
 
     <dependencyManagement>
@@ -32,6 +30,11 @@
                 <version>1.1.5.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.13</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

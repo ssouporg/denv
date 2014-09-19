@@ -3,58 +3,31 @@ denv
 
 A manager for container based environments.
 
-# Usage
+# Architecture
+
+<a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
+
+
+# Command Line Interface
 
 Commands:
 
-    envs          list the environments
-    create        add a new environment
-    rm            remove an environment
-    apps          list the registered applications
-    addapp        register a new application
-    app           show the definition of a specific application
-    run           run an application in a specific environment
-    ps            list the running applications for one or more environments
-    start         start an environment
-    stop          stop an environment
-    clone         clone an environement
+    list        list the environments
+    create      create a new environment
+    rm          remove an environment
+    clone       clone an environement
 
-## defs
+    apps        list the registered applications
+    add         register a new application
+    app         show the definition of a specific application
 
-List the environment definitions
+    deploy      deploy an application in a specific environment
+    run         run an application in a specific environment
+    start       start an application in a specific environment
+    stop        stop an application in a specific environment
+    kill        kill an application in a specific environment
 
-## def
-
-def <envdef>  list the images used by <envdef>
-                       -a, --all: also show details: volumes, linked images
-
-## add
-
-If no file arguments are specified, the standard input is used.
-
-## run
-
-    run <envdef>  run a new environment
-                       -n, --name <name>: give the new environment the name specified
-
-## envs
-
-## start
-
-    start <envid> start the environment with the id specified
-
-## stop
-
-    stop <envid>  stop the environment with the id specified
-
-## rm
-
-    rm <envid>    remove the environment with the id specified
-
-## clone
-
-    clone <envid> clone an environement
-
+    ps          list the running applications
 
 # Sample use case
 
@@ -141,8 +114,3 @@ github:alebellu:denv:examples/expert-system-env.denv :
 	EXPOSE ex/expert-system
 
 denv add github:alebellu:ex:ex/expert-system-env
-
-# Architecture
-
-<a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
-

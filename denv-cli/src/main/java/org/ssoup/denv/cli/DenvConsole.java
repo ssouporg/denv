@@ -2,6 +2,7 @@ package org.ssoup.denv.cli;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.core.model.runtime.Application;
 import org.ssoup.denv.core.model.runtime.Environment;
 
@@ -20,11 +21,13 @@ public class DenvConsole {
     private PrintStream out = System.out;
     private PrintStream err = System.err;
 
-    private ByteArrayOutputStream localOutputStream = new ByteArrayOutputStream();
-    private ByteArrayOutputStream localErrorStream = new ByteArrayOutputStream();
+    private ByteArrayOutputStream localOutputStream;
+    private ByteArrayOutputStream localErrorStream;
 
     public void setUseLocalStreams(boolean useLocalStreams) {
         if (useLocalStreams) {
+            localOutputStream = new ByteArrayOutputStream();
+            localErrorStream = new ByteArrayOutputStream();
             out = new PrintStream(localOutputStream);
             err = new PrintStream(localErrorStream);
         } else {
@@ -38,7 +41,11 @@ public class DenvConsole {
     }
 
     public void error(String str) {
-        out.println(str);
+        err.println(str);
+    }
+
+    public void error(Exception ex) {
+        err.print(ex.getMessage());
     }
 
     public void printEnvs(Collection<? extends Environment> envs) {
@@ -57,6 +64,17 @@ public class DenvConsole {
                 }
             }
             out.format(leftAlignFormat, env.getId(), totalApps, deployedApps, runningApps);
+        }
+    }
+
+    public void printApps(Collection<? extends ApplicationConfiguration> apps) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignTitleFormat = "%-20s %-30s %n";
+        String leftAlignFormat      = "%-20s %-30s %n";
+
+        out.format(leftAlignTitleFormat, "APPLICATION ID", "DESCRIPTION");
+        for (ApplicationConfiguration app : apps) {
+            out.format(leftAlignFormat, app.getId(), app.getDescription());
         }
     }
 

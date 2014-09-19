@@ -37,18 +37,36 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
                 EnvironmentRepository environmentRepository = applicationContext.getBean(EnvironmentRepository.class);
                 actualEnv = (T)environmentRepository.findOne(env.getId());
             }
+
+            // Create/Update environment and add applications
             if (actualEnv == null) {
                 // if not existing create a new environment
                 actualEnv = (T)environmentManager.createEnvironment(env.getId(), env.getApplications(), env.getLabels(), null);
             } else {
                 actualEnv = (T)environmentManager.addApplications(actualEnv, env.getApplications());
             }
+
+            // Deploy/Undeploy and Start/Stop applications if needed
             for (Application app : env.getApplications()) {
                 Application actualApp = actualEnv.getApplication(app.getId());
+
+                // Deploy/Undeploy
+                if (app.isDeployed() && (actualApp == null || !actualApp.isDeployed())) {
+                    applicationManager.deployApplication(actualEnv, actualApp);
+                } else if (!app.isDeployed() && actualApp.isDeployed()) {
+                    // TODO: applicationManager.undeployApplication(actualEnv, actualApp);
+                }
+
+                // Start/Stop
                 if (app.isStarted() && (actualApp == null || !actualApp.isStarted())) {
+                    if (!actualApp.isDeployed()) {
+                        throw new DenvException("Cannot start an application which is not deployed [" + actualApp.getId() + "]");
+                    }
                     applicationManager.startApplication(actualEnv, actualApp);
                 } else if (!app.isStarted() && actualApp.isStarted()) {
-                    applicationManager.stopApplication(actualEnv, actualApp);
+                    if (actualApp.isDeployed()) {
+                        applicationManager.stopApplication(actualEnv, actualApp);
+                    }
                 }
             }
             return actualEnv;

@@ -8,21 +8,22 @@ import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
 /**
  * User: ALB
  * Date: 14/09/14 17:07
  */
-@Service @Order(20)
-@Parameters(commandNames = "apps", separators = "=", commandDescription = "List the registered applications")
-public class CommandApps implements DenvCommand {
+@Service @Order(10)
+@Parameters(commandNames = "list", separators = "=", commandDescription = "List environments")
+public class CommandList implements DenvCommand {
 
     private DenvConsole console;
 
     private DenvClient denvClient;
 
     @Autowired
-    public CommandApps(DenvConsole console, DenvClient denvClient) {
+    public CommandList(DenvConsole console, DenvClient denvClient) {
         this.console = console;
         this.denvClient = denvClient;
     }
@@ -30,10 +31,10 @@ public class CommandApps implements DenvCommand {
     @Override
     public void execute() throws DenvCLIException {
         try {
-            PagedResources apps = denvClient.listAppConfigs();
-            console.printApps(apps.getContent());
+            PagedResources<DenvEnvironment> envs = denvClient.listEnvs();
+            console.printEnvs(envs.getContent());
         } catch (Exception e) {
-            throw new DenvCLIException("An error occurred retrieving applications", e);
+            throw new DenvCLIException("An error occurred retrieving environments", e);
         }
     }
 }

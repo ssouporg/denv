@@ -8,11 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.command.DenvCommand;
+import org.ssoup.denv.cli.exception.DenvCLIException;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * User: ALB
@@ -29,10 +34,10 @@ public class DenvCLI implements CommandLineRunner {
 
     private DenvConsole console;
 
-    private Collection<DenvCommand> commands;
+    private List<DenvCommand> commands;
 
     @Autowired
-    public DenvCLI(DenvConsole console, Collection<DenvCommand> commands) {
+    public DenvCLI(DenvConsole console, List<DenvCommand> commands) {
         this.commands = commands;
         this.console = console;
 
@@ -41,6 +46,11 @@ public class DenvCLI implements CommandLineRunner {
         for (DenvCommand command : commands) {
             jc.addCommand(command);
         }
+    }
+
+    @PostConstruct
+    public void init() {
+        Collections.sort(commands, AnnotationAwareOrderComparator.INSTANCE);
     }
 
     public void run(String[] args) {
@@ -54,7 +64,12 @@ public class DenvCLI implements CommandLineRunner {
             String commandName = jc.getParsedCommand();
             JCommander commandJCommander = jc.getCommands().get(commandName);
             DenvCommand command = (DenvCommand)commandJCommander.getObjects().get(0);
-            command.execute();
+            try {
+                command.execute();
+            } catch (DenvCLIException ex) {
+                console.error(ex);
+                jc.usage();
+            }
         } catch (MissingCommandException e) {
             console.println("Error: Command not found: " + args[0]);
             jc.usage();

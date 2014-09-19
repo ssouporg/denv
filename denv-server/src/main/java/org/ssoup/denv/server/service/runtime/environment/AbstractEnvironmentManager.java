@@ -56,9 +56,6 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
             envId = generateEnvironmentId();
         }
         Environment env = newEnvironmentInstance(envId, apps, null);
-        for (Application app : env.getApplications()) {
-            applicationManager.deployApplication(env, app);
-        }
         return env;
     }
 
@@ -67,7 +64,6 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
         Collection<Application> capps = convertApplications(apps);
         for (Application app : capps) {
             env.addApplication(app);
-            applicationManager.deployApplication(env, app);
         }
         return env;
     }
