@@ -17,7 +17,7 @@ public class MongoDockerEnvironment extends DenvEnvironment {
     }
 
     public MongoDockerEnvironment(Environment env) {
-        super(env.getId(), null, env.getNode());
+        super(env.getId(), env.getName(), null, env.getNode());
         for (Application app : env.getApplications()) {
             this.addApplication(new MongoDockerApplication((ContainerizedApplication)app));
         }

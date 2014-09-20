@@ -29,7 +29,7 @@ public class MongoDBEnvironmentRepositoryImpl extends EnvironmentRepositoryImpl<
         Environment createdEnv = super.saveEnvironment(env);
         MongoDockerEnvironment mongoCreatedEnv = new MongoDockerEnvironment(createdEnv);
         mongoOperations.save(mongoCreatedEnv);
-         return mongoOperations.findById(mongoCreatedEnv.getId(), MongoDockerEnvironment.class);
+        return mongoOperations.findById(mongoCreatedEnv.getId(), MongoDockerEnvironment.class);
     }
 
     @Override

@@ -2,6 +2,8 @@ package org.ssoup.denv.cli.command;
 
 import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
@@ -12,6 +14,7 @@ import org.ssoup.denv.client.DenvClient;
  * Date: 14/09/14 17:07
  */
 @Service @Order(30)
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Parameters(commandNames = "deploy", separators = "=", commandDescription = "Deploy an application in a specific environment")
 public class CommandDeploy implements DenvCommand {
 

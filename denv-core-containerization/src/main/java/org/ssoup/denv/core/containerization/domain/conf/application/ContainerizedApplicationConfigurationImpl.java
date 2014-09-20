@@ -27,7 +27,7 @@ public class ContainerizedApplicationConfigurationImpl extends ApplicationConfig
     public static class ImageConfigurationImpl implements ImageConfiguration {
         @Id
         private String id;
-
+        private String name;
         private String source;
         private String description;
         private Collection<EnvironmentVariableConfigurationImpl> environment;
@@ -40,6 +40,7 @@ public class ContainerizedApplicationConfigurationImpl extends ApplicationConfig
 
         public ImageConfigurationImpl(ImageConfiguration imageConf) {
             this.id = imageConf.getId();
+            this.name = imageConf.getName();
             this.source = imageConf.getDescription();
             this.description = imageConf.getDescription();
             this.environment = (Collection<EnvironmentVariableConfigurationImpl>) imageConf.getEnvironment();
@@ -103,6 +104,15 @@ public class ContainerizedApplicationConfigurationImpl extends ApplicationConfig
 
         public void setVolumes(Collection<VolumeConfigurationImpl> volumes) {
             this.volumes = volumes;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }
 

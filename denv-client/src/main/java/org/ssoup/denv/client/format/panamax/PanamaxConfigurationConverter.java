@@ -20,12 +20,14 @@ public class PanamaxConfigurationConverter {
         Yaml yaml = new Yaml();
         PanamaxApplicationConfiguration panamaxAppConfiguration = yaml.loadAs(panamaxAppConfig, PanamaxApplicationConfiguration.class);
         ContainerizedApplicationConfigurationImpl appConf = new ContainerizedApplicationConfigurationImpl();
-        appConf.setId(panamaxAppConfiguration.getName());
+        appConf.setId(panamaxAppConfiguration.getName().replace(" ", "_").replace(".", "_"));
+        appConf.setName(panamaxAppConfiguration.getName());
         appConf.setDescription(panamaxAppConfiguration.getDescription());
         appConf.setImages(new ArrayList<ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl>());
         for (PanamaxApplicationConfiguration.Image image : panamaxAppConfiguration.getImages()) {
             ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl();
-            appImage.setId(image.getName());
+            appImage.setId(image.getName().replace(" ", "_").replace(".", "_"));
+            appImage.setName(image.getName());
             appImage.setDescription(image.getDescription());
             appImage.setSource(image.getSource());
             // environment variables

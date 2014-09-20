@@ -14,6 +14,8 @@ public class DenvEnvironment implements Environment {
 
     private String id;
 
+    private String name;
+
     // Config info
     private NodeConfiguration node;
 
@@ -27,12 +29,14 @@ public class DenvEnvironment implements Environment {
 
     public DenvEnvironment(Environment env) {
         this.id = env.getId();
+        this.name = env.getName();
         this.node = env.getNode();
         this.setApplications(env.getApplications());
     }
 
-    public DenvEnvironment(String id, Collection<Application> apps, NodeConfiguration node) {
+    public DenvEnvironment(String id, String name, Collection<Application> apps, NodeConfiguration node) {
         this.id = id;
+        this.name = name;
         this.setApplications(apps);
         this.node = node;
     }
@@ -90,5 +94,14 @@ public class DenvEnvironment implements Environment {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

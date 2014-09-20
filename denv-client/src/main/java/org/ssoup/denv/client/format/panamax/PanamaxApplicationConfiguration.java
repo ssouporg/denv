@@ -11,7 +11,7 @@ public class PanamaxApplicationConfiguration {
     private String name;
     private String description;
     private String keywords;
-    private boolean recommended;
+    private String recommended; // should be boolean but in some templates is empty string causing yaml parser to fail
     private String documentation;
     private Collection<String> authors;
     private String type;
@@ -23,6 +23,7 @@ public class PanamaxApplicationConfiguration {
         private String description;
         private Collection<EnvironmentVariable> environment;
         private Collection<Link> links;
+        private Collection<String> expose;
         private Collection<Port> ports;
         private Collection<Volume> volumes;
         private String category;
@@ -98,6 +99,14 @@ public class PanamaxApplicationConfiguration {
 
         public void setVolumes(Collection<Volume> volumes) {
             this.volumes = volumes;
+        }
+
+        public Collection<String> getExpose() {
+            return expose;
+        }
+
+        public void setExpose(Collection<String> expose) {
+            this.expose = expose;
         }
     }
 
@@ -217,11 +226,11 @@ public class PanamaxApplicationConfiguration {
         this.keywords = keywords;
     }
 
-    public boolean isRecommended() {
+    public String getRecommended() {
         return recommended;
     }
 
-    public void setRecommended(boolean recommended) {
+    public void setRecommended(String recommended) {
         this.recommended = recommended;
     }
 

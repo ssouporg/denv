@@ -7,18 +7,21 @@ package org.ssoup.denv.core.model.conf.application;
 public class ApplicationConfigurationImpl implements ApplicationConfiguration {
 
     private String id;
+    private String name;
     private String description;
 
     public ApplicationConfigurationImpl() {
     }
 
-    public ApplicationConfigurationImpl(String id, String description) {
+    public ApplicationConfigurationImpl(String id, String name, String description) {
         this.id = id;
+        this.name = name;
         this.description = description;
     }
 
     public ApplicationConfigurationImpl(ApplicationConfiguration appConf) {
         this.id = appConf.getId();
+        this.name = appConf.getName();
         this.description = appConf.getDescription();
     }
 
@@ -38,5 +41,14 @@ public class ApplicationConfigurationImpl implements ApplicationConfiguration {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

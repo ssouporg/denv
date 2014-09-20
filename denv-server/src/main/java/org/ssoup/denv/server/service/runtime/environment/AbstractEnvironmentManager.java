@@ -47,15 +47,18 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
 
     @Override
     public Environment createEnvironment(Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException {
-        return createEnvironment(null, apps, labels, nodeConfId);
+        return createEnvironment(null, null, apps, labels, nodeConfId);
     }
 
     @Override
-    public Environment createEnvironment(String envId, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException {
+    public Environment createEnvironment(String envId, String envName, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException {
         if (envId == null) {
             envId = generateEnvironmentId();
         }
-        Environment env = newEnvironmentInstance(envId, apps, null);
+        if (envName == null) {
+            envName = envId;
+        }
+        Environment env = newEnvironmentInstance(envId, envName, apps, null);
         return env;
     }
 
@@ -75,12 +78,12 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
         }
     }
 
-    protected Environment newEnvironmentInstance(String envId, Collection<Application> apps, NodeConfiguration node) throws DenvException {
+    protected Environment newEnvironmentInstance(String envId, String envName, Collection<Application> apps, NodeConfiguration node) throws DenvException {
         /*int intEnvId = Integer.parseInt(envId);
         if (intEnvId > maxEnvironmentIdInUse) {
             maxEnvironmentIdInUse = intEnvId;
         }*/
-        Environment environment = new DenvEnvironment(envId, convertApplications(apps), node);
+        Environment environment = new DenvEnvironment(envId, envName, convertApplications(apps), node);
         return environment;
     }
 

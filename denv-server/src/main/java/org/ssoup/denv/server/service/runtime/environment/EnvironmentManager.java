@@ -20,7 +20,7 @@ public interface EnvironmentManager {
 
     Environment createEnvironment(Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
 
-    Environment createEnvironment(String envId, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
+    Environment createEnvironment(String envId, String envName, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException;
 
     Environment addApplications(Environment env, Collection<Application> apps) throws DenvException;
 

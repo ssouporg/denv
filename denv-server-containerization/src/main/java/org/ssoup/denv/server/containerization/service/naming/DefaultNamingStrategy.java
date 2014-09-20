@@ -34,10 +34,10 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String generateContainerName(Environment env, String imageName) throws DenvException {
+    public String generateContainerName(Environment env, String imageId) throws DenvException {
         // ex: 14-APP-DB:4.3-2
         // return env.getId() + SEPARATOR + env.getId() + SEPARATOR + appConf.getId() + SEPARATOR + imageType;
-        return env.getId() + SEPARATOR + imageName;
+        return env.getId() + SEPARATOR + imageId;
     }
 
     @Override

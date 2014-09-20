@@ -20,6 +20,7 @@ Commands:
     apps        list the registered applications
     add         register a new application
     app         show the definition of a specific application
+    rmapp       remove an application
 
     deploy      deploy an application in a specific environment
     run         run an application in a specific environment

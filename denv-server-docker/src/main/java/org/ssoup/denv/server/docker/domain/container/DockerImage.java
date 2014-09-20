@@ -22,6 +22,7 @@ public class DockerImage extends AbstractImage {
         this.setConf(imageConf);
         this.dockerImage = dockerImage;
         this.setId(this.dockerImage.getId());
+        this.setName(imageConf.getName());
         String[] toks = this.dockerImage.getRepoTags()[0].split(":");
         this.setName(toks[0]);
         this.setTag(toks[1]);

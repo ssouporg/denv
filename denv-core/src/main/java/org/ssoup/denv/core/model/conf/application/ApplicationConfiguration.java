@@ -9,5 +9,6 @@ import org.springframework.data.annotation.Id;
 public interface ApplicationConfiguration {
     @Id
     String getId();
+    String getName();
     String getDescription();
 }

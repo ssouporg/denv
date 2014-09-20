@@ -17,15 +17,17 @@ import java.util.Map;
 @Scope("singleton")
 public class FigConfigurationConverter {
 
-    public ContainerizedApplicationConfiguration convertApplicationConfiguration(String appConfId, String figAppConfig) {
+    public ContainerizedApplicationConfiguration convertApplicationConfiguration(String appConfId, String appConfName, String figAppConfig) {
         FigApplicationConfiguration figAppConfiguration = readFigAppConfiguration(figAppConfig);
         ContainerizedApplicationConfigurationImpl appConf = new ContainerizedApplicationConfigurationImpl();
         appConf.setId(appConfId);
+        appConf.setName(appConfName);
         appConf.setImages(new ArrayList<ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl>());
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
             ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl();
-            appImage.setId(serviceName);
+            appImage.setId(serviceName.replace(" ", "_").replace(".", "_"));
+            appImage.setName(serviceName);
             appImage.setSource(serviceConfiguration.getImage());
             // environment variables
             appImage.setEnvironment(new ArrayList<ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl>());

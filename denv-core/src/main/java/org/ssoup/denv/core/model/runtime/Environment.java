@@ -14,6 +14,8 @@ public interface Environment {
     @Id
     String getId();
 
+    String getName();
+
     Collection<String> getLabels();
     boolean hasLabel(String label);
 

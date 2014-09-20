@@ -6,7 +6,9 @@ import com.beust.jcommander.ParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,7 @@ import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.List;
  * Date: 14/09/14 16:36
  */
 @Controller
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class DenvCLI implements CommandLineRunner {
 
     private static Logger LOGGER = LoggerFactory.getLogger(DenvCLI.class);
@@ -32,14 +36,19 @@ public class DenvCLI implements CommandLineRunner {
 
     private JCommander jc;
 
+    private ApplicationContext applicationContext;
+
     private DenvConsole console;
 
-    private List<DenvCommand> commands;
-
     @Autowired
-    public DenvCLI(DenvConsole console, List<DenvCommand> commands) {
-        this.commands = commands;
+    public DenvCLI(ApplicationContext applicationContext, DenvConsole console) {
+        this.applicationContext = applicationContext;
         this.console = console;
+    }
+
+    private void initJCommander() {
+        List<DenvCommand> commands = new ArrayList(applicationContext.getBeansOfType(DenvCommand.class).values());
+        Collections.sort(commands, AnnotationAwareOrderComparator.INSTANCE);
 
         jc = new JCommander();
         jc.setProgramName(PROGRAM_NAME);
@@ -48,12 +57,9 @@ public class DenvCLI implements CommandLineRunner {
         }
     }
 
-    @PostConstruct
-    public void init() {
-        Collections.sort(commands, AnnotationAwareOrderComparator.INSTANCE);
-    }
-
     public void run(String[] args) {
+        initJCommander();
+
         if (args.length == 0) {
             jc.usage();
             return;

@@ -3,6 +3,8 @@ package org.ssoup.denv.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
@@ -16,6 +18,7 @@ import java.util.List;
  * Date: 14/09/14 17:07
  */
 @Service @Order(12)
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Parameters(commandNames = "rm", separators = "=", commandDescription = "Remove an environment")
 public class CommandRm implements DenvCommand {
 
@@ -38,7 +41,7 @@ public class CommandRm implements DenvCommand {
             try {
                 denvClient.deleteEnv(envId);
             } catch (Exception e) {
-                throw new DenvCLIException( "An error occurred removing environment" + envId, e);
+                throw new DenvCLIException( "An error occurred removing environment " + envId, e);
             }
         }
     }

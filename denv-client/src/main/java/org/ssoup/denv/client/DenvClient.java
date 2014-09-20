@@ -14,11 +14,12 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.ssoup.denv.core.api.DenvApiEndpoints;
 import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
 import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
-import org.ssoup.denv.core.exception.DenvHttpException;
+import org.ssoup.denv.core.exception.ResourceNotFoundException;
 import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
@@ -74,15 +75,15 @@ public class DenvClient {
         return headers;
     }
 
-    public String createContainerizedAppConfig(ContainerizedApplicationConfiguration appConf) throws DenvHttpException {
-        ResponseEntity<String> res = sendCreateContainerizedAppConfigRequest(appConf);
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
-        return res.getBody();
+    public String createOrUpdateContainerizedAppConfig(ContainerizedApplicationConfiguration appConf) {
+        ResponseEntity<String> res = sendCreateOrUpdateContainerizedAppConfigRequest(appConf);
+        String location = res.getHeaders().getLocation().getPath();
+        // location will be something like: http://localhost:8080/applicationConfigs/{appConfId}
+        String appConfId = location.substring(location.lastIndexOf('/') + 1);
+        return appConfId;
     }
 
-    public ResponseEntity<String> sendCreateContainerizedAppConfigRequest(ContainerizedApplicationConfiguration appConf) {
+    public ResponseEntity<String> sendCreateOrUpdateContainerizedAppConfigRequest(ContainerizedApplicationConfiguration appConf) {
         return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS,
                 HttpMethod.POST,
@@ -91,11 +92,8 @@ public class DenvClient {
         );
     }
 
-    public PagedResources<ContainerizedApplicationConfigurationImpl> listAppConfigs() throws DenvHttpException {
+    public PagedResources<ContainerizedApplicationConfigurationImpl> listAppConfigs() {
         ResponseEntity<PagedResources<ContainerizedApplicationConfigurationImpl>> res = sendGetAppConfigsListRequest();
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
         return res.getBody();
     }
 
@@ -110,11 +108,8 @@ public class DenvClient {
         );
     }
 
-    public ContainerizedApplicationConfiguration getContainerizedAppConfig(String appConfId) throws DenvHttpException {
+    public ContainerizedApplicationConfiguration getContainerizedAppConfig(String appConfId) {
         ResponseEntity<Resource<ContainerizedApplicationConfigurationImpl>> res = sendGetContainerizedAppConfigRequest(appConfId);
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
         return res.getBody().getContent();
     }
 
@@ -122,7 +117,7 @@ public class DenvClient {
         ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>> parameterizedTypeReference =
                 new ParameterizedTypeReference<Resource<ContainerizedApplicationConfigurationImpl>>() {};
         return hateoasRestTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfName}",
+                getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfId}",
                 HttpMethod.GET,
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 parameterizedTypeReference,
@@ -130,11 +125,22 @@ public class DenvClient {
         );
     }
 
-    public String createEnv(DenvEnvironment env) throws DenvHttpException {
+    public void deleteAppConfig(String appConfId) {
+        ResponseEntity<Void> res = sendDeleteAppConfigRequest(appConfId);
+    }
+
+    public ResponseEntity<Void> sendDeleteAppConfigRequest(String appConfId) {
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.APPS_CONFIGS + "/{appConfId}",
+                HttpMethod.DELETE,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                Void.class,
+                appConfId
+        );
+    }
+
+    public String createEnv(DenvEnvironment env) {
         ResponseEntity<String> res = sendCreateEnvRequest(env);
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
         return res.getBody();
     }
 
@@ -147,11 +153,36 @@ public class DenvClient {
         );
     }
 
-    public String updateEnv(DenvEnvironment env) throws DenvHttpException {
-        ResponseEntity<String> res = sendUpdateEnvRequest(env);
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
+    public DenvEnvironment getEnv(String envId) throws ResourceNotFoundException {
+        try {
+            ResponseEntity<Resource<DenvEnvironment>> res = sendGetEnvRequest(envId);
+            return res.getBody().getContent();
+        } catch (HttpStatusCodeException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new ResourceNotFoundException("Environment " + envId + " does not exist");
+            }
+            throw ex;
         }
+    }
+
+    public ResponseEntity<Resource<DenvEnvironment>> sendGetEnvRequest(String envId) {
+        ParameterizedTypeReference<Resource<DenvEnvironment>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<DenvEnvironment>>() {};
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENVS  + "/{envId}",
+                HttpMethod.GET,
+                new HttpEntity<String>(envId, defaultRequestHeaders()),
+                parameterizedTypeReference,
+                envId
+        );
+    }
+
+    public String updateEnv(DenvEnvironment env) throws ResourceNotFoundException {
+        // the PUT method will succeed even if the resource does not exist,so we check for its existence first
+        // getEnv will throw ResourceNotFoundException if the environment does not exist
+        getEnv(env.getId());
+
+        ResponseEntity<String> res = sendUpdateEnvRequest(env);
         return res.getBody();
     }
 
@@ -165,11 +196,8 @@ public class DenvClient {
         );
     }
 
-    public PagedResources<DenvEnvironment> listEnvs() throws DenvHttpException {
+    public PagedResources<DenvEnvironment> listEnvs() {
         ResponseEntity<PagedResources<DenvEnvironment>> res = sendListEnvsRequest();
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
         return res.getBody();
     }
 
@@ -184,11 +212,8 @@ public class DenvClient {
         );
     }
 
-    public void deleteEnv(String envId) throws DenvHttpException {
+    public void deleteEnv(String envId) {
         ResponseEntity<Void> res = sendDeleteEnvRequest(envId);
-        if (!res.getStatusCode().is2xxSuccessful()) {
-            throw new DenvHttpException(res);
-        }
     }
 
     public ResponseEntity<Void> sendDeleteEnvRequest(String envId) {

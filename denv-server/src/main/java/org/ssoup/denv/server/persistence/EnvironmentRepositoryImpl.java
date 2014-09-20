@@ -41,7 +41,7 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
             // Create/Update environment and add applications
             if (actualEnv == null) {
                 // if not existing create a new environment
-                actualEnv = (T)environmentManager.createEnvironment(env.getId(), env.getApplications(), env.getLabels(), null);
+                actualEnv = (T)environmentManager.createEnvironment(env.getId(), env.getName(), env.getApplications(), env.getLabels(), null);
             } else {
                 actualEnv = (T)environmentManager.addApplications(actualEnv, env.getApplications());
             }
@@ -51,14 +51,14 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
                 Application actualApp = actualEnv.getApplication(app.getId());
 
                 // Deploy/Undeploy
-                if (app.isDeployed() && (actualApp == null || !actualApp.isDeployed())) {
+                if (app.isDeployed() && !actualApp.isDeployed()) {
                     applicationManager.deployApplication(actualEnv, actualApp);
                 } else if (!app.isDeployed() && actualApp.isDeployed()) {
                     // TODO: applicationManager.undeployApplication(actualEnv, actualApp);
                 }
 
                 // Start/Stop
-                if (app.isStarted() && (actualApp == null || !actualApp.isStarted())) {
+                if (app.isStarted() && !actualApp.isStarted()) {
                     if (!actualApp.isDeployed()) {
                         throw new DenvException("Cannot start an application which is not deployed [" + actualApp.getId() + "]");
                     }

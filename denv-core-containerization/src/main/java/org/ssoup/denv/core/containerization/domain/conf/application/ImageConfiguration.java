@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface ImageConfiguration {
     @Id
     String getId();
-
+    String getName();
     String getDescription();
     String getSource();
     Collection<? extends EnvironmentVariableConfiguration> getEnvironment();
