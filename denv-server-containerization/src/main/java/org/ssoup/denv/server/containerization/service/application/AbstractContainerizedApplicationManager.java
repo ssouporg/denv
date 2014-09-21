@@ -56,7 +56,7 @@ public abstract class AbstractContainerizedApplicationManager implements Contain
     public void deployApplication(Environment env, Application app) throws DenvException {
         ContainerizedApplication capp = (ContainerizedApplication)app;
         ContainerizedApplicationConfiguration cappConf = (ContainerizedApplicationConfiguration)applicationConfigurationManager.getApplicationConfiguration(capp.getApplicationConfigurationId());
-        for (ImageConfiguration imageConf : cappConf.getImages()) {
+        for (ImageConfiguration imageConf : cappConf.getImages().values()) {
             Image image = imageManager.findOrBuildImage(env, imageConf);
             String command = null; // getCmd(env, serviceConf);
             String containerName = namingStrategy.generateContainerName(env, imageConf.getId());
@@ -100,7 +100,7 @@ public abstract class AbstractContainerizedApplicationManager implements Contain
                             break;
                         }
                         /*
-                        ImageConfiguration linkedImageConf = app.getConf().getImageConfigurationByName(link.getService());
+                        ImageConfiguration linkedImageConf = app.getConf().getImageConfiguration(link.getService());
                         for (PortConfiguration port : linkedImageConf.getPorts()) {
                             if (!containerManager.isContainerListeningOnPort(linkedContainer, port)) {
                                 allLinkedContainersStarted = false;

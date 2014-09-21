@@ -1,11 +1,11 @@
 package org.ssoup.denv.core.containerization.domain.conf.application;
 
 import org.springframework.data.annotation.Id;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.core.model.conf.application.ApplicationConfigurationImpl;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: ALB
@@ -13,15 +13,14 @@ import java.util.Collection;
  */
 public class ContainerizedApplicationConfigurationImpl extends ApplicationConfigurationImpl implements ContainerizedApplicationConfiguration {
 
-    private Collection<ImageConfigurationImpl> images;
+    private Map<String, ImageConfigurationImpl> images;
 
     public ContainerizedApplicationConfigurationImpl() {
     }
 
     public ContainerizedApplicationConfigurationImpl(ContainerizedApplicationConfiguration appConf) {
         super(appConf);
-        //this.setImages(appConf.getImages());
-        this.images = (Collection<ImageConfigurationImpl>)appConf.getImages();
+        this.images = (Map<String, ImageConfigurationImpl>)appConf.getImages();
     }
 
     public static class ImageConfigurationImpl implements ImageConfiguration {
@@ -41,7 +40,7 @@ public class ContainerizedApplicationConfigurationImpl extends ApplicationConfig
         public ImageConfigurationImpl(ImageConfiguration imageConf) {
             this.id = imageConf.getId();
             this.name = imageConf.getName();
-            this.source = imageConf.getDescription();
+            this.source = imageConf.getSource();
             this.description = imageConf.getDescription();
             this.environment = (Collection<EnvironmentVariableConfigurationImpl>) imageConf.getEnvironment();
             this.links = (Collection<LinkConfigurationImpl>) imageConf.getLinks();
@@ -206,27 +205,32 @@ public class ContainerizedApplicationConfigurationImpl extends ApplicationConfig
         }
     }
 
-    public Collection<ImageConfigurationImpl> getImages() {
+    @Override
+    public Map<String, ImageConfigurationImpl> getImages() {
+        if (this.images == null) {
+            this.images = new HashMap<String, ImageConfigurationImpl>();
+        }
         return this.images;
     }
 
-    public ImageConfiguration getImageConfigurationByName(String imageName) {
-        for (ImageConfiguration imageConf : getImages()) {
-            if (imageConf.getId().equals(imageName)) {
-                return imageConf;
-            }
-        }
-        return null;
+    @Override
+    public ImageConfiguration getImageConfiguration(String imageId) {
+        return getImages().get(imageId);
     }
 
-    public void setImages(Collection<ImageConfigurationImpl> images) {
+    @Override
+    public void addImage(ImageConfiguration image) {
+        getImages().put(image.getId(), new ImageConfigurationImpl(image));
+    }
+
+    public void setImages(Map<String, ImageConfigurationImpl> images) {
         if (images == null) {
             this.images = null;
             return;
         }
-        this.images = new ArrayList<ImageConfigurationImpl>();
-        for (ImageConfiguration image : images) {
-            this.images.add(new ImageConfigurationImpl(image));
+        this.images = new HashMap<String, ImageConfigurationImpl>();
+        for (ImageConfiguration image : images.values()) {
+            this.addImage(image);
         }
     }
 }

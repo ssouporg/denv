@@ -22,7 +22,6 @@ public class FigConfigurationConverter {
         ContainerizedApplicationConfigurationImpl appConf = new ContainerizedApplicationConfigurationImpl();
         appConf.setId(appConfId);
         appConf.setName(appConfName);
-        appConf.setImages(new ArrayList<ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl>());
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
             ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl();
@@ -78,7 +77,7 @@ public class FigConfigurationConverter {
                     appImage.getVolumes().add(appVolume);
                 }
             }
-            appConf.getImages().add(appImage);
+            appConf.addImage(appImage);
         }
         return appConf;
     }

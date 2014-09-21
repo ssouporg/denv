@@ -1,7 +1,7 @@
 denv
 ====
 
-A manager for container based environments.
+A manager of software environments.
 
 # Architecture
 
@@ -28,7 +28,7 @@ Commands:
     stop        stop an application in a specific environment
     kill        kill an application in a specific environment
 
-    ps          list the running applications
+    ps          list running applications
 
 # Sample use case
 

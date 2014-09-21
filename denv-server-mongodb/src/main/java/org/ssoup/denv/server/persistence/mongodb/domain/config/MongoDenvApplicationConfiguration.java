@@ -23,37 +23,4 @@ import java.util.Collection;
 @Document(collection="applicationConfiguration")
 public class MongoDenvApplicationConfiguration extends ContainerizedApplicationConfigurationImpl {
 
-    @DBRef(lazy = false)
-    @CascadeSave
-    @JsonProperty("images")
-    private Collection<MongoDenvImageConfiguration> imageConfs;
-
-    @Override
-    @Transient
-    @JsonIgnore
-    public Collection<ImageConfigurationImpl> getImages() {
-        Collection<ImageConfigurationImpl> imgs = new ArrayList<ImageConfigurationImpl>();
-        imgs.addAll(imageConfs);
-        return imgs;
-    }
-
-    @Override
-    public void setImages(Collection<ImageConfigurationImpl> images) {
-        super.setImages(images);
-        this.imageConfs = new ArrayList();
-        for (ImageConfiguration image : images) {
-            imageConfs.add(new MongoDenvImageConfiguration(image));
-        }
-    }
-
-    public Collection<MongoDenvImageConfiguration> getImageConfs() {
-        return this.imageConfs;
-    }
-
-    public void setImageConfs(Collection<MongoDenvImageConfiguration> imageConfs) {
-        this.imageConfs = imageConfs;
-        Collection<ImageConfigurationImpl> imgs = new ArrayList<ImageConfigurationImpl>();
-        imgs.addAll(imageConfs);
-        super.setImages(imgs);
-    }
 }
