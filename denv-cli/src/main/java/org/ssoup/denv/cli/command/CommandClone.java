@@ -13,7 +13,7 @@ import org.ssoup.denv.client.DenvClient;
  * User: ALB
  * Date: 14/09/14 17:07
  */
-@Service @Order(13)
+@Service @Order(16)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Parameters(commandNames = "clone", separators = "=", commandDescription = "Clone an environment")
 public class CommandClone implements DenvCommand {

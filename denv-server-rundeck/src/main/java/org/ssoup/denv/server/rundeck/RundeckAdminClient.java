@@ -1,7 +1,7 @@
 package org.ssoup.denv.server.rundeck;
 
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.server.service.admin.AbstractAdminClient;
 
 /**
@@ -12,7 +12,7 @@ import org.ssoup.denv.server.service.admin.AbstractAdminClient;
 public class RundeckAdminClient extends AbstractAdminClient {
 
     @Override
-    public void deployApplication(String hostname, ApplicationConfiguration appConf) {
+    public void deployApplication(String hostname, EnvironmentConfiguration appConf) {
 
     }
 }

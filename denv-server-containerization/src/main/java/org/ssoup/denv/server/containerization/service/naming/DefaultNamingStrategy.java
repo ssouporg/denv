@@ -2,16 +2,18 @@ package org.ssoup.denv.server.containerization.service.naming;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.Container;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.Container;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
+import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 
 /**
- * {environmentId}-{appConfId}-{imageId}
- * i.e: acceptance-WPwithFig-DB
+ * {environmentId}-{imageConfId}[-{snapshotName}]
+ * i.e: acceptance-sqo-db-testscenario1
  *
  * User: ALB
  * Date: 26/02/14 16:21
@@ -21,23 +23,56 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     public static final String SEPARATOR = "-";
 
-    private ApplicationConfigurationManager applicationConfigurationManager;
+    private EnvironmentConfigRepository environmentConfigRepository;
 
     @Autowired
-    public DefaultNamingStrategy(ApplicationConfigurationManager applicationConfigurationManager) {
-        this.applicationConfigurationManager = applicationConfigurationManager;
+    public DefaultNamingStrategy(EnvironmentConfigRepository environmentConfigRepository) {
+        this.environmentConfigRepository = environmentConfigRepository;
     }
 
     @Override
-    public String generateImageName(String envName, ApplicationConfiguration appConf, String imageType) {
-        return appConf.getId() + SEPARATOR + imageType;
+    public String generateImageName(EnvironmentConfiguration envConf, ImageConfiguration imageConf) {
+        if (imageConf.getSource() != null) {
+            // if the image configuration specifies a source, use it
+            String[] toks = imageConf.getSource().split(":");
+            if (toks.length == 2) {
+                // if the image source contains a version, ignore it
+                return toks[0];
+            } else {
+                // otherwise use the environment version
+                return imageConf.getSource();
+            }
+        } else {
+            return envConf.getId() + SEPARATOR + imageConf.getId();
+        }
     }
 
     @Override
-    public String generateContainerName(Environment env, String imageId) throws DenvException {
-        // ex: 14-APP-DB:4.3-2
-        // return env.getId() + SEPARATOR + env.getId() + SEPARATOR + appConf.getId() + SEPARATOR + imageType;
-        return env.getId() + SEPARATOR + imageId;
+    public String generateImageName(Environment env, ImageConfiguration imageConf) {
+        return generateImageName(env, imageConf, env.getSnapshotName());
+    }
+
+    @Override
+    public String generateImageName(Environment env, ImageConfiguration imageConf, String snapshotName) {
+        EnvironmentConfiguration envConf = (EnvironmentConfiguration) this.environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
+        String imageName = generateImageName(envConf, imageConf);
+        if (snapshotName != null) {
+            imageName += SEPARATOR + snapshotName;
+        }
+        return imageName;
+    }
+
+    @Override
+    public String generateContainerName(Environment env, String imageId) {
+        ContainerizedEnvironmentConfiguration envConf = (ContainerizedEnvironmentConfiguration) this.environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
+        ImageConfiguration imageConf = envConf.getImageConfiguration(imageId);
+        return generateContainerName(env, imageConf);
+    }
+
+    @Override
+    public String generateContainerName(Environment env, ImageConfiguration imageConf) {
+        // ex: 14-sqo-db
+        return env.getId() + SEPARATOR + imageConf.getId();
     }
 
     @Override
@@ -49,7 +84,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     @Override
     public ImageEnvsInfo extractEnvsInfoFromImage(Image image) throws DenvException {
         ImageEnvsInfo imageInfo = new ImageEnvsInfo();
-        String[] tok = image.getName().split(SEPARATOR);
+        /*String[] tok = image.getName().split(SEPARATOR);
         if (tok == null || tok.length < 2) {
             return null;
         }
@@ -58,7 +93,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
         ApplicationConfiguration appConf = applicationConfigurationManager.getApplicationConfiguration(appConfName);
         imageInfo.setAppConf(appConf);
         imageInfo.setAppVersion(image.getTag());
-        imageInfo.setImageType(imageType);
+        imageInfo.setImageType(imageType);*/
         return imageInfo;
     }
 

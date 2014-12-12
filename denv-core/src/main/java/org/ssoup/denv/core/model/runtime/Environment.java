@@ -16,19 +16,18 @@ public interface Environment {
 
     String getName();
 
+    String getEnvironmentConfigurationId();
+    String getVersion();
+    String getSnapshotName();
+
+    EnvironmentState getActualState();
+    EnvironmentDesiredState getDesiredState();
+
     Collection<String> getLabels();
     boolean hasLabel(String label);
 
     @JsonIgnore
     NodeConfiguration getNode();
 
-    Collection<Application> getApplications();
-
-    Application getApplication(String appId);
-
-    void addApplication(Application app);
-
-    void removeApplication(String appId);
-
-    void setApplications(Collection<Application> apps);
+    EnvironmentRuntimeInfo getRuntimeInfo();
 }

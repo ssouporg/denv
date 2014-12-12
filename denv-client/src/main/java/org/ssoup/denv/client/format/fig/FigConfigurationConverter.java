@@ -2,8 +2,9 @@ package org.ssoup.denv.client.format.fig;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
-import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfigurationImpl;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfigurationImpl;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerDesiredState;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.ArrayList;
@@ -17,41 +18,42 @@ import java.util.Map;
 @Scope("singleton")
 public class FigConfigurationConverter {
 
-    public ContainerizedApplicationConfiguration convertApplicationConfiguration(String appConfId, String appConfName, String figAppConfig) {
+    public ContainerizedEnvironmentConfiguration convertEnvironmentConfiguration(String appConfId, String appConfName, String figAppConfig) {
         FigApplicationConfiguration figAppConfiguration = readFigAppConfiguration(figAppConfig);
-        ContainerizedApplicationConfigurationImpl appConf = new ContainerizedApplicationConfigurationImpl();
+        ContainerizedEnvironmentConfigurationImpl appConf = new ContainerizedEnvironmentConfigurationImpl();
         appConf.setId(appConfId);
         appConf.setName(appConfName);
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
-            ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedApplicationConfigurationImpl.ImageConfigurationImpl();
+            ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
             appImage.setId(serviceName.replace(" ", "_").replace(".", "_"));
             appImage.setName(serviceName);
             appImage.setSource(serviceConfiguration.getImage());
+            appImage.setPrivileged(serviceConfiguration.isPrivileged());
             // environment variables
-            appImage.setEnvironment(new ArrayList<ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl>());
+            appImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
             if (serviceConfiguration.getEnvironment() != null) {
                 for (String environmentVariableName : serviceConfiguration.getEnvironment().keySet()) {
-                    ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new ContainerizedApplicationConfigurationImpl.EnvironmentVariableConfigurationImpl();
+                    ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl();
                     appEnvironmentVariable.setVariable(environmentVariableName);
                     appEnvironmentVariable.setValue(serviceConfiguration.getEnvironment().get(environmentVariableName));
                     appImage.getEnvironment().add(appEnvironmentVariable);
                 }
             }
             // links
-            appImage.setLinks(new ArrayList<ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl>());
+            appImage.setLinks(new ArrayList<ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl>());
             if (serviceConfiguration.getLinks() != null) {
                 for (String link : serviceConfiguration.getLinks()) {
-                    ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl appLink = new ContainerizedApplicationConfigurationImpl.LinkConfigurationImpl();
+                    ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl appLink = new ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl();
                     appLink.setService(link);
                     appImage.getLinks().add(appLink);
                 }
             }
             // ports
-            appImage.setPorts(new ArrayList<ContainerizedApplicationConfigurationImpl.PortConfigurationImpl>());
+            appImage.setPorts(new ArrayList<ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl>());
             if (serviceConfiguration.getPorts() != null) {
                 for (String port : serviceConfiguration.getPorts()) {
-                    ContainerizedApplicationConfigurationImpl.PortConfigurationImpl appPort = new ContainerizedApplicationConfigurationImpl.PortConfigurationImpl();
+                    ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl appPort = new ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl();
                     if (port.contains(":")) {
                         int index = port.indexOf(':');
                         appPort.setHostPort(Integer.parseInt(port.substring(0, index)));
@@ -63,10 +65,10 @@ public class FigConfigurationConverter {
                 }
             }
             // volumes
-            appImage.setVolumes(new ArrayList<ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl>());
+            appImage.setVolumes(new ArrayList<ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl>());
             if (serviceConfiguration.getVolumes() != null) {
                 for (String vol : serviceConfiguration.getVolumes()) {
-                    ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl appVolume = new ContainerizedApplicationConfigurationImpl.VolumeConfigurationImpl();
+                    ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl appVolume = new ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl();
                     if (vol.contains(":")) {
                         int index = vol.indexOf(':');
                         appVolume.setHostPath(vol.substring(0, index));
@@ -76,6 +78,22 @@ public class FigConfigurationConverter {
                     }
                     appImage.getVolumes().add(appVolume);
                 }
+            }
+            // denv variables
+            appImage.setVariables(new ArrayList<ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl>());
+            if (serviceConfiguration.getVariables() != null) {
+                for (String denvVariableName : serviceConfiguration.getVariables().keySet()) {
+                    ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl denvVariable = new ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl();
+                    denvVariable.setVariable(denvVariableName);
+                    denvVariable.setValue(serviceConfiguration.getVariables().get(denvVariableName));
+                    appImage.getVariables().add(denvVariable);
+                }
+            }
+
+            if (appImage.getPorts().size() > 0) {
+                appImage.setInitialDesiredState(ContainerDesiredState.RESPONDING);
+            } else {
+                appImage.setInitialDesiredState(ContainerDesiredState.STARTED);
             }
             appConf.addImage(appImage);
         }

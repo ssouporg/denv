@@ -7,19 +7,18 @@ import com.github.dockerjava.core.DockerClientImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.containerization.domain.conf.application.ImageConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.container.AbstractImageManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
+import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.server.service.admin.AdminClient;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
-import org.ssoup.denv.server.service.versioning.VersioningPolicy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +36,8 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     private NodeManager nodeManager;
 
     @Autowired
-    public DockerImageManager(AdminClient adminClient, ApplicationConfigurationManager applicationConfigurationManager, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy, NodeManager nodeManager) {
-        super(adminClient, applicationConfigurationManager, namingStrategy, versioningPolicy);
+    public DockerImageManager(AdminClient adminClient, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy, NodeManager nodeManager) {
+        super(adminClient, namingStrategy, versioningPolicy);
         this.nodeManager = nodeManager;
     }
 
@@ -51,16 +50,9 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
 
     @Override
     public Image findImage(Environment env, ImageConfiguration imageConf) throws DenvException {
-        // String appVersion = getVersioningPolicy().getAppVersion(env, appConf);
-        // String imageName = this.getNamingStrategy().generateImageName(env.getId(), appConf, imageType);
-        com.github.dockerjava.api.model.Image dockerImage = null;
-        String[] toks = imageConf.getSource().split(":");
-        if (toks.length == 2) {
-            dockerImage = this.findDockerImage(toks[0], toks[1]);
-        } else {
-            dockerImage = this.findDockerImage(imageConf.getSource(), null);
-        }
-
+        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+        com.github.dockerjava.api.model.Image dockerImage = this.findDockerImage(imageName, imageVersion);
         if (dockerImage != null) {
             return new DockerImage(imageConf, dockerImage);
         }
@@ -107,15 +99,11 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     @Override
     protected Image buildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
         // try to pull the image from docker registry
-        String imageSource = imageConf.getSource();
-        String imageRepository = imageConf.getSource(), imageTag = null;
-        if (imageSource.contains(":")) {
-            imageRepository = imageSource.split(":")[0];
-            imageTag = imageSource.split(":")[1];
-        }
-        PullImageCmd pullImageCommand = getDockerClient().pullImageCmd(imageRepository);
-        if (imageTag != null) {
-            pullImageCommand.withTag(imageTag);
+        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+        PullImageCmd pullImageCommand = getDockerClient().pullImageCmd(imageName);
+        if (imageVersion != null) {
+            pullImageCommand.withTag(imageVersion);
         }
         InputStream pullStream = pullImageCommand.exec();
         try {

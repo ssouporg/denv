@@ -2,8 +2,13 @@ package org.ssoup.denv.cli;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerRuntimeInfo;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
+import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.Environment;
 
 import java.io.ByteArrayOutputStream;
@@ -17,6 +22,8 @@ import java.util.Collection;
 @Service
 @Scope("singleton")
 public class DenvConsole {
+
+    private boolean debug;
 
     private PrintStream out = System.out;
     private PrintStream err = System.err;
@@ -45,36 +52,95 @@ public class DenvConsole {
     }
 
     public void error(Exception ex) {
-        err.print(ex.getMessage());
+        if (debug) ex.printStackTrace(err);
+        else err.println(ex.getMessage());
     }
 
     public void printEnvs(Collection<? extends Environment> envs) {
         // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
-        String leftAlignTitleFormat = "%-20s %-12s %-12s %-12s %n";
-        String leftAlignFormat      = "%-20s %-12d %-12d %-12d %n";
+        String leftAlignTitleFormat = "%-20s %-20s %10s %20s %-18s %-18s %-12s %-12s %-12s %n";
+        String leftAlignFormat = "%-20s %-20s %10s %20s %-18s %-18s %-12d %-12d %-12d %n";
 
-        out.format(leftAlignTitleFormat, "ENVIRONMENT ID", "APPS", "DEPLOYED", "RUNNING");
+        out.format(leftAlignTitleFormat, "ENVIRONMENT ID", "CONFIGURATION ID", "VERSION", "SNAPSHOT", "ACTUAL STATE", "DESIRED STATE", "IMAGES", "DEPLOYED", "STARTED");
         for (Environment env : envs) {
-            int totalApps = 0, deployedApps = 0, runningApps = 0;
-            if (env.getApplications() != null) {
-                totalApps = env.getApplications().size();
-                for (Application app : env.getApplications()) {
-                    if (app.isDeployed()) deployedApps ++;
-                    if (app.isStarted()) runningApps ++;
+            int totalContainers = 0, deployedContainers = 0, runningContainers = 0;
+            if (env.getRuntimeInfo() != null) {
+                Collection<ContainerRuntimeInfo> containerRuntimeInfos = ((ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo()).getContainersRuntimeInfo().values();
+                totalContainers = containerRuntimeInfos.size();
+                for (ContainerRuntimeInfo containerRuntimeInfo : containerRuntimeInfos) {
+                    if (containerRuntimeInfo.getActualState() != null) {
+                        if (containerRuntimeInfo.getActualState().isDeployed()) deployedContainers++;
+                        if (containerRuntimeInfo.getActualState().isStarted()) runningContainers++;
+                    }
                 }
             }
-            out.format(leftAlignFormat, env.getId(), totalApps, deployedApps, runningApps);
+            out.format(leftAlignFormat, env.getId(), env.getEnvironmentConfigurationId(),
+                    env.getVersion() != null ? env.getVersion() : "",
+                    env.getSnapshotName() != null ? env.getSnapshotName() : "",
+                    env.getActualState(), env.getDesiredState(), totalContainers, deployedContainers, runningContainers);
         }
     }
 
-    public void printApps(Collection<? extends ApplicationConfiguration> apps) {
+    public void printEnv(DenvEnvironment env) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignTitleFormat = "%-20s %-20s %-18s %-18s %-20s %n";
+        String leftAlignFormat = "%-20s %-20s %-18s %-18s %-20s %n";
+
+        out.format(leftAlignTitleFormat, "CONTAINER ID", "IMAGE", "ACTUAL STATE", "DESIRED STATE", "PORTS");
+        if (env.getRuntimeInfo() != null) {
+            Collection<ContainerRuntimeInfo> containerRuntimeInfos = ((ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo()).getContainersRuntimeInfo().values();
+            for (ContainerRuntimeInfo containerRuntimeInfo : containerRuntimeInfos) {
+                StringBuffer ports = new StringBuffer();
+                if (containerRuntimeInfo.getPortMapping() != null) {
+                    for (Integer containerPort : containerRuntimeInfo.getPortMapping().keySet()) {
+                        Integer hostPort = containerRuntimeInfo.getPortMapping().get(containerPort);
+                        if (ports.length() > 0) ports.append(", ");
+                        ports.append(hostPort).append("->").append(containerPort);
+                    }
+                }
+                out.format(leftAlignFormat, trimContainerId(containerRuntimeInfo.getId()),
+                        containerRuntimeInfo.getImageConfigurationId(),
+                        containerRuntimeInfo.getActualState(), containerRuntimeInfo.getDesiredState(),
+                        ports);
+            }
+        }
+    }
+
+    public void printEnvConf(ContainerizedEnvironmentConfiguration envConf) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignFormat = "%-30s %-40s %n";
+        String leftAlignFormatImage = "    %-30s %-40s %n";
+
+        out.format(leftAlignFormat, "Id: ", envConf.getId());
+        out.format(leftAlignFormat, "Name: ", envConf.getName());
+        out.format(leftAlignFormat, "Description: ", envConf.getDescription());
+        out.println();
+
+        if (envConf.getImages() != null) {
+            out.println("Images:");
+            out.println();
+            Collection<? extends ImageConfiguration> imageConfs = envConf.getImages().values();
+            for (ImageConfiguration imageConf : imageConfs) {
+                out.format(leftAlignFormatImage, "Id: ", imageConf.getId());
+                out.format(leftAlignFormatImage, "Name: ", imageConf.getName());
+                if (imageConf.getDescription() != null) {
+                    out.format(leftAlignFormatImage, "Description: ", imageConf.getDescription());
+                }
+                out.format(leftAlignFormatImage, "Source: ", imageConf.getSource());
+                out.format(leftAlignFormatImage, "Initial desired state: ", imageConf.getInitialDesiredState());
+                out.println();
+            }
+        }
+    }
+
+    public void printConfs(Collection<? extends EnvironmentConfiguration> confs) {
         // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
         String leftAlignTitleFormat = "%-20s %-30s %n";
         String leftAlignFormat      = "%-20s %-30s %n";
 
-        out.format(leftAlignTitleFormat, "APPLICATION ID", "DESCRIPTION");
-        for (ApplicationConfiguration app : apps) {
-            out.format(leftAlignFormat, app.getId(), app.getDescription());
+        out.format(leftAlignTitleFormat, "CONFIGURATION ID", "DESCRIPTION");
+        for (EnvironmentConfiguration conf : confs) {
+            out.format(leftAlignFormat, conf.getId(), (conf.getDescription() != null ? conf.getDescription() : ""));
         }
     }
 
@@ -84,5 +150,18 @@ public class DenvConsole {
 
     public ByteArrayOutputStream getLocalErrorStream() {
         return localErrorStream;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    private String trimContainerId(String id) {
+        if (id == null) return "";
+        return id.substring(0, 12);
     }
 }

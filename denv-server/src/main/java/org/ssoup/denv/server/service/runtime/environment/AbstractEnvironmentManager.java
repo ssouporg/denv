@@ -1,17 +1,15 @@
 package org.ssoup.denv.server.service.runtime.environment;
 
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
 import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
-import org.ssoup.denv.core.model.runtime.Application;
-import org.ssoup.denv.core.model.runtime.ApplicationImpl;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfoImpl;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.server.event.EnvsEvent;
 import org.ssoup.denv.server.event.EnvsEventHandler;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
-import org.ssoup.denv.server.service.runtime.application.ApplicationManager;
+import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,75 +26,31 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
 
     private NodeManager nodeManager;
 
-    private ApplicationConfigurationManager applicationConfigurationManager;
-
-    private ApplicationManager applicationManager;
+    private EnvironmentRuntimeManager environmentRuntimeManager;
 
     private List<EnvsEventHandler> eventHandlers = new ArrayList<EnvsEventHandler>();
 
-    public AbstractEnvironmentManager(NodeManager nodeManager, ApplicationConfigurationManager applicationConfigurationManager, ApplicationManager applicationManager) {
+    public AbstractEnvironmentManager(NodeManager nodeManager, EnvironmentRuntimeManager environmentRuntimeManager) {
         this.nodeManager = nodeManager;
-        this.applicationConfigurationManager = applicationConfigurationManager;
-        this.applicationManager = applicationManager;
+        this.environmentRuntimeManager = environmentRuntimeManager;
     }
 
     @Override
-    public Environment createEnvironment(Collection<Application> apps, Collection<String> labels) throws DenvException {
-        return createEnvironment(apps, labels, null);
+    public Environment createEnvironment(Environment env) throws DenvException {
+        Environment createdEnv = newEnvironmentInstance(env);
+        return createdEnv;
     }
 
     @Override
-    public Environment createEnvironment(Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException {
-        return createEnvironment(null, null, apps, labels, nodeConfId);
+    public Environment updateEnvironment(Environment actualEnv, Environment env) throws DenvException {
+        DenvEnvironment aenv = (DenvEnvironment)actualEnv;
+        aenv.setName(env.getName());
+        aenv.setActualState(env.getActualState());
+        aenv.setDesiredState(env.getDesiredState());
+        return aenv;
     }
 
-    @Override
-    public Environment createEnvironment(String envId, String envName, Collection<Application> apps, Collection<String> labels, String nodeConfId) throws DenvException {
-        if (envId == null) {
-            envId = generateEnvironmentId();
-        }
-        if (envName == null) {
-            envName = envId;
-        }
-        Environment env = newEnvironmentInstance(envId, envName, apps, null);
-        return env;
-    }
-
-    @Override
-    public Environment addApplications(Environment env, Collection<Application> apps) throws DenvException {
-        Collection<Application> capps = convertApplications(apps);
-        for (Application app : capps) {
-            env.addApplication(app);
-        }
-        return env;
-    }
-
-    @Override
-    public void deleteEnvironment(Environment env) throws DenvException {
-        for (Application app : env.getApplications()) {
-            applicationManager.deleteApplication(env, app);
-        }
-    }
-
-    protected Environment newEnvironmentInstance(String envId, String envName, Collection<Application> apps, NodeConfiguration node) throws DenvException {
-        /*int intEnvId = Integer.parseInt(envId);
-        if (intEnvId > maxEnvironmentIdInUse) {
-            maxEnvironmentIdInUse = intEnvId;
-        }*/
-        Environment environment = new DenvEnvironment(envId, envName, convertApplications(apps), node);
-        return environment;
-    }
-
-    protected Collection<Application> convertApplications(Collection<Application> apps) throws DenvException {
-        Collection<Application> capps = new ArrayList<Application>();
-        for (Application app : apps) {
-            Application capp = new ApplicationImpl(app);
-            capp.setDeployed(false);
-            capp.setStarted(false);
-            capps.add(capp);
-        }
-        return capps;
-    }
+    protected abstract Environment newEnvironmentInstance(Environment env) throws DenvException;
 
     private synchronized String generateEnvironmentId() {
         //return UUID.randomUUID().toString();
@@ -115,7 +69,7 @@ public abstract class AbstractEnvironmentManager<T extends Environment> implemen
         }
     }
 
-    public ApplicationManager getApplicationManager() {
-        return applicationManager;
+    public EnvironmentRuntimeManager getEnvironmentRuntimeManager() {
+        return environmentRuntimeManager;
     }
 }

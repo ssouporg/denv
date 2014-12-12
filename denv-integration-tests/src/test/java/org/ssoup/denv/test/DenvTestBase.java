@@ -4,24 +4,23 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.http.ResponseEntity;
 import org.ssoup.denv.cli.DenvCLI;
 import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.client.DenvClient;
 import org.ssoup.denv.client.format.fig.FigConfigurationConverter;
 import org.ssoup.denv.client.format.panamax.PanamaxConfigurationConverter;
-import org.ssoup.denv.core.containerization.domain.conf.application.ContainerizedApplicationConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfoImpl;
+import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
+import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.ResourceNotFoundException;
-import org.ssoup.denv.core.model.runtime.Application;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.ContainerizedApplicationImpl;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -35,13 +34,15 @@ public abstract class DenvTestBase {
     public static final String INTEGRATION_ENV_ID = "integration";
 
     public static final String[] FIG_ENV_LABELS = {"Fig", "Wordpress", "Integration"};
-    public static final String FIG_APP_CONF_ID = "figTestApp";
+    public static final String FIG_ENV_CONF_ID = "figTestApp";
     public static final String FIG_ENV_FILE_NAME = "fig/fig_app.yml";
 
     public static final String[] PANAMAX_ENV_LABELS = {"Panamax", "Wordpress", "Integration"};
-    public static final String PANAMAX_APP_CONF_ID = "Wordpress_with_MySQL";
-    public static final String PANAMAX_APP_CONF_URL = "https://raw.githubusercontent.com/CenturyLinkLabs/panamax-public-templates/master/drupal_7.28_with_mysql.pmx";
+    public static final String PANAMAX_ENV_CONF_ID = "Wordpress_with_MySQL";
+    public static final String PANAMAX_ENV_CONF_URL = "https://raw.githubusercontent.com/CenturyLinkLabs/panamax-public-templates/master/drupal_7.28_with_mysql.pmx";
     public static final String PANAMAX_ENV_FILE_NAME = "panamax/panamax_app.pmx";
+
+    public static final long MAX_WAIT_FOR_DESIRED_STATE_IN_MILLIS = 120000;
 
     @Inject
     private DenvClient denvClient;
@@ -67,13 +68,13 @@ public abstract class DenvTestBase {
     protected void registerFigAppConfig() throws IOException {
         String figApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(FIG_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
-        ContainerizedApplicationConfiguration applicationConfiguration = figDenvApplicationConfigurationConverter.convertApplicationConfiguration(FIG_APP_CONF_ID, FIG_APP_CONF_ID, figApplicationConfiguration);
-        denvClient.createOrUpdateContainerizedAppConfig(applicationConfiguration);
-        PagedResources page = denvClient.listAppConfigs();
+        ContainerizedEnvironmentConfiguration applicationConfiguration = figDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_ID, figApplicationConfiguration);
+        denvClient.createOrUpdateContainerizedEnvConfig(applicationConfiguration);
+        PagedResources page = denvClient.listEnvConfigs();
         assertNotNull(page);
         assertTrue(page.getMetadata().getTotalElements() > 0);
-        //assertTrue(page.getContent().contains(FIG_APP_CONF_ID));
-        ContainerizedApplicationConfiguration appConf = denvClient.getContainerizedAppConfig(FIG_APP_CONF_ID);
+        //assertTrue(page.getContent().contains(FIG_ENV_CONF_ID));
+        ContainerizedEnvironmentConfiguration appConf = denvClient.getContainerizedEnvConfig(FIG_ENV_CONF_ID);
         assertNotNull(appConf);
         assertNotNull(appConf.getImages());
         assertEquals(4, appConf.getImages().size());
@@ -82,46 +83,28 @@ public abstract class DenvTestBase {
     protected void registerPanamaxAppConfig() throws IOException {
         String panamaxApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(PANAMAX_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
-        ContainerizedApplicationConfiguration applicationConfiguration = panamaxDenvApplicationConfigurationConverter.convertApplicationConfiguration(panamaxApplicationConfiguration);
-        denvClient.createOrUpdateContainerizedAppConfig(applicationConfiguration);
-        PagedResources page = denvClient.listAppConfigs();
+        ContainerizedEnvironmentConfiguration envConf = panamaxDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(panamaxApplicationConfiguration);
+        denvClient.createOrUpdateContainerizedEnvConfig(envConf);
+        PagedResources page = denvClient.listEnvConfigs();
         assertNotNull(page);
         assertTrue(page.getMetadata().getTotalElements() > 0);
-        //assertTrue(page.getContent().contains(PANAMAX_APP_CONF_ID));
-        ContainerizedApplicationConfiguration appConf = denvClient.getContainerizedAppConfig(PANAMAX_APP_CONF_ID);
+        //assertTrue(page.getContent().contains(PANAMAX_ENV_CONF_ID));
+        ContainerizedEnvironmentConfiguration appConf = denvClient.getContainerizedEnvConfig(PANAMAX_ENV_CONF_ID);
         assertNotNull(appConf);
         assertNotNull(appConf.getImages());
         assertEquals(2, appConf.getImages().size());
     }
 
-    protected void deleteAppConfig(String appConfId) {
-        denvClient.deleteAppConfig(appConfId);
+    protected void deleteEnvConfig(String envConfId) {
+        denvClient.deleteEnvConfig(envConfId);
     }
 
-    protected void createEnvironment(String envId) {
-        DenvEnvironment env = new DenvEnvironment(envId, envId, null, null);
-        ResponseEntity<String> createResponseEntity = denvClient.sendCreateEnvRequest(env);
-        assertNotNull(createResponseEntity.getHeaders().getLocation());
+    protected PagedResources<DenvContainerizedEnvironment> listEnvironments() {
+        return denvClient.listEnvironments();
     }
 
-    protected void createEnvironment(String envId, String appConfId) {
-        DenvEnvironment env = new DenvEnvironment(envId, envId, createApp(appConfId), null);
-        ResponseEntity<String> createResponseEntity = denvClient.sendCreateEnvRequest(env);
-        assertNotNull(createResponseEntity.getHeaders().getLocation());
-    }
-
-    protected void updateEnvironment(String envId, String appConfId) {
-        DenvEnvironment env = new DenvEnvironment(envId, envId, createApp(appConfId), null);
-        ResponseEntity<String> createPanamaxResponseEntity = denvClient.sendUpdateEnvRequest(env);
-        assertNotNull(createPanamaxResponseEntity.getHeaders().getLocation());
-    }
-
-    protected PagedResources<DenvEnvironment> listEnvironments() {
-        return denvClient.listEnvs();
-    }
-
-    protected PagedResources<DenvEnvironment> listEnvironmentsAndCheckFor(String envId) {
-        PagedResources<DenvEnvironment> envs = listEnvironments();
+    protected PagedResources<DenvContainerizedEnvironment> listEnvironmentsAndCheckFor(String envId) {
+        PagedResources<DenvContainerizedEnvironment> envs = listEnvironments();
         assertNotNull(envs);
         assertNotNull(envs.getContent());
         assertTrue(envs.getContent().size() > 0);
@@ -136,8 +119,8 @@ public abstract class DenvTestBase {
         return null;
     }
 
-    protected PagedResources<DenvEnvironment> listEnvironmentsShouldNotContain(String envId) {
-        PagedResources<DenvEnvironment> envs = listEnvironments();
+    protected PagedResources<DenvContainerizedEnvironment> listEnvironmentsShouldNotContain(String envId) {
+        PagedResources<DenvContainerizedEnvironment> envs = listEnvironments();
         assertNotNull(envs);
         assertNotNull(envs.getContent());
 
@@ -153,8 +136,18 @@ public abstract class DenvTestBase {
         return denvClient.getEnv(envId);
     }
 
+    protected void createEnvironment(String envId, String envConfId) throws DenvException {
+        denvClient.createEnvironment(envId, envConfId);
+        denvClient.waitForDesiredState(envId, MAX_WAIT_FOR_DESIRED_STATE_IN_MILLIS);
+    }
+
+    protected void updateEnvironment(String envId, String envConfId) throws ResourceNotFoundException {
+        DenvEnvironment env = new DenvContainerizedEnvironment(envId, envId, envConfId, createRuntimeInfo(envConfId), null);
+        denvClient.updateEnvironment(env);
+    }
+
     protected void deleteEnvironment(String envId) {
-        denvClient.deleteEnv(envId);
+        denvClient.deleteEnvironment(envId);
     }
 
     protected void runCLICommand(String command) {
@@ -173,17 +166,14 @@ public abstract class DenvTestBase {
     }
 
     protected String getConsoleOutput() {
-        return denvConsole.getLocalOutputStream().toString();
+        return denvConsole.getLocalOutputStream().toString().trim();
     }
 
     protected String getConsoleErrorOutput() {
         return denvConsole.getLocalErrorStream().toString();
     }
 
-    private Collection<Application> createApp(String appConfId) {
-        Application app = new ContainerizedApplicationImpl(appConfId, appConfId);
-        app.setDeployed(true);
-        app.setStarted(true);
-        return Arrays.asList(app);
+    private ContainerizedEnvironmentRuntimeInfoImpl createRuntimeInfo(String envConfId) {
+        return new ContainerizedEnvironmentRuntimeInfoImpl();
     }
 }

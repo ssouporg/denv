@@ -2,6 +2,7 @@ package org.ssoup.denv.server.docker.domain.container;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.DockerException;
+import com.github.dockerjava.api.NotFoundException;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -14,24 +15,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.containerization.domain.conf.application.*;
+import org.ssoup.denv.core.containerization.model.conf.environment.*;
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.Container;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.Container;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
+import org.ssoup.denv.server.containerization.exception.ContainerNotFoundException;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.container.AbstractContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
+import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
-import org.ssoup.denv.server.service.versioning.VersioningPolicy;
 
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: ALB
@@ -75,12 +80,32 @@ public class DockerContainerManager extends AbstractContainerManager {
     }
 
     @Override
-    public Container findContainer(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException {
-        com.github.dockerjava.api.model.Container dockerContainer = findContainer(containerName);
+    public Container findContainerById(Environment env, ImageConfiguration imageConf, String containerId) throws DenvException {
+        com.github.dockerjava.api.model.Container dockerContainer = findContainerById(containerId);
         return convertContainer(env, imageConf, dockerContainer);
     }
 
-    private com.github.dockerjava.api.model.Container findContainer(String containerName) throws ContainerizationException {
+    @Override
+    public Container findContainerByName(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException {
+        com.github.dockerjava.api.model.Container dockerContainer = findContainerByName(containerName);
+        return convertContainer(env, imageConf, dockerContainer);
+    }
+
+    private com.github.dockerjava.api.model.Container findContainerById(String containerId) throws ContainerizationException {
+        List<com.github.dockerjava.api.model.Container> dockerContainers = getDockerClient().listContainersCmd().withShowAll(true).exec();
+        if (dockerContainers != null) {
+            for (com.github.dockerjava.api.model.Container dockerContainer : dockerContainers) {
+                if (dockerContainer.getNames() != null) {
+                    if (containerId.equals(dockerContainer.getId())) {
+                        return dockerContainer;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private com.github.dockerjava.api.model.Container findContainerByName(String containerName) throws ContainerizationException {
         List<com.github.dockerjava.api.model.Container> dockerContainers = getDockerClient().listContainersCmd().withShowAll(true).exec();
         if (dockerContainers != null) {
             for (com.github.dockerjava.api.model.Container dockerContainer : dockerContainers) {
@@ -201,55 +226,94 @@ public class DockerContainerManager extends AbstractContainerManager {
                     .withLinks(links.toArray(new Link[0]))
                     //.withBinds()
                     .withPortBindings(portBindings)
+                    .withPrivileged(imageConf.isPrivileged())
                     .exec();
             InspectContainerResponse containerInspectResponse = getDockerClient().inspectContainerCmd(dockerContainer.getId()).exec();
             dockerContainer.setRunning(containerInspectResponse.getState().isRunning());
+            dockerContainer.fillPortMapping(containerInspectResponse);
+            fillVariables(env, imageConf, dockerContainer);
             return dockerContainer;
         } catch(Exception ex) {
             throw new ContainerizationException(ex);
         }
     }
 
+    private void fillVariables(Environment env, ImageConfiguration imageConf, DockerContainer dockerContainer) {
+        // fill in Denv variables
+        dockerContainer.setVariables(new HashMap<String, String>());
+        if (imageConf.getVariables() != null) {
+            for (DenvVariableConfiguration denvVariable : imageConf.getVariables()) {
+                String v = denvVariable.getValue();
+                v = resolve(v, dockerContainer);
+                dockerContainer.getVariables().put(denvVariable.getVariable(), v);
+            }
+        }
+    }
+
+    private String resolve(String v, DockerContainer dockerContainer) {
+        Pattern p = Pattern.compile("\\$\\{[^\\}]*\\}");
+        Matcher m = p.matcher(v);
+        while (m.find()) {
+            String g = m.group().substring(2, m.group().length() - 1);
+            if (g.equals("DOCKER_HOST")) {
+                DockerNodeConfiguration dockerNodeConfiguration = (DockerNodeConfiguration) this.nodeManager.getDefaultNode();
+                v = v.replace(m.group(), dockerNodeConfiguration.getDockerHost());
+            } else if (g.startsWith("MAPPED_PORT ")) {
+                int port = Integer.parseInt(g.substring("MAPPED_PORT ".length()));
+                int mappedPort = dockerContainer.getPortMapping().get(port);
+                v = v.replace(m.group(), "" + mappedPort);
+            }
+        }
+        return v;
+    }
+
     @Override
     public void stopContainer(Environment env, Container container) throws ContainerizationException {
+        DockerContainer dockerContainer = (DockerContainer) container;
         try {
             getDockerClient().killContainerCmd(container.getId()).exec();
             InspectContainerResponse containerInspectResponse = getDockerClient().inspectContainerCmd(container.getId()).exec();
-            container.setRunning(containerInspectResponse.getState().isRunning());
+            if (!containerInspectResponse.getState().isRunning()) {
+                dockerContainer.setRunning(false);
+            }
         } catch (DockerException e) {
             throw new ContainerizationException(e);
         }
     }
 
     @Override
-    public void deleteContainer(Environment env, Container container) throws ContainerizationException {
+    public void deleteContainer(Environment env, String containerId) throws ContainerizationException {
         try {
-            getDockerClient().removeContainerCmd(container.getId()).withForce().exec();
-        } catch (DockerException e) {
-            throw new ContainerizationException(e);
+            getDockerClient().removeContainerCmd(containerId).withForce().exec();
+        } catch (Exception e) {
+            if (e instanceof NotFoundException) {
+                throw new ContainerNotFoundException(e);
+            } else {
+                throw new ContainerizationException(e);
+            }
         }
     }
 
     @Override
-    public void saveContainerAsApplicationImage(Environment env, Container container, ApplicationConfiguration appConf, String imageType) throws DenvException {
-        String imageName = this.getNamingStrategy().generateImageName(env.getId(), appConf, imageType);
-        String appVersion = getVersioningPolicy().getAppVersion(env, appConf);
-        saveContainer(env, container, imageName, appVersion);
+    public void saveContainerAsEnvironmentImage(Environment env, ImageConfiguration imageConf, Container container) throws DenvException {
+        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+        saveContainer(env, container, imageName, imageVersion);
     }
 
     @Override
     public void saveContainer(Environment env, Container container, String imageName) throws ContainerizationException {
-        saveContainer(env, container, imageName, null);
+        saveContainer(env, container, imageName, env.getVersion());
     }
 
     public void saveContainer(Environment env, Container container, String imageName, String tag) throws ContainerizationException {
         try {
             String response = getDockerClient().commitCmd(container.getId())
                     .withMessage("Created.")
-                    .withRepository(imageName) // "synaptiq/sqc-db-" + dbImageName;
+                    .withRepository(imageName)
                     .withTag(tag)
                     .exec();
-            LOGGER.info("Saving image " + imageName + ": " + response);
+            LOGGER.info("Saving image " + imageName + ":" + tag + " : " + response);
         } catch (DockerException ex) {
             throw new ContainerizationException(ex);
         }
@@ -274,9 +338,10 @@ public class DockerContainerManager extends AbstractContainerManager {
     }
 
     @Override
-    public boolean isContainerListeningOnPort(Container linkedContainer, PortConfiguration port) {
+    public boolean isContainerListeningOnPort(Container container, PortConfiguration port) {
         DockerNodeConfiguration dockerNodeConfiguration = (DockerNodeConfiguration)nodeManager.getDefaultNode();
-        return serverListening(dockerNodeConfiguration.getDockerHost(), port.getHostPort());
+        Integer hostPort = container.getPortMapping().get(port.getContainerPort());
+        return serverListening(dockerNodeConfiguration.getDockerHost(), hostPort);
     }
 
     private boolean serverListening(String host, int port)

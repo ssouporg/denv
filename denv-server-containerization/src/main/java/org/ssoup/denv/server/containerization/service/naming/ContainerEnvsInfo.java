@@ -1,7 +1,7 @@
 package org.ssoup.denv.server.containerization.service.naming;
 
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 
 /**
@@ -11,8 +11,8 @@ import org.ssoup.denv.core.model.runtime.Environment;
 public class ContainerEnvsInfo {
     private String envId; // may be needed if env is not registered yet in env manager
     private Environment env;
-    private Application app;
-    private ApplicationConfiguration appConf; // may be needed if no application is running
+    private EnvironmentRuntimeInfo app;
+    private EnvironmentConfiguration appConf; // may be needed if no runtime is running
     private String imageType;
 
     public Environment getEnv() {
@@ -23,11 +23,11 @@ public class ContainerEnvsInfo {
         this.env = env;
     }
 
-    public Application getApp() {
+    public EnvironmentRuntimeInfo getApp() {
         return app;
     }
 
-    public void setApp(Application app) {
+    public void setApp(EnvironmentRuntimeInfo app) {
         this.app = app;
     }
 
@@ -47,11 +47,11 @@ public class ContainerEnvsInfo {
         this.envId = envId;
     }
 
-    public ApplicationConfiguration getAppConf() {
+    public EnvironmentConfiguration getAppConf() {
         return appConf;
     }
 
-    public void setAppConf(ApplicationConfiguration appConf) {
+    public void setAppConf(EnvironmentConfiguration appConf) {
         this.appConf = appConf;
     }
 }

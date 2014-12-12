@@ -2,30 +2,35 @@ package org.ssoup.denv.server.persistence;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.ssoup.denv.core.model.runtime.Application;
-import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.DenvRuntimeException;
-import org.ssoup.denv.server.service.runtime.application.ApplicationManager;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
+import org.ssoup.denv.core.model.runtime.Environment;
+import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
+import org.ssoup.denv.core.model.runtime.EnvironmentState;
 import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
+import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
 
 /**
  * User: ALB
  * Date: 07/09/14 09:23
  */
-public class EnvironmentRepositoryImpl<T extends Environment> implements EnvironmentRepositoryCustom<T> {
+public abstract class EnvironmentRepositoryImpl<T extends Environment> implements EnvironmentRepositoryCustom<T> {
 
     private ApplicationContext applicationContext;
 
+    private EnvironmentConfigRepository environmentConfigRepository;
+
     private EnvironmentManager environmentManager;
 
-    private ApplicationManager applicationManager;
+    private EnvironmentRuntimeManager environmentRuntimeManager;
 
     @Autowired
-    public EnvironmentRepositoryImpl(ApplicationContext applicationContext, EnvironmentManager environmentManager, ApplicationManager applicationManager) {
+    public EnvironmentRepositoryImpl(ApplicationContext applicationContext, EnvironmentConfigRepository environmentConfigRepository, EnvironmentManager environmentManager, EnvironmentRuntimeManager environmentRuntimeManager) {
         this.applicationContext = applicationContext;
+        this.environmentConfigRepository = environmentConfigRepository;
         this.environmentManager = environmentManager;
-        this.applicationManager = applicationManager;
+        this.environmentRuntimeManager = environmentRuntimeManager;
     }
 
     @Override
@@ -41,34 +46,14 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
             // Create/Update environment and add applications
             if (actualEnv == null) {
                 // if not existing create a new environment
-                actualEnv = (T)environmentManager.createEnvironment(env.getId(), env.getName(), env.getApplications(), env.getLabels(), null);
+                actualEnv = (T)environmentManager.createEnvironment(env);
+                if (env.getActualState() == null) {
+                    ((DenvEnvironment) env).setActualState(EnvironmentState.STARTING);
+                }
             } else {
-                actualEnv = (T)environmentManager.addApplications(actualEnv, env.getApplications());
+                actualEnv = (T) environmentManager.updateEnvironment(actualEnv, env);
             }
 
-            // Deploy/Undeploy and Start/Stop applications if needed
-            for (Application app : env.getApplications()) {
-                Application actualApp = actualEnv.getApplication(app.getId());
-
-                // Deploy/Undeploy
-                if (app.isDeployed() && !actualApp.isDeployed()) {
-                    applicationManager.deployApplication(actualEnv, actualApp);
-                } else if (!app.isDeployed() && actualApp.isDeployed()) {
-                    // TODO: applicationManager.undeployApplication(actualEnv, actualApp);
-                }
-
-                // Start/Stop
-                if (app.isStarted() && !actualApp.isStarted()) {
-                    if (!actualApp.isDeployed()) {
-                        throw new DenvException("Cannot start an application which is not deployed [" + actualApp.getId() + "]");
-                    }
-                    applicationManager.startApplication(actualEnv, actualApp);
-                } else if (!app.isStarted() && actualApp.isStarted()) {
-                    if (actualApp.isDeployed()) {
-                        applicationManager.stopApplication(actualEnv, actualApp);
-                    }
-                }
-            }
             return actualEnv;
         } catch (DenvException e) {
             throw new DenvRuntimeException(e);
@@ -76,11 +61,15 @@ public class EnvironmentRepositoryImpl<T extends Environment> implements Environ
     }
 
     @Override
-    public void delete(Environment env) {
-        try {
-            environmentManager.deleteEnvironment(env);
-        } catch (DenvException e) {
-            throw new DenvRuntimeException(e);
-        }
+    public void deleteEnvironment(T env) {
+        ((DenvEnvironment)env).setDesiredState(EnvironmentDesiredState.DELETED);
+    }
+
+    public EnvironmentConfigRepository getEnvironmentConfigRepository() {
+        return environmentConfigRepository;
+    }
+
+    public EnvironmentRuntimeManager getEnvironmentRuntimeManager() {
+        return environmentRuntimeManager;
     }
 }

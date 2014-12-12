@@ -1,13 +1,13 @@
 package org.ssoup.denv.server.containerization.service.naming;
 
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 
 /**
  * User: ALB
  * Date: 28/02/14 10:39
  */
 public class ImageEnvsInfo {
-    private ApplicationConfiguration appConf;
+    private EnvironmentConfiguration appConf;
     private String appVersion;
     private String imageType;
 
@@ -19,11 +19,11 @@ public class ImageEnvsInfo {
         this.appVersion = appVersion;
     }
 
-    public ApplicationConfiguration getAppConf() {
+    public EnvironmentConfiguration getAppConf() {
         return appConf;
     }
 
-    public void setAppConf(ApplicationConfiguration appConf) {
+    public void setAppConf(EnvironmentConfiguration appConf) {
         this.appConf = appConf;
     }
 

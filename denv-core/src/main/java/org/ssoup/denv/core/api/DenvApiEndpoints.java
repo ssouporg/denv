@@ -7,5 +7,7 @@ package org.ssoup.denv.core.api;
 public class DenvApiEndpoints {
 
     public static final String ENVS = "/environments";
-    public static final String APPS_CONFIGS = "/applicationConfigs";
+    public static final String ENV_CONFIGS = "/environmentConfigs";
+
+    public static final String ENV_SAVE_SNAPSHOT = "/{envId}/saveSnapshot";
 }

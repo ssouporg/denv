@@ -1,7 +1,7 @@
 package org.ssoup.denv.server.docker.domain.container;
 
-import org.ssoup.denv.core.containerization.domain.conf.application.ImageConfiguration;
-import org.ssoup.denv.server.containerization.domain.runtime.AbstractImage;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.containerization.model.runtime.AbstractImage;
 
 /**
  * User: ALB

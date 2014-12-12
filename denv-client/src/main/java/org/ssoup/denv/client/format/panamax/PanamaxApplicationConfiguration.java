@@ -28,6 +28,7 @@ public class PanamaxApplicationConfiguration {
         private Collection<Volume> volumes;
         private String category;
         private String type;
+        private Collection<DenvVariable> variables;
 
         public String getName() {
             return name;
@@ -107,6 +108,14 @@ public class PanamaxApplicationConfiguration {
 
         public void setExpose(Collection<String> expose) {
             this.expose = expose;
+        }
+
+        public Collection<DenvVariable> getVariables() {
+            return variables;
+        }
+
+        public void setVariables(Collection<DenvVariable> variables) {
+            this.variables = variables;
         }
     }
 
@@ -191,6 +200,27 @@ public class PanamaxApplicationConfiguration {
 
         public void setHost_path(String host_path) {
             this.host_path = host_path;
+        }
+    }
+
+    public static class DenvVariable {
+        private String variable;
+        private String value;
+
+        public String getVariable() {
+            return variable;
+        }
+
+        public void setVariable(String variable) {
+            this.variable = variable;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 

@@ -6,9 +6,10 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.Ports;
 import org.springframework.data.annotation.Transient;
-import org.ssoup.denv.server.containerization.domain.runtime.AbstractContainer;
-import org.ssoup.denv.server.containerization.domain.runtime.Container;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.AbstractContainer;
+import org.ssoup.denv.core.containerization.model.runtime.Container;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerState;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +20,7 @@ import java.util.Map;
  */
 public class DockerContainer extends AbstractContainer {
 
-    @JsonIgnore
-    @Transient
     private CreateContainerResponse containerCreateResponse;
-    @JsonIgnore
-    @Transient
     private InspectContainerResponse containerInspectResponse;
 
     public DockerContainer() {
@@ -37,7 +34,9 @@ public class DockerContainer extends AbstractContainer {
         super(id, image, running);
     }
 
-    public DockerContainer(CreateContainerResponse containerCreateResponse, InspectContainerResponse containerInspectResponse, Image image) {
+    public DockerContainer(CreateContainerResponse containerCreateResponse,
+                           InspectContainerResponse containerInspectResponse,
+                           Image image) {
         super(containerCreateResponse.getId(), image, containerInspectResponse.getState().isRunning());
         this.containerCreateResponse = containerCreateResponse;
         this.containerInspectResponse = containerInspectResponse;
@@ -59,7 +58,7 @@ public class DockerContainer extends AbstractContainer {
         fillPortMapping(containerInspectResponse);
     }
 
-    private void fillPortMapping(InspectContainerResponse containerInspectResponse) {
+    public void fillPortMapping(InspectContainerResponse containerInspectResponse) {
         Map<Integer, Integer> portMapping = new HashMap<Integer, Integer>();
         if (containerInspectResponse.getNetworkSettings() != null && containerInspectResponse.getNetworkSettings().getPorts() != null) {
             Ports ports = containerInspectResponse.getNetworkSettings().getPorts();

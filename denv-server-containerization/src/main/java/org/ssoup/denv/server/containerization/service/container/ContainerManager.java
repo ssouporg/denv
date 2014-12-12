@@ -1,10 +1,10 @@
 package org.ssoup.denv.server.containerization.service.container;
 
-import org.ssoup.denv.core.containerization.domain.conf.application.ImageConfiguration;
-import org.ssoup.denv.core.containerization.domain.conf.application.PortConfiguration;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
-import org.ssoup.denv.server.containerization.domain.runtime.Container;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.PortConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.exception.DenvException;
@@ -20,9 +20,9 @@ public interface ContainerManager {
 
     List<Container> getAllContainers() throws ContainerizationException;
 
-    List<Container> getAllRunningContainers() throws ContainerizationException;
+    Container findContainerById(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
 
-    Container findContainer(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
+    Container findContainerByName(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
 
     Container createContainer(Environment env, String containerName, ImageConfiguration imageConf, Image image, String command) throws ContainerizationException;
 
@@ -30,9 +30,9 @@ public interface ContainerManager {
 
     void stopContainer(Environment env, Container container) throws ContainerizationException;
 
-    void deleteContainer(Environment env, Container container) throws ContainerizationException;
+    void deleteContainer(Environment env, String containerId) throws ContainerizationException;
 
-    void saveContainerAsApplicationImage(Environment env, Container container, ApplicationConfiguration applicationConfiguration, String imageType) throws DenvException;
+    void saveContainerAsEnvironmentImage(Environment env, ImageConfiguration imageConf, Container container) throws DenvException;
 
     void saveContainer(Environment env, Container container, String imageName) throws ContainerizationException;
 
@@ -40,5 +40,5 @@ public interface ContainerManager {
 
     InputStream getFolder(Container container, String folderPath) throws ContainerizationException;
 
-    boolean isContainerListeningOnPort(Container linkedContainer, PortConfiguration port);
+    boolean isContainerListeningOnPort(Container container, PortConfiguration port);
 }

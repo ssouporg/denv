@@ -1,15 +1,13 @@
 package org.ssoup.denv.server.containerization.service.container;
 
-import org.ssoup.denv.core.containerization.domain.conf.application.ImageConfiguration;
-import org.ssoup.denv.core.model.conf.application.ApplicationConfiguration;
-import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.Image;
+import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.server.service.admin.AdminClient;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
-import org.ssoup.denv.server.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
 
 /**
  * User: ALB
@@ -19,15 +17,12 @@ public abstract class AbstractImageManager implements ImageManager {
 
     private AdminClient adminClient;
 
-    private ApplicationConfigurationManager applicationConfigurationManager;
-
     private NamingStrategy namingStrategy;
 
     private VersioningPolicy versioningPolicy;
 
-    protected AbstractImageManager(AdminClient adminClient, ApplicationConfigurationManager applicationConfigurationManager, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy) {
+    protected AbstractImageManager(AdminClient adminClient, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy) {
         this.adminClient = adminClient;
-        this.applicationConfigurationManager = applicationConfigurationManager;
         this.namingStrategy = namingStrategy;
         this.versioningPolicy = versioningPolicy;
     }
@@ -37,6 +32,9 @@ public abstract class AbstractImageManager implements ImageManager {
         Image image = this.findImage(env, imageConf);
         if (image == null) {
             image = buildImage(env, imageConf);
+        }
+        if (image == null) {
+            throw new DenvException("Could not find or build image " + imageConf.getId());
         }
         return image;
     }
@@ -51,7 +49,7 @@ public abstract class AbstractImageManager implements ImageManager {
             Container container = getContainerManager().createContainer(env, containerName, baseImage, command, null, null);
             adminClient.deployApplication(container.getHostname(), appConf);
         // or B)
-            // String[] command = new String[]{"apt-get", "install", "synaptiq-sqo=" + application.getVersion()};
+            // String[] command = new String[]{"apt-get", "install", "synaptiq-sqo=" + runtime.getVersion()};
             // Container container = containerizationManager.startNewContainer(env, baseImage, command);
         getContainerManager().saveContainerAsApplicationImage(env, container, appConf, "Web");
         */
@@ -69,12 +67,12 @@ public abstract class AbstractImageManager implements ImageManager {
         }
         ImageInfo imageInfo = new ImageInfo();
 
-        imageInfo.imageNameWithoutVersion = tok[0];
+        /*imageInfo.imageNameWithoutVersion = tok[0];
         String version = tok[1];
         String appConfName = tok2[0];
         ApplicationConfiguration appConf = applicationConfigurationManager.getApplicationConfiguration(appConfName);
-        //imageInfo.application = getApplicationFactory().createApplication(appConf);
-        imageInfo.imageType = tok2[1];
+        //imageInfo.runtime = getApplicationFactory().createApplication(appConf);
+        imageInfo.imageType = tok2[1];*/
 
         return imageInfo;
     }
@@ -89,7 +87,7 @@ public abstract class AbstractImageManager implements ImageManager {
 
     protected class ImageInfo {
         public String imageNameWithoutVersion;
-        public Application deployedApplication;
+        public EnvironmentRuntimeInfo deployedApplication;
         public String imageType;
     }
 }

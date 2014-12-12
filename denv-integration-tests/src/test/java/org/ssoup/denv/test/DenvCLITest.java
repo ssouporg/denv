@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.ssoup.denv.Denv;
 import org.ssoup.denv.core.exception.ResourceNotFoundException;
-import org.ssoup.denv.core.model.runtime.Application;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 
 import java.io.IOException;
@@ -32,40 +32,43 @@ public class DenvCLITest extends DenvTestBase {
     private Logger logger = LoggerFactory.getLogger(DenvCLITest.class);
 
     @Test
-    public void testCreateEnv() throws IOException {
+    public void testAddEnv() throws Exception {
+        registerPanamaxAppConfig();
+
         try {
-            runCLICommand("create", INTEGRATION_ENV_ID);
+            runCLICommand("add", INTEGRATION_ENV_ID, "-c", PANAMAX_ENV_CONF_ID, "-w", "-m", "" + (2 * 3600 * 1000));
             String out = getConsoleOutput();
             assertEquals("", out);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
-    public void testListEnvs() throws IOException {
+    public void testListEnvs() throws Exception {
         registerPanamaxAppConfig();
 
         try {
-            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_APP_CONF_ID);
+            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
-            runCLICommand("list");
+            runCLICommand("envs");
             String out = getConsoleOutput();
             assertTrue(out.contains(INTEGRATION_ENV_ID));
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
-            deleteAppConfig(PANAMAX_APP_CONF_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
-    public void testRemoveEnv() throws IOException {
+    public void testRemoveEnv() throws Exception {
         registerPanamaxAppConfig();
 
         try {
-            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_APP_CONF_ID);
+            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
             runCLICommand("rm", INTEGRATION_ENV_ID);
             String out = getConsoleOutput();
@@ -73,57 +76,53 @@ public class DenvCLITest extends DenvTestBase {
 
             listEnvironmentsShouldNotContain(INTEGRATION_ENV_ID);
         } finally {
-            deleteAppConfig(PANAMAX_APP_CONF_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
-    public void testApps() throws IOException {
+    public void testConfs() throws IOException {
         try {
             registerPanamaxAppConfig();
 
-            runCLICommand("apps");
+            runCLICommand("confs");
             String out = getConsoleOutput();
-            assertTrue(out.contains(PANAMAX_APP_CONF_ID));
+            assertTrue(out.contains(PANAMAX_ENV_CONF_ID));
         } finally {
-            deleteAppConfig(PANAMAX_APP_CONF_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
-    public void testAddRemoteApp() throws IOException {
+    public void testAddRemoteConf() throws IOException {
         String appConfId = null;
         try {
-            runCLICommand("add", new String[]{"-s", PANAMAX_APP_CONF_URL, "-f", "panamax"});
+            runCLICommand("addconf", new String[]{PANAMAX_ENV_CONF_URL, "-f", "panamax"});
             assertEquals("", getConsoleErrorOutput());
             appConfId = getConsoleOutput().trim();
         } finally {
             if (appConfId != null) {
-                deleteAppConfig(appConfId);
+                deleteEnvConfig(appConfId);
             }
         }
     }
 
     @Test
-    public void testAddAndStartRemoteApp() throws IOException, ResourceNotFoundException {
-        String appConfId = null;
+    public void testAddAndStartRemoteConf() throws IOException, ResourceNotFoundException {
+        String envConfId = null;
         try {
-            createEnvironment(INTEGRATION_ENV_ID);
-
-            runCLICommand("add", new String[]{"-s", PANAMAX_APP_CONF_URL, "-f", "panamax", "--run", "--envs", INTEGRATION_ENV_ID});
+            runCLICommand("addconf", new String[]{PANAMAX_ENV_CONF_URL, "-f", "panamax", "--envs", INTEGRATION_ENV_ID});
             assertEquals("", getConsoleErrorOutput());
-            appConfId = getConsoleOutput().trim();
+            envConfId = getConsoleOutput().trim();
 
             Environment env = getEnv(INTEGRATION_ENV_ID);
             assertNotNull(env);
-            Application app = env.getApplication(appConfId);
-            assertNotNull(app);
-            assertTrue(app.isDeployed());
-            assertTrue(app.isStarted());
+            EnvironmentRuntimeInfo envInfo = env.getRuntimeInfo();
+            assertNotNull(envInfo);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
-            if (appConfId != null) {
-                deleteAppConfig(appConfId);
+            if (envConfId != null) {
+                deleteEnvConfig(envConfId);
             }
         }
     }

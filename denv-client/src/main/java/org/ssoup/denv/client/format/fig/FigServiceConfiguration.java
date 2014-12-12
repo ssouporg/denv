@@ -26,6 +26,7 @@ public class FigServiceConfiguration {
     private String domainname;
     private String mem_limit;
     private boolean privileged;
+    private Map<String, String> variables;
 
     public String getImage() {
         return image;
@@ -169,6 +170,14 @@ public class FigServiceConfiguration {
 
     public void setPrivileged(boolean privileged) {
         this.privileged = privileged;
+    }
+
+    public Map<String, String> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(Map<String, String> variables) {
+        this.variables = variables;
     }
 
     ///

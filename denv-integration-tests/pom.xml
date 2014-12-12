@@ -4,55 +4,44 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>denv</artifactId>
-        <groupId>denv</groupId>
-        <version>0.1.0</version>
+        <groupId>org.ssoup.denv</groupId>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>denv-server-integration-tests</artifactId>
-    <version>${parent.version}</version>
+    <artifactId>denv-integration-tests</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-server-mongodb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-server-docker</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-server-rundeck</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>denv</groupId>
-            <artifactId>denv-server-panamax</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>denv</groupId>
-            <artifactId>denv-server-fig</artifactId>
-            <version>${version}</version>
-        </dependency>
-        <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-server-containerization</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-client</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>denv</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>denv-cli</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

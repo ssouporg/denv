@@ -3,18 +3,17 @@ package org.ssoup.denv.server.containerization.service.runtime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfoImpl;
+import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
-import org.ssoup.denv.core.model.runtime.Application;
-import org.ssoup.denv.core.model.runtime.DenvEnvironment;
+import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.domain.runtime.ContainerizedApplication;
-import org.ssoup.denv.server.containerization.domain.runtime.ContainerizedApplicationImpl;
+import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.service.conf.application.ApplicationConfigurationManager;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
-import org.ssoup.denv.server.service.runtime.application.ApplicationManager;
+import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
 import org.ssoup.denv.server.service.runtime.environment.AbstractEnvironmentManager;
 
 import java.util.ArrayList;
@@ -33,10 +32,23 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
     private NamingStrategy namingStrategy;
 
     @Autowired
-    public ContainerizedEnvironmentManager(NodeManager nodeManager, ApplicationConfigurationManager applicationConfigurationManager, ApplicationManager applicationManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
-        super(nodeManager, applicationConfigurationManager, applicationManager);
+    public ContainerizedEnvironmentManager(NodeManager nodeManager, EnvironmentRuntimeManager environmentRuntimeManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+        super(nodeManager, environmentRuntimeManager);
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
+    }
+
+    @Override
+    protected Environment newEnvironmentInstance(Environment env) throws DenvException {
+        return new DenvContainerizedEnvironment(env);
+    }
+
+    @Override
+    public Environment updateEnvironment(Environment actualEnv, Environment env) throws DenvException {
+        DenvContainerizedEnvironment acenv = (DenvContainerizedEnvironment)super.updateEnvironment(actualEnv, env);
+        DenvContainerizedEnvironment cenv = (DenvContainerizedEnvironment)env;
+        acenv.setRuntimeInfo(cenv.getRuntimeInfo());
+        return acenv;
     }
 
     @Override
@@ -59,27 +71,20 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
                     app = getApplicationManager().createApplication(env, appConf);
                     env.setDeployedApplication(app);
                 }
-                app.registerContainer(containerInfo.getImageType(), container);
+                app.setContainerInfo(containerInfo.getImageType(), container);
             }
         }*/
     }
 
-    @Override
-    public void applyChanges(Environment asIsEnv, Environment toBeEnv) {
-        // TODO: to be implemented
-    }
-
-    @Override
-    protected Collection<Application> convertApplications(Collection<Application> apps) throws DenvException {
-        Collection<Application> capps = new ArrayList<Application>();
-        for (Application app : apps) {
-            ContainerizedApplication capp = new ContainerizedApplicationImpl(app);
-            capp.setDeployed(false);
-            capp.setStarted(false);
+    /*@Override
+    protected Collection<EnvironmentRuntimeInfo> convertApplications(Collection<EnvironmentRuntimeInfo> apps) throws DenvException {
+        Collection<EnvironmentRuntimeInfo> capps = new ArrayList<EnvironmentRuntimeInfo>();
+        for (EnvironmentRuntimeInfo app : apps) {
+            ContainerizedEnvironmentRuntimeInfo capp = new ContainerizedEnvironmentRuntimeInfoImpl(app);
             capps.add(capp);
         }
         return capps;
-    }
+    }*/
 
     public ContainerManager getContainerManager() {
         return containerManager;

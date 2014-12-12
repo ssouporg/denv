@@ -2,6 +2,7 @@ package org.ssoup.denv.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,9 @@ public class DenvCLI implements CommandLineRunner {
 
     private DenvConsole console;
 
+    @Parameter(names = {"-d", "--debug"}, description = "Debug mode")
+    private boolean debug = false;
+
     @Autowired
     public DenvCLI(ApplicationContext applicationContext, DenvConsole console) {
         this.applicationContext = applicationContext;
@@ -50,7 +54,7 @@ public class DenvCLI implements CommandLineRunner {
         List<DenvCommand> commands = new ArrayList(applicationContext.getBeansOfType(DenvCommand.class).values());
         Collections.sort(commands, AnnotationAwareOrderComparator.INSTANCE);
 
-        jc = new JCommander();
+        jc = new JCommander(this);
         jc.setProgramName(PROGRAM_NAME);
         for (DenvCommand command : commands) {
             jc.addCommand(command);
@@ -67,6 +71,8 @@ public class DenvCLI implements CommandLineRunner {
 
         try {
             jc.parse(args);
+            console.setDebug(debug);
+
             String commandName = jc.getParsedCommand();
             JCommander commandJCommander = jc.getCommands().get(commandName);
             DenvCommand command = (DenvCommand)commandJCommander.getObjects().get(0);
@@ -74,13 +80,14 @@ public class DenvCLI implements CommandLineRunner {
                 command.execute();
             } catch (DenvCLIException ex) {
                 console.error(ex);
-                jc.usage();
             }
         } catch (MissingCommandException e) {
             console.println("Error: Command not found: " + args[0]);
+            console.println("");
             jc.usage();
         } catch (ParameterException e) {
-            console.error(e.getMessage());
+            console.error(e);
+            console.println("");
             String commandName = jc.getParsedCommand();
             jc.usage(commandName);
         }

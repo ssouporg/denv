@@ -1,9 +1,9 @@
 package org.ssoup.denv.server.containerization.service.container;
 
-import org.ssoup.denv.server.containerization.domain.runtime.Container;
+import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,17 +51,6 @@ public abstract class AbstractContainerManager implements ContainerManager {
     @Override
     public List<Container> getAllContainers() throws ContainerizationException {
         return new ArrayList<Container>(this.getContainers().values());
-    }
-
-    @Override
-    public List<Container> getAllRunningContainers() throws ContainerizationException {
-        List<Container> runningContainers = new ArrayList<Container>();
-        for (Container container : getContainers().values()) {
-            if (container.isRunning()) {
-                runningContainers.add(container);
-            }
-        }
-        return runningContainers;
     }
 
     public NamingStrategy getNamingStrategy() {

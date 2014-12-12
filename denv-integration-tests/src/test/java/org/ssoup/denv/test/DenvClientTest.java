@@ -27,12 +27,12 @@ public class DenvClientTest extends DenvTestBase {
         registerFigAppConfig();
 
         try {
-            createEnvironment(INTEGRATION_ENV_ID, FIG_APP_CONF_ID);
+            createEnvironment(INTEGRATION_ENV_ID, FIG_ENV_CONF_ID);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
-            deleteAppConfig(FIG_APP_CONF_ID);
+            deleteEnvConfig(FIG_ENV_CONF_ID);
         }
     }
 
@@ -41,12 +41,12 @@ public class DenvClientTest extends DenvTestBase {
         registerPanamaxAppConfig();
 
         try {
-            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_APP_CONF_ID);
+            createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
-            deleteAppConfig(PANAMAX_APP_CONF_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
@@ -56,15 +56,15 @@ public class DenvClientTest extends DenvTestBase {
         registerPanamaxAppConfig();
 
         try {
-            createEnvironment(INTEGRATION_ENV_ID, FIG_APP_CONF_ID);
+            createEnvironment(INTEGRATION_ENV_ID, FIG_ENV_CONF_ID);
 
-            updateEnvironment(INTEGRATION_ENV_ID, PANAMAX_APP_CONF_ID);
+            updateEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
-            deleteAppConfig(PANAMAX_APP_CONF_ID);
-            deleteAppConfig(FIG_APP_CONF_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
+            deleteEnvConfig(FIG_ENV_CONF_ID);
         }
     }
 }
