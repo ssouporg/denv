@@ -53,8 +53,10 @@ public abstract class AbstractSynchronizationService<T extends Environment> impl
     }
 
     protected void moveTowardsDesiredState(Environment env) throws DenvException {
-        EnvironmentConfiguration envConf = environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
-        moveTowardsDesiredState(env, envConf);
+        if (env.getActualState() != EnvironmentState.INCONSISTENT) {
+            EnvironmentConfiguration envConf = environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
+            moveTowardsDesiredState(env, envConf);
+        }
     }
 
     protected abstract void moveTowardsDesiredState(Environment env, EnvironmentConfiguration envConf) throws DenvException;

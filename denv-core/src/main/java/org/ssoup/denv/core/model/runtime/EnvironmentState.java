@@ -11,7 +11,8 @@ public enum EnvironmentState {
     STOPPING,
     STOPPED,
     DELETING,
-    DELETED;
+    DELETED,
+    INCONSISTENT;
 
     public boolean canCreateSnapshot() {
         return this == STARTED || this == STOPPED;

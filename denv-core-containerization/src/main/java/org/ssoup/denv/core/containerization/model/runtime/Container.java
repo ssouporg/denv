@@ -21,5 +21,7 @@ public interface Container {
 
     boolean isRunning();
 
+    Map<String, String> getVariables();
+
     String getVariableValue(String variable);
 }

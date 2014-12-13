@@ -47,6 +47,13 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     @Override
     protected void updateActualState(Environment env, EnvironmentConfiguration envConf) throws DenvException {
+        DenvEnvironment denv = ((DenvEnvironment) env);
+        if (envConf == null) {
+            // configuration has been lost => put environment in inconsistent state
+            denv.setActualState(EnvironmentState.INCONSISTENT);
+            return;
+        }
+
         ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration)envConf;
         ContainerizedEnvironmentRuntimeInfo cenvInfo = (ContainerizedEnvironmentRuntimeInfo)env.getRuntimeInfo();
         boolean allContainersInDesiredState = true;
@@ -76,14 +83,16 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                 allContainersStopped = false;
             }
         }
-        if (env.getActualState() == EnvironmentState.STARTING && allContainersInDesiredState) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.STARTED);
-        } else if (env.getActualState() == EnvironmentState.STARTED && !allContainersInDesiredState) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.STARTING);
-        } else if (env.getActualState() == EnvironmentState.STOPPING && allContainersStopped) {
-            ((DenvEnvironment)env).setActualState(EnvironmentState.STOPPED);
-        } else if (env.getActualState() == EnvironmentState.DELETING && allContainersDeleted) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.DELETED);
+        if (env.getDesiredState() == EnvironmentDesiredState.STARTED) {
+            if (allContainersInDesiredState) {
+                denv.setActualState(EnvironmentState.STARTED);
+            } else {
+                denv.setActualState(EnvironmentState.STARTING);
+            }
+        } else if (allContainersStopped) {
+            denv.setActualState(EnvironmentState.STOPPED);
+        } else if (allContainersDeleted) {
+            denv.setActualState(EnvironmentState.DELETED);
         }
     }
 
@@ -94,23 +103,26 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         containerInfo.setPortMapping(container.getPortMapping());
         if (container == null) {
             containerInfo.setActualState(ContainerState.UNDEPLOYED);
-        } else if (container.isRunning()) {
-            boolean responding = true;
-            for (PortConfiguration portConfiguration : imageConf.getPorts()) {
-                if (!containerManager.isContainerListeningOnPort(container, portConfiguration)) {
-                    responding = false;
-                    break;
+        } else {
+            containerInfo.setVariables(container.getVariables());
+            if (container.isRunning()) {
+                boolean responding = true;
+                for (PortConfiguration portConfiguration : imageConf.getPorts()) {
+                    if (!containerManager.isContainerListeningOnPort(container, portConfiguration)) {
+                        responding = false;
+                        break;
+                    }
                 }
+                if (responding) {
+                    containerInfo.setActualState(ContainerState.RESPONDING);
+                } else if ( containerInfo.getActualState() != ContainerState.STARTING &&
+                        containerInfo.getActualState() != ContainerState.RESTARTING) {
+                    containerInfo.setActualState(ContainerState.NOT_RESPONDING);
+                }
+            } else if ( containerInfo.getActualState() != ContainerState.KILLED_BY_DENV &&
+                    containerInfo.getActualState() != ContainerState.KILLED_BY_DENV) {
+                containerInfo.setActualState(ContainerState.STOPPED);
             }
-            if (responding) {
-                containerInfo.setActualState(ContainerState.RESPONDING);
-            } else if ( containerInfo.getActualState() != ContainerState.STARTING &&
-                    containerInfo.getActualState() != ContainerState.RESTARTING) {
-                containerInfo.setActualState(ContainerState.NOT_RESPONDING);
-            }
-        } else if ( containerInfo.getActualState() != ContainerState.KILLED_BY_DENV &&
-                containerInfo.getActualState() != ContainerState.KILLED_BY_DENV) {
-            containerInfo.setActualState(ContainerState.STOPPED);
         }
     }
 

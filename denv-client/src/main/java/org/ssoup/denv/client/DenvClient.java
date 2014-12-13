@@ -142,7 +142,6 @@ public class DenvClient {
     }
 
     public String createEnvironment(String envId, String envConfId, String version, String snapshotName) {
-        ContainerizedEnvironmentConfiguration envConf = getContainerizedEnvConfig(envConfId);
         DenvEnvironment env = new DenvContainerizedEnvironment(envId, envId, envConfId, version, snapshotName, null, null);
         ResponseEntity<String> createResponseEntity = sendCreateEnvRequest(env);
         assertNotNull(createResponseEntity.getHeaders().getLocation());

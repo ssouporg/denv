@@ -33,6 +33,10 @@ public interface ContainerRuntimeInfo {
 
     void setActualState(ContainerState containerState);
 
+    Map<String, String> getVariables();
+
+    String getVariableValue(String variable);
+
     boolean canBeStarted();
 
     boolean canBeStopped();

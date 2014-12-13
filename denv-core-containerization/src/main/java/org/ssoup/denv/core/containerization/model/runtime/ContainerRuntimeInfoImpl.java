@@ -24,6 +24,8 @@ public class ContainerRuntimeInfoImpl implements ContainerRuntimeInfo {
     private ContainerDesiredState desiredState;
     private ContainerState actualState;
 
+    private Map<String, String> variables;
+
     public ContainerRuntimeInfoImpl() {
     }
 
@@ -41,6 +43,7 @@ public class ContainerRuntimeInfoImpl implements ContainerRuntimeInfo {
         this.imageConfigurationId = containerInfo.getImageConfigurationId();
         this.desiredState = containerInfo.getDesiredState();
         this.actualState = containerInfo.getActualState();
+        this.variables = containerInfo.getVariables();
     }
 
     public ContainerRuntimeInfoImpl(String id, Image image, ContainerDesiredState desiredState, ContainerState actualState) {
@@ -132,5 +135,18 @@ public class ContainerRuntimeInfoImpl implements ContainerRuntimeInfo {
 
     public void setImageConfigurationId(String imageConfigurationId) {
         this.imageConfigurationId = imageConfigurationId;
+    }
+
+    @Override
+    public Map<String, String> getVariables() {
+        return variables;
+    }
+
+    public void setVariables(Map<String, String> variables) {
+        this.variables = variables;
+    }
+
+    public String getVariableValue(String variable) {
+        return this.variables.get(variable);
     }
 }

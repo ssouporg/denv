@@ -97,6 +97,7 @@ public abstract class AbstractContainer implements Container {
         this.running = running;
     }
 
+    @Override
     public Map<String, String> getVariables() {
         return variables;
     }

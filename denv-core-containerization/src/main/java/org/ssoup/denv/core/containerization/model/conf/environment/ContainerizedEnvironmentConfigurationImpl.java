@@ -52,6 +52,7 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
             this.ports = (Collection<PortConfigurationImpl>) imageConf.getPorts();
             this.volumes = (Collection<VolumeConfigurationImpl>) imageConf.getVolumes();
             this.initialDesiredState = imageConf.getInitialDesiredState();
+            this.variables = (Collection<DenvVariableConfigurationImpl>)imageConf.getVariables();
         }
 
         public String getId() {

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.*;
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
@@ -33,10 +32,7 @@ import org.ssoup.denv.server.service.conf.node.NodeManager;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * User: ALB
@@ -126,7 +122,9 @@ public class DockerContainerManager extends AbstractContainerManager {
             try {
                 InspectContainerResponse containerDetails = getDockerClient().inspectContainerCmd(dockerContainer.getId()).exec();
                 Image image = getImageManager().findImage(env, imageConf);
-                return new DockerContainer(dockerContainer, containerDetails, image);
+                DockerContainer container = new DockerContainer(dockerContainer, containerDetails, image);
+                fillVariables(env, imageConf, container);
+                return container;
             } catch (DockerException e) {
                 throw new ContainerizationException(e);
             }
@@ -238,33 +236,13 @@ public class DockerContainerManager extends AbstractContainerManager {
         }
     }
 
-    private void fillVariables(Environment env, ImageConfiguration imageConf, DockerContainer dockerContainer) {
-        // fill in Denv variables
-        dockerContainer.setVariables(new HashMap<String, String>());
-        if (imageConf.getVariables() != null) {
-            for (DenvVariableConfiguration denvVariable : imageConf.getVariables()) {
-                String v = denvVariable.getValue();
-                v = resolve(v, dockerContainer);
-                dockerContainer.getVariables().put(denvVariable.getVariable(), v);
-            }
+    @Override
+    protected String resolveDenvVariable(String value, Container container) {
+        if (value.equals("DOCKER_HOST")) {
+            DockerNodeConfiguration dockerNodeConfiguration = (DockerNodeConfiguration) this.nodeManager.getDefaultNode();
+            return dockerNodeConfiguration.getDockerHost();
         }
-    }
-
-    private String resolve(String v, DockerContainer dockerContainer) {
-        Pattern p = Pattern.compile("\\$\\{[^\\}]*\\}");
-        Matcher m = p.matcher(v);
-        while (m.find()) {
-            String g = m.group().substring(2, m.group().length() - 1);
-            if (g.equals("DOCKER_HOST")) {
-                DockerNodeConfiguration dockerNodeConfiguration = (DockerNodeConfiguration) this.nodeManager.getDefaultNode();
-                v = v.replace(m.group(), dockerNodeConfiguration.getDockerHost());
-            } else if (g.startsWith("MAPPED_PORT ")) {
-                int port = Integer.parseInt(g.substring("MAPPED_PORT ".length()));
-                int mappedPort = dockerContainer.getPortMapping().get(port);
-                v = v.replace(m.group(), "" + mappedPort);
-            }
-        }
-        return v;
+        return super.resolveDenvVariable(value, container);
     }
 
     @Override

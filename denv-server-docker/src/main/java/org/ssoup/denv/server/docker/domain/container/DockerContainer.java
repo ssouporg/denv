@@ -43,7 +43,8 @@ public class DockerContainer extends AbstractContainer {
         fillPortMapping(containerInspectResponse);
     }
 
-    public DockerContainer(com.github.dockerjava.api.model.Container dockerContainer, InspectContainerResponse containerInspectResponse, Image image) {
+    public DockerContainer(com.github.dockerjava.api.model.Container dockerContainer,
+                           InspectContainerResponse containerInspectResponse, Image image) {
         this.containerInspectResponse = containerInspectResponse;
         this.setId(dockerContainer.getId());
         if (dockerContainer.getNames() != null) {

@@ -1,6 +1,10 @@
 package org.ssoup.denv.server.containerization.service.container;
 
+import org.ssoup.denv.core.containerization.model.conf.environment.DenvVariableConfiguration;
+import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.containerization.model.runtime.AbstractContainer;
 import org.ssoup.denv.core.containerization.model.runtime.Container;
+import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
 import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
@@ -9,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: ALB
@@ -51,6 +57,38 @@ public abstract class AbstractContainerManager implements ContainerManager {
     @Override
     public List<Container> getAllContainers() throws ContainerizationException {
         return new ArrayList<Container>(this.getContainers().values());
+    }
+
+    protected void fillVariables(Environment env, ImageConfiguration imageConf, AbstractContainer container) {
+        // fill in Denv variables
+        container.setVariables(new HashMap<String, String>());
+        if (imageConf.getVariables() != null) {
+            for (DenvVariableConfiguration denvVariable : imageConf.getVariables()) {
+                String v = denvVariable.getValue();
+                v = resolveDenvVariables(v, container);
+                container.getVariables().put(denvVariable.getVariable(), v);
+            }
+        }
+    }
+
+    protected String resolveDenvVariables(String value, AbstractContainer container) {
+        Pattern p = Pattern.compile("\\$\\{[^\\}]*\\}");
+        Matcher m = p.matcher(value);
+        while (m.find()) {
+            String g = m.group().substring(2, m.group().length() - 1);
+            String resolvedVariable = resolveDenvVariable(g, container);
+            value = value.replace(m.group(), resolvedVariable);
+        }
+        return value;
+    }
+
+    protected String resolveDenvVariable(String value, Container container) {
+        if (value.startsWith("MAPPED_PORT ")) {
+            int port = Integer.parseInt(value.substring("MAPPED_PORT ".length()));
+            int mappedPort = container.getPortMapping().get(port);
+            return "" + mappedPort;
+        }
+        return value;
     }
 
     public NamingStrategy getNamingStrategy() {
