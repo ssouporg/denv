@@ -1,4 +1,4 @@
-package org.ssoup.denv.cli.command;
+package org.ssoup.denv.cli.command.envConf;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StreamUtils;
 import org.ssoup.denv.cli.DenvConsole;
+import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
 import org.ssoup.denv.client.format.fig.FigConfigurationConverter;
@@ -40,6 +41,9 @@ public class CommandAddConf implements DenvCommand {
 
     @Parameter(names={"-i", "--id"}, description = "Identifier of the configuration to add")
     private String envConfId;
+
+    @Parameter(names={"-b", "--id"}, description = "Identifier of the configuration of the builder environment")
+    private String builderEnvConfId;
 
     @Parameter(names={"-f", "--format"}, description = "Configuration format")
     private String sourceFormat;
@@ -115,7 +119,7 @@ public class CommandAddConf implements DenvCommand {
             if (envConfId == null) {
                 throw new DenvCLIException("For Fig format an id for the configuration needs to be specified with -i option");
             }
-            envConf = figConfigurationConverter.convertEnvironmentConfiguration(envConfId, envConfId, envConfStr);
+            envConf = figConfigurationConverter.convertEnvironmentConfiguration(envConfId, envConfId, builderEnvConfId, envConfStr);
         } else if (PANAMAX_FORMAT.equals(sourceFormat)) {
             envConf = panamaxConfigurationConverter.convertEnvironmentConfiguration(envConfStr);
         }

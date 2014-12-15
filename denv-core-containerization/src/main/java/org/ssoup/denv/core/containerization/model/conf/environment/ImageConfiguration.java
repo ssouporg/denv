@@ -14,6 +14,8 @@ public interface ImageConfiguration {
     String getId();
     String getName();
     String getDescription();
+    String getBuildCommand();
+    String getTargetImage();
     String getSource();
     boolean isPrivileged();
     Collection<? extends EnvironmentVariableConfiguration> getEnvironment();

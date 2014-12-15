@@ -1,4 +1,4 @@
-package org.ssoup.denv.cli.command;
+package org.ssoup.denv.cli.command.env;
 
 import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.cli.DenvConsole;
+import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
 import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;

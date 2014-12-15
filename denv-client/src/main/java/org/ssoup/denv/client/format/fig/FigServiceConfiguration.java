@@ -10,6 +10,8 @@ public class FigServiceConfiguration {
 
     private String build;
     private String command;
+    private String buildCommand;
+    private String targetImage;
     private String image;
     private String[] ports;
     private String[] expose;
@@ -188,5 +190,21 @@ public class FigServiceConfiguration {
         if (dns == null) return new String[]{};
         if (dns instanceof String) return new String[]{(String)dns};
         return (String[])dns;
+    }
+
+    public String getBuildCommand() {
+        return buildCommand;
+    }
+
+    public void setBuildCommand(String buildCommand) {
+        this.buildCommand = buildCommand;
+    }
+
+    public String getTargetImage() {
+        return targetImage;
+    }
+
+    public void setTargetImage(String targetImage) {
+        this.targetImage = targetImage;
     }
 }

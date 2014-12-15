@@ -5,7 +5,7 @@ package org.ssoup.denv.core.model.runtime;
  * Date: 17/11/2014 13:43
  */
 public enum EnvironmentState {
-
+    CREATED,
     STARTING,
     STARTED,
     STOPPING,

@@ -6,8 +6,11 @@ package org.ssoup.denv.core.api;
  */
 public class DenvApiEndpoints {
 
+    // absolute
     public static final String ENVS = "/environments";
     public static final String ENV_CONFIGS = "/environmentConfigs";
+    public static final String ENV_CONFIG_VERSIONS = "/environmentConfigs/{envConfId}/versions";
 
+    // relative
     public static final String ENV_SAVE_SNAPSHOT = "/{envId}/saveSnapshot";
 }

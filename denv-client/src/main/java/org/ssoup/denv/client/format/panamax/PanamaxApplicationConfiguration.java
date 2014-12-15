@@ -16,11 +16,22 @@ public class PanamaxApplicationConfiguration {
     private Collection<String> authors;
     private String type;
     private Collection<Image> images;
+    private String builderEnvConfId;
+
+    public String getBuilderEnvConfId() {
+        return builderEnvConfId;
+    }
+
+    public void setBuilderEnvConfId(String builderEnvConfId) {
+        this.builderEnvConfId = builderEnvConfId;
+    }
 
     public static class Image {
         private String name;
         private String source;
         private String description;
+        private String buildCommand;
+        private String targetImage;
         private Collection<EnvironmentVariable> environment;
         private Collection<Link> links;
         private Collection<String> expose;
@@ -116,6 +127,22 @@ public class PanamaxApplicationConfiguration {
 
         public void setVariables(Collection<DenvVariable> variables) {
             this.variables = variables;
+        }
+
+        public String getBuildCommand() {
+            return buildCommand;
+        }
+
+        public void setBuildCommand(String buildCommand) {
+            this.buildCommand = buildCommand;
+        }
+
+        public String getTargetImage() {
+            return targetImage;
+        }
+
+        public void setTargetImage(String targetImage) {
+            this.targetImage = targetImage;
         }
     }
 

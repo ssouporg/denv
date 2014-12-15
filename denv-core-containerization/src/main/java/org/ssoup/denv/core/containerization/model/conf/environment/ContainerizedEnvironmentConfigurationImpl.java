@@ -15,6 +15,7 @@ import java.util.Map;
 public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfigurationImpl implements ContainerizedEnvironmentConfiguration {
 
     private Map<String, ImageConfigurationImpl> images;
+    private String builderEnvConfId;
 
     public ContainerizedEnvironmentConfigurationImpl() {
     }
@@ -22,6 +23,7 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
     public ContainerizedEnvironmentConfigurationImpl(ContainerizedEnvironmentConfiguration conf) {
         super(conf);
         this.images = (Map<String, ImageConfigurationImpl>)conf.getImages();
+        this.builderEnvConfId = conf.getBuilderEnvConfId();
     }
 
     public static class ImageConfigurationImpl implements ImageConfiguration {
@@ -30,6 +32,8 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
         private String name;
         private String source;
         private String description;
+        private String buildCommand;
+        private String targetImage;
         private boolean privileged;
         private Collection<EnvironmentVariableConfigurationImpl> environment;
         private Collection<LinkConfigurationImpl> links;
@@ -46,6 +50,8 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
             this.name = imageConf.getName();
             this.source = imageConf.getSource();
             this.description = imageConf.getDescription();
+            this.buildCommand = imageConf.getBuildCommand();
+            this.targetImage = imageConf.getTargetImage();
             this.environment = (Collection<EnvironmentVariableConfigurationImpl>) imageConf.getEnvironment();
             this.privileged = imageConf.isPrivileged();
             this.links = (Collection<LinkConfigurationImpl>) imageConf.getLinks();
@@ -145,6 +151,23 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
 
         public void setVariables(Collection<DenvVariableConfigurationImpl> variables) {
             this.variables = variables;
+        }
+
+        @Override
+        public String getBuildCommand() {
+            return buildCommand;
+        }
+
+        public void setBuildCommand(String buildCommand) {
+            this.buildCommand = buildCommand;
+        }
+
+        public String getTargetImage() {
+            return targetImage;
+        }
+
+        public void setTargetImage(String targetImage) {
+            this.targetImage = targetImage;
         }
     }
 
@@ -286,5 +309,13 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
         for (ImageConfiguration image : images.values()) {
             this.addImage(image);
         }
+    }
+
+    public String getBuilderEnvConfId() {
+        return builderEnvConfId;
+    }
+
+    public void setBuilderEnvConfId(String builderEnvConfId) {
+        this.builderEnvConfId = builderEnvConfId;
     }
 }

@@ -20,16 +20,19 @@ public class PanamaxConfigurationConverter {
     public ContainerizedEnvironmentConfiguration convertEnvironmentConfiguration(String panamaxAppConfig) {
         Yaml yaml = new Yaml();
         PanamaxApplicationConfiguration panamaxAppConfiguration = yaml.loadAs(panamaxAppConfig, PanamaxApplicationConfiguration.class);
-        ContainerizedEnvironmentConfigurationImpl appConf = new ContainerizedEnvironmentConfigurationImpl();
-        appConf.setId(panamaxAppConfiguration.getName().replace(" ", "_").replace(".", "_"));
-        appConf.setName(panamaxAppConfiguration.getName());
-        appConf.setDescription(panamaxAppConfiguration.getDescription());
+        ContainerizedEnvironmentConfigurationImpl envConf = new ContainerizedEnvironmentConfigurationImpl();
+        envConf.setId(panamaxAppConfiguration.getName().replace(" ", "_").replace(".", "_"));
+        envConf.setName(panamaxAppConfiguration.getName());
+        envConf.setDescription(panamaxAppConfiguration.getDescription());
+        envConf.setBuilderEnvConfId(panamaxAppConfiguration.getBuilderEnvConfId());
         for (PanamaxApplicationConfiguration.Image image : panamaxAppConfiguration.getImages()) {
             ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
             appImage.setId(image.getName().replace(" ", "_").replace(".", "_"));
             appImage.setName(image.getName());
             appImage.setDescription(image.getDescription());
             appImage.setSource(image.getSource());
+            appImage.setBuildCommand(image.getBuildCommand());
+            appImage.setTargetImage(image.getTargetImage());
             // environment variables
             appImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
             if (image.getEnvironment() != null) {
@@ -85,8 +88,8 @@ public class PanamaxConfigurationConverter {
             } else {
                 appImage.setInitialDesiredState(ContainerDesiredState.STARTED);
             }
-            appConf.addImage(appImage);
+            envConf.addImage(appImage);
         }
-        return appConf;
+        return envConf;
     }
 }

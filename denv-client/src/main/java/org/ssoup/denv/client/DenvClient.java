@@ -366,4 +366,21 @@ public class DenvClient {
                 envId
         );
     }
+
+    ///
+    /// Versions related methods
+    ///
+    public void buildVersion(String envConfId, String version) {
+        ResponseEntity<Void> res = sendBuildRequest(envConfId, version);
+    }
+
+    protected ResponseEntity<Void> sendBuildRequest(String envConfId, String version) {
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS,
+                HttpMethod.POST,
+                new HttpEntity<String>(version, defaultRequestHeaders()),
+                Void.class,
+                envConfId
+        );
+    }
 }

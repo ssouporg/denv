@@ -12,4 +12,5 @@ public interface ContainerizedEnvironmentConfiguration extends EnvironmentConfig
     Map<String, ? extends ImageConfiguration> getImages();
     ImageConfiguration getImageConfiguration(String imageId);
     void addImage(ImageConfiguration image);
+    String getBuilderEnvConfId();
 }

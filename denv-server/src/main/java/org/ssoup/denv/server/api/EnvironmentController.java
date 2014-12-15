@@ -27,7 +27,8 @@ public class EnvironmentController extends AbstractController {
     private EnvironmentRuntimeManager environmentRuntimeManager;
 
     @Autowired
-    public EnvironmentController(EnvironmentRuntimeManager environmentRuntimeManager) {
+    public EnvironmentController(EnvironmentRepository environmentRepository, EnvironmentRuntimeManager environmentRuntimeManager) {
+        this.environmentRepository = environmentRepository;
         this.environmentRuntimeManager = environmentRuntimeManager;
     }
 

@@ -8,7 +8,7 @@ import org.ssoup.denv.core.containerization.model.conf.environment.LinkConfigura
 import org.ssoup.denv.core.containerization.model.conf.environment.PortConfiguration;
 import org.ssoup.denv.core.containerization.model.runtime.*;
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.model.conf.environment.*;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
@@ -19,6 +19,8 @@ import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.persistence.EnvironmentRepository;
+import org.ssoup.denv.server.persistence.VersionRepository;
+import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
 import org.ssoup.denv.server.service.runtime.sync.AbstractSynchronizationService;
 
 /**
@@ -27,6 +29,8 @@ import org.ssoup.denv.server.service.runtime.sync.AbstractSynchronizationService
  */
 @Service
 public class ContainerizedSynchronizationService extends AbstractSynchronizationService {
+
+    private EnvironmentManager environmentManager;
 
     private ImageManager imageManager;
 
@@ -37,9 +41,13 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
     @Autowired
     protected ContainerizedSynchronizationService(EnvironmentRepository environmentRepository,
                                                   EnvironmentConfigRepository environmentConfigRepository,
-                                                  ImageManager imageManager, ContainerManager containerManager,
+                                                  VersionRepository versionRepository,
+                                                  EnvironmentManager environmentManager,
+                                                  ImageManager imageManager,
+                                                  ContainerManager containerManager,
                                                   NamingStrategy namingStrategy) {
-        super(environmentRepository, environmentConfigRepository);
+        super(environmentRepository, environmentConfigRepository, versionRepository);
+        this.environmentManager = environmentManager;
         this.imageManager = imageManager;
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
@@ -130,6 +138,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
     protected void moveTowardsDesiredState(Environment env, EnvironmentConfiguration envConf) throws DenvException {
         EnvironmentDesiredState ed = env.getDesiredState();
         if (ed == EnvironmentDesiredState.STARTED) {
+            ((DenvEnvironment) env).setActualState(EnvironmentState.STARTING);
             ContainerizedEnvironmentRuntimeInfo cenv = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
             ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
             for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
@@ -235,5 +244,21 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
             // if the container could not be found consider it as deleted
         }
         containerInfo.setActualState(ContainerState.KILLED_BY_DENV);
+    }
+
+    @Override
+    protected void moveTowardsDesiredState(EnvironmentConfiguration envConf, EnvironmentConfigurationVersion envConfVersion)
+            throws DenvException {
+        EnvironmentConfigVersionDesiredState cd = envConfVersion.getDesiredState();
+        if (cd == EnvironmentConfigVersionDesiredState.AVAILABLE) {
+            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.CREATED) {
+                ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+                if (cenvConf.getBuilderEnvConfId() == null) {
+                    throw new DenvException("Builder environment configuration not specified");
+                }
+                ((EnvironmentConfigurationVersionImpl)envConfVersion).setActualState(EnvironmentConfigVersionState.BUILDING);
+                this.environmentManager.createBuildEnvironment(envConf);
+            }
+        }
     }
 }

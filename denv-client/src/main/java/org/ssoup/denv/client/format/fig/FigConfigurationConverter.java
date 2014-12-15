@@ -18,17 +18,21 @@ import java.util.Map;
 @Scope("singleton")
 public class FigConfigurationConverter {
 
-    public ContainerizedEnvironmentConfiguration convertEnvironmentConfiguration(String appConfId, String appConfName, String figAppConfig) {
+    public ContainerizedEnvironmentConfiguration convertEnvironmentConfiguration
+            (String appConfId, String appConfName, String builderEnvConfId, String figAppConfig) {
         FigApplicationConfiguration figAppConfiguration = readFigAppConfiguration(figAppConfig);
-        ContainerizedEnvironmentConfigurationImpl appConf = new ContainerizedEnvironmentConfigurationImpl();
-        appConf.setId(appConfId);
-        appConf.setName(appConfName);
+        ContainerizedEnvironmentConfigurationImpl envConf = new ContainerizedEnvironmentConfigurationImpl();
+        envConf.setId(appConfId);
+        envConf.setName(appConfName);
+        envConf.setBuilderEnvConfId(builderEnvConfId);
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
             ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
             appImage.setId(serviceName.replace(" ", "_").replace(".", "_"));
             appImage.setName(serviceName);
             appImage.setSource(serviceConfiguration.getImage());
+            appImage.setBuildCommand(serviceConfiguration.getBuildCommand());
+            appImage.setTargetImage(serviceConfiguration.getTargetImage());
             appImage.setPrivileged(serviceConfiguration.isPrivileged());
             // environment variables
             appImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
@@ -95,9 +99,9 @@ public class FigConfigurationConverter {
             } else {
                 appImage.setInitialDesiredState(ContainerDesiredState.STARTED);
             }
-            appConf.addImage(appImage);
+            envConf.addImage(appImage);
         }
-        return appConf;
+        return envConf;
     }
 
     private FigApplicationConfiguration readFigAppConfiguration(String figAppConfig) {

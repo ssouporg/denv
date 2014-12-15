@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.service.runtime.environment;
 
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.server.event.EnvsEventHandler;
@@ -21,5 +22,5 @@ public interface EnvironmentManager {
 
     void addEventHandler(EnvsEventHandler eventHandler);
 
-
+    Environment createBuildEnvironment(EnvironmentConfiguration envConf);
 }

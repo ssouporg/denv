@@ -14,6 +14,7 @@ import org.ssoup.denv.core.model.runtime.Environment;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * User: ALB
@@ -163,5 +164,26 @@ public class DenvConsole {
     private String trimContainerId(String id) {
         if (id == null) return "";
         return id.substring(0, 12);
+    }
+
+    public void printVariables(DenvEnvironment env) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignTitleFormat = "%-20s %-20s %-50s %n";
+        String leftAlignFormat = "%-20s %-20s %-50s %n";
+
+        out.format(leftAlignTitleFormat, "IMAGE", "VARIABLE", "VALUE");
+        if (env.getRuntimeInfo() != null) {
+            Collection<ContainerRuntimeInfo> containerRuntimeInfos = ((ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo()).getContainersRuntimeInfo().values();
+            for (ContainerRuntimeInfo containerRuntimeInfo : containerRuntimeInfos) {
+                Map<String, String> vars = containerRuntimeInfo.getVariables();
+                if (vars != null) {
+                    for (String var : vars.keySet()) {
+                        String val = vars.get(var);
+                        if (val == null) val = "";
+                        out.format(leftAlignFormat, containerRuntimeInfo.getImageConfigurationId(), var, val);
+                    }
+                }
+            }
+        }
     }
 }
