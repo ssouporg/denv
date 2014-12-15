@@ -24,6 +24,11 @@ public abstract class DenvEnvironment implements Environment {
     // Config info
     private NodeConfiguration node;
 
+    /**
+     * true for build environments
+     */
+    private boolean builder;
+
     // Runtime info
     // map appId => Application
     private List<String> labels = new ArrayList<String>();
@@ -40,12 +45,13 @@ public abstract class DenvEnvironment implements Environment {
         this.state = env.getActualState();
         this.desiredState = env.getDesiredState();
         this.node = env.getNode();
+        this.builder = env.isBuilder();
     }
 
     public DenvEnvironment(String id, String name, String environmentConfigurationId, NodeConfiguration node) {
         this.id = id;
         this.name = name;
-        this.state = EnvironmentState.STARTING;
+        this.state = EnvironmentState.CREATED;
         this.desiredState = EnvironmentDesiredState.STARTED;
         this.environmentConfigurationId = environmentConfigurationId;
         this.node = node;
@@ -54,7 +60,7 @@ public abstract class DenvEnvironment implements Environment {
     public DenvEnvironment(String id, String name, String environmentConfigurationId, String version, NodeConfiguration node) {
         this.id = id;
         this.name = name;
-        this.state = EnvironmentState.STARTING;
+        this.state = EnvironmentState.CREATED;
         this.desiredState = EnvironmentDesiredState.STARTED;
         this.environmentConfigurationId = environmentConfigurationId;
         this.version = version;
@@ -64,7 +70,7 @@ public abstract class DenvEnvironment implements Environment {
     public DenvEnvironment(String id, String name, String environmentConfigurationId, String version, String snapshotName, NodeConfiguration node) {
         this.id = id;
         this.name = name;
-        this.state = EnvironmentState.STARTING;
+        this.state = EnvironmentState.CREATED;
         this.desiredState = EnvironmentDesiredState.STARTED;
         this.environmentConfigurationId = environmentConfigurationId;
         this.node = node;
@@ -147,5 +153,13 @@ public abstract class DenvEnvironment implements Environment {
 
     public void setDesiredState(EnvironmentDesiredState desiredState) {
         this.desiredState = desiredState;
+    }
+
+    public boolean isBuilder() {
+        return builder;
+    }
+
+    public void setBuilder(boolean builder) {
+        this.builder = builder;
     }
 }

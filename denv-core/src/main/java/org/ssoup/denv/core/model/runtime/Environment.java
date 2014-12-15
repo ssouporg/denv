@@ -30,4 +30,6 @@ public interface Environment {
     NodeConfiguration getNode();
 
     EnvironmentRuntimeInfo getRuntimeInfo();
+
+    boolean isBuilder();
 }

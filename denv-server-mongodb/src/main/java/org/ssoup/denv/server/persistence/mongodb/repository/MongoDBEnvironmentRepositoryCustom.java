@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.persistence.mongodb.repository;
 
+import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
 import org.ssoup.denv.server.persistence.mongodb.domain.runtime.MongoContainerizedEnvironment;
 

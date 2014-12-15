@@ -1,17 +1,20 @@
 package org.ssoup.denv.server.containerization.service.runtime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfoImpl;
 import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
 import org.ssoup.denv.core.exception.DenvException;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
+import org.ssoup.denv.server.persistence.EnvironmentRepository;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
 import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
 import org.ssoup.denv.server.service.runtime.environment.AbstractEnvironmentManager;
@@ -27,13 +30,16 @@ import java.util.Collection;
 @Scope("singleton")
 public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<Environment> {
 
+    private ApplicationContext applicationContext;
+
     private ContainerManager containerManager;
 
     private NamingStrategy namingStrategy;
 
     @Autowired
-    public ContainerizedEnvironmentManager(NodeManager nodeManager, EnvironmentRuntimeManager environmentRuntimeManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+    public ContainerizedEnvironmentManager(NodeManager nodeManager, EnvironmentRuntimeManager environmentRuntimeManager, ApplicationContext applicationContext, ContainerManager containerManager, NamingStrategy namingStrategy) {
         super(nodeManager, environmentRuntimeManager);
+        this.applicationContext = applicationContext;
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
     }
@@ -49,6 +55,15 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
         DenvContainerizedEnvironment cenv = (DenvContainerizedEnvironment)env;
         acenv.setRuntimeInfo(cenv.getRuntimeInfo());
         return acenv;
+    }
+
+    @Override
+    public Environment createBuildEnvironment(EnvironmentConfiguration envConf) {
+        EnvironmentRepository environmentRepository = applicationContext.getBean(EnvironmentRepository.class);
+        String envId = envConf.getId() + "-builder";
+        DenvContainerizedEnvironment env = new DenvContainerizedEnvironment(envId, envId, envConf.getId(), null, null);
+        env.setBuilder(true);
+        return environmentRepository.saveOnly(env);
     }
 
     @Override

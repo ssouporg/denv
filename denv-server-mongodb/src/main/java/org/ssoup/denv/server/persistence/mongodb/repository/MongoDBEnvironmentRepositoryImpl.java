@@ -13,6 +13,7 @@ import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
+import org.ssoup.denv.server.persistence.EnvironmentRepositoryCustom;
 import org.ssoup.denv.server.persistence.mongodb.domain.runtime.MongoContainerizedEnvironment;
 import org.ssoup.denv.server.persistence.EnvironmentRepositoryImpl;
 import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
@@ -23,7 +24,7 @@ import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
  * Date: 06/09/14 19:42
  */
 public class MongoDBEnvironmentRepositoryImpl extends EnvironmentRepositoryImpl<MongoContainerizedEnvironment>
-        implements MongoDBEnvironmentRepositoryCustom {
+        implements MongoDBEnvironmentRepositoryCustom, EnvironmentRepositoryCustom<MongoContainerizedEnvironment> {
 
     private MongoOperations mongoOperations;
 
@@ -39,6 +40,14 @@ public class MongoDBEnvironmentRepositoryImpl extends EnvironmentRepositoryImpl<
         DenvContainerizedEnvironment createdEnv = super.saveEnvironment(env);
         ContainerizedEnvironmentConfiguration envConf = (ContainerizedEnvironmentConfiguration)getEnvironmentConfigRepository().findOne(env.getEnvironmentConfigurationId());
         MongoContainerizedEnvironment mongoCreatedEnv = new MongoContainerizedEnvironment(createdEnv, envConf);
+        mongoOperations.save(mongoCreatedEnv);
+        return mongoOperations.findById(mongoCreatedEnv.getId(), MongoContainerizedEnvironment.class);
+    }
+
+    @Override
+    public MongoContainerizedEnvironment saveOnly(Environment env) {
+        ContainerizedEnvironmentConfiguration envConf = (ContainerizedEnvironmentConfiguration)getEnvironmentConfigRepository().findOne(env.getEnvironmentConfigurationId());
+        MongoContainerizedEnvironment mongoCreatedEnv = new MongoContainerizedEnvironment((DenvContainerizedEnvironment)env, envConf);
         mongoOperations.save(mongoCreatedEnv);
         return mongoOperations.findById(mongoCreatedEnv.getId(), MongoContainerizedEnvironment.class);
     }

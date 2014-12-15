@@ -43,12 +43,12 @@ public abstract class EnvironmentRepositoryImpl<T extends Environment> implement
                 actualEnv = (T)environmentRepository.findOne(env.getId());
             }
 
-            // Create/Update environment and add applications
+            // Create/Update environment
             if (actualEnv == null) {
                 // if not existing create a new environment
                 actualEnv = (T)environmentManager.createEnvironment(env);
                 if (env.getActualState() == null) {
-                    ((DenvEnvironment) env).setActualState(EnvironmentState.STARTING);
+                    ((DenvEnvironment) env).setActualState(EnvironmentState.CREATED);
                 }
             } else {
                 actualEnv = (T) environmentManager.updateEnvironment(actualEnv, env);
