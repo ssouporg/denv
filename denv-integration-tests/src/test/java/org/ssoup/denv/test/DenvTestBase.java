@@ -68,7 +68,7 @@ public abstract class DenvTestBase {
     protected void registerFigAppConfig() throws IOException {
         String figApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(FIG_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
-        ContainerizedEnvironmentConfiguration applicationConfiguration = figDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_ID, figApplicationConfiguration);
+        ContainerizedEnvironmentConfiguration applicationConfiguration = figDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_ID, null, figApplicationConfiguration);
         denvClient.createOrUpdateContainerizedEnvConfig(applicationConfiguration);
         PagedResources page = denvClient.listEnvConfigs();
         assertNotNull(page);

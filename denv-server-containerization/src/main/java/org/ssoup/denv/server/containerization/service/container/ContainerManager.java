@@ -20,9 +20,9 @@ public interface ContainerManager {
 
     List<Container> getAllContainers() throws ContainerizationException;
 
-    Container findContainerById(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
+    Container findContainerById(Environment env, EnvironmentConfiguration envConf, ImageConfiguration imageConf, String containerName) throws DenvException;
 
-    Container findContainerByName(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException;
+    Container findContainerByName(Environment env, EnvironmentConfiguration envConf, ImageConfiguration imageConf, String containerName) throws DenvException;
 
     Container createContainer(Environment env, String containerName, ImageConfiguration imageConf, Image image, String command) throws ContainerizationException;
 
@@ -32,7 +32,7 @@ public interface ContainerManager {
 
     void deleteContainer(Environment env, String containerId) throws ContainerizationException;
 
-    void saveContainerAsEnvironmentImage(Environment env, ImageConfiguration imageConf, Container container) throws DenvException;
+    void saveContainerAsEnvironmentImage(Environment env, EnvironmentConfiguration envConf, ImageConfiguration imageConf, Container container) throws DenvException;
 
     void saveContainer(Environment env, Container container, String imageName) throws ContainerizationException;
 

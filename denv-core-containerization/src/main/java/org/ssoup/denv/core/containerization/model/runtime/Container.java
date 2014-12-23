@@ -24,4 +24,6 @@ public interface Container {
     Map<String, String> getVariables();
 
     String getVariableValue(String variable);
+
+    Integer getExitStatus();
 }

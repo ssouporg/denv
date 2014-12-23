@@ -9,6 +9,8 @@ import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvir
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.conf.node.NodeConfiguration;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
+import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
@@ -58,11 +60,15 @@ public class ContainerizedEnvironmentManager extends AbstractEnvironmentManager<
     }
 
     @Override
-    public Environment createBuildEnvironment(EnvironmentConfiguration envConf) {
+    public Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf,
+                                              String targetEnvConfId, String targetVersion) {
         EnvironmentRepository environmentRepository = applicationContext.getBean(EnvironmentRepository.class);
-        String envId = envConf.getId() + "-builder";
-        DenvContainerizedEnvironment env = new DenvContainerizedEnvironment(envId, envId, envConf.getId(), null, null);
+        String envId = targetEnvConfId + "-" + targetVersion + "-builder";
+        DenvContainerizedEnvironment env = new DenvContainerizedEnvironment(envId, envId, builderEnvConf.getId(), null, null);
+        env.setDesiredState(EnvironmentDesiredState.SUCCEEDED);
         env.setBuilder(true);
+        env.setBuilderTargetEnvConfId(targetEnvConfId);
+        env.setBuilderTargetVersion(targetVersion);
         return environmentRepository.saveOnly(env);
     }
 

@@ -59,6 +59,14 @@ public class DockerContainer extends AbstractContainer {
         fillPortMapping(containerInspectResponse);
     }
 
+    @Override
+    public Integer getExitStatus() {
+        if (containerInspectResponse != null) {
+            return containerInspectResponse.getState().getExitCode();
+        }
+        return null;
+    }
+
     public void fillPortMapping(InspectContainerResponse containerInspectResponse) {
         Map<Integer, Integer> portMapping = new HashMap<Integer, Integer>();
         if (containerInspectResponse.getNetworkSettings() != null && containerInspectResponse.getNetworkSettings().getPorts() != null) {

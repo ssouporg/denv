@@ -11,6 +11,7 @@ import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
 import java.util.List;
@@ -27,6 +28,9 @@ public class CommandVer implements DenvCommand {
     @Parameter(description = "Versions", required = true)
     private List<String> versions;
 
+    @Parameter(names={"-c", "--conf"}, description = "Id of the configuration")
+    private String envConfId;
+
     private DenvConsole console;
 
     private DenvClient denvClient;
@@ -41,7 +45,8 @@ public class CommandVer implements DenvCommand {
     public void execute() throws DenvCLIException {
         try {
             for (String version : versions) {
-
+                EnvironmentConfigurationVersion ver = denvClient.getVersion(envConfId, version);
+                console.printVer(ver);
             }
         } catch (Exception e) {
             throw new DenvCLIException("An error occurred retrieving environment configuration version", e);

@@ -8,9 +8,11 @@ import org.springframework.http.HttpHeaders;
  */
 public abstract class AbstractController {
 
+    public static final String HATEOAS_MEDIA_TYPE_VALUE = "application/hal+json";
+
     protected HttpHeaders defaultResponseHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/ld+json");
+        headers.add("Content-type", HATEOAS_MEDIA_TYPE_VALUE);
         return headers;
     }
 }

@@ -11,20 +11,18 @@ public class EnvironmentConfigurationVersionImpl implements EnvironmentConfigura
     private String version;
     private EnvironmentConfigVersionState state;
     private EnvironmentConfigVersionDesiredState desiredState;
+    private String buildEnvId;
+    private String buildError;
 
     public EnvironmentConfigurationVersionImpl() {
     }
 
-    public EnvironmentConfigurationVersionImpl(String envConfId, String version) {
-        this.id = buildVersionId(envConfId, version);
+    public EnvironmentConfigurationVersionImpl(String id, String envConfId, String version) {
+        this.id = id;
         this.envConfId = envConfId;
         this.version = version;
         this.state = EnvironmentConfigVersionState.CREATED;
         this.desiredState = EnvironmentConfigVersionDesiredState.AVAILABLE;
-    }
-
-    private String buildVersionId(String envConfId, String version) {
-        return envConfId + "-" + version;
     }
 
     @Override
@@ -69,5 +67,21 @@ public class EnvironmentConfigurationVersionImpl implements EnvironmentConfigura
 
     public void setDesiredState(EnvironmentConfigVersionDesiredState desiredState) {
         this.desiredState = desiredState;
+    }
+
+    public String getBuildEnvId() {
+        return buildEnvId;
+    }
+
+    public void setBuildEnvId(String buildEnvId) {
+        this.buildEnvId = buildEnvId;
+    }
+
+    public String getBuildError() {
+        return buildError;
+    }
+
+    public void setBuildError(String buildError) {
+        this.buildError = buildError;
     }
 }

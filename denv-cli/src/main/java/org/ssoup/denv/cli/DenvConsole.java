@@ -8,6 +8,7 @@ import org.ssoup.denv.core.containerization.model.runtime.ContainerRuntimeInfo;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
 import org.ssoup.denv.core.containerization.model.runtime.DenvContainerizedEnvironment;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.Environment;
 
@@ -59,10 +60,10 @@ public class DenvConsole {
 
     public void printEnvs(Collection<? extends Environment> envs) {
         // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
-        String leftAlignTitleFormat = "%-20s %-20s %10s %20s %-18s %-18s %-12s %-12s %-12s %n";
-        String leftAlignFormat = "%-20s %-20s %10s %20s %-18s %-18s %-12d %-12d %-12d %n";
+        String leftAlignTitleFormat = "%-25s %-20s %10s %20s %-18s %-18s %-12s %-12s %-12s %20s %n";
+        String leftAlignFormat = "%-25s %-20s %10s %20s %-18s %-18s %-12d %-12d %-12d %20s %n";
 
-        out.format(leftAlignTitleFormat, "ENVIRONMENT ID", "CONFIGURATION ID", "VERSION", "SNAPSHOT", "ACTUAL STATE", "DESIRED STATE", "IMAGES", "DEPLOYED", "STARTED");
+        out.format(leftAlignTitleFormat, "ENVIRONMENT ID", "CONFIGURATION ID", "VERSION", "SNAPSHOT", "ACTUAL STATE", "DESIRED STATE", "IMAGES", "DEPLOYED", "STARTED", "BUILD TARGET");
         for (Environment env : envs) {
             int totalContainers = 0, deployedContainers = 0, runningContainers = 0;
             if (env.getRuntimeInfo() != null) {
@@ -76,9 +77,10 @@ public class DenvConsole {
                 }
             }
             out.format(leftAlignFormat, env.getId(), env.getEnvironmentConfigurationId(),
-                    env.getVersion() != null ? env.getVersion() : "",
-                    env.getSnapshotName() != null ? env.getSnapshotName() : "",
-                    env.getActualState(), env.getDesiredState(), totalContainers, deployedContainers, runningContainers);
+                    pretty(env.getVersion()),
+                    pretty(env.getSnapshotName()),
+                    env.getActualState(), env.getDesiredState(), totalContainers, deployedContainers, runningContainers,
+                    pretty(env.getBuilderTarget()));
         }
     }
 
@@ -112,9 +114,10 @@ public class DenvConsole {
         String leftAlignFormat = "%-30s %-40s %n";
         String leftAlignFormatImage = "    %-30s %-40s %n";
 
-        out.format(leftAlignFormat, "Id: ", envConf.getId());
-        out.format(leftAlignFormat, "Name: ", envConf.getName());
-        out.format(leftAlignFormat, "Description: ", envConf.getDescription());
+        printKey(leftAlignFormat, "Id", envConf.getId());
+        printKey(leftAlignFormat, "Name", envConf.getName());
+        printKey(leftAlignFormat, "Description", envConf.getDescription());
+        printKey(leftAlignFormat, "Builder configuration id", envConf.getBuilderEnvConfId());
         out.println();
 
         if (envConf.getImages() != null) {
@@ -122,13 +125,11 @@ public class DenvConsole {
             out.println();
             Collection<? extends ImageConfiguration> imageConfs = envConf.getImages().values();
             for (ImageConfiguration imageConf : imageConfs) {
-                out.format(leftAlignFormatImage, "Id: ", imageConf.getId());
-                out.format(leftAlignFormatImage, "Name: ", imageConf.getName());
-                if (imageConf.getDescription() != null) {
-                    out.format(leftAlignFormatImage, "Description: ", imageConf.getDescription());
-                }
-                out.format(leftAlignFormatImage, "Source: ", imageConf.getSource());
-                out.format(leftAlignFormatImage, "Initial desired state: ", imageConf.getInitialDesiredState());
+                printKey(leftAlignFormatImage, "Id", imageConf.getId());
+                printKey(leftAlignFormatImage, "Name", imageConf.getName());
+                printKey(leftAlignFormatImage, "Description", imageConf.getDescription());
+                printKey(leftAlignFormatImage, "Source", imageConf.getSource());
+                printKey(leftAlignFormatImage, "Initial desired state", imageConf.getInitialDesiredState());
                 out.println();
             }
         }
@@ -143,6 +144,38 @@ public class DenvConsole {
         for (EnvironmentConfiguration conf : confs) {
             out.format(leftAlignFormat, conf.getId(), (conf.getDescription() != null ? conf.getDescription() : ""));
         }
+    }
+
+    public void printVers(Collection<? extends EnvironmentConfigurationVersion> vers) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignTitleFormat = "%-20s %-20s %-20s %-20s %-18s %-18s %n";
+        String leftAlignFormat = "%-20s %-20s %-20s %-20s %-18s %-18s %n";
+
+        out.format(leftAlignTitleFormat, "VERSION ID", "CONFIGURATION ID", "VERSION", "BUILD ENV ID", "ACTUAL STATE", "DESIRED STATE");
+        for (EnvironmentConfigurationVersion ver : vers) {
+            out.format(leftAlignFormat, ver.getId(), ver.getEnvConfId(), ver.getVersion(),
+                    ver.getBuildEnvId() != null ? ver.getBuildEnvId() : "",
+                    ver.getActualState(), ver.getDesiredState());
+        }
+    }
+
+    public void printVer(EnvironmentConfigurationVersion ver) {
+        // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
+        String leftAlignFormat = "%-30s %-40s %n";
+
+        printKey(leftAlignFormat, "Id", ver.getId());
+        printKey(leftAlignFormat, "Configuration id", ver.getEnvConfId());
+        printKey(leftAlignFormat, "Version", ver.getVersion());
+        printKey(leftAlignFormat, "Build environment id", ver.getBuildEnvId());
+        out.println();
+    }
+
+    private void printKey(String format, String key, Object value) {
+        out.format(format, key + ":", (value != null ? value : ""));
+    }
+
+    private String pretty(String str) {
+        return str != null ? str : "";
     }
 
     public ByteArrayOutputStream getLocalOutputStream() {

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Service @Order(11)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Parameters(commandNames = "add", separators = "=", commandDescription = "Add a new environment")
+@Parameters(commandNames = "addenv", separators = "=", commandDescription = "Add a new environment")
 public class CommandAddEnv implements DenvCommand {
 
     @Parameter(description = "Ids of the environments to create")

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.*;
 import org.ssoup.denv.core.exception.DenvException;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
@@ -49,7 +50,8 @@ public class DockerContainerManager extends AbstractContainerManager {
     private NodeManager nodeManager;
 
     @Autowired
-    public DockerContainerManager(ImageManager imageManager, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy, NodeManager nodeManager) {
+    public DockerContainerManager(ImageManager imageManager, NamingStrategy namingStrategy,
+                                  VersioningPolicy versioningPolicy, NodeManager nodeManager) {
         super(imageManager, namingStrategy, versioningPolicy);
         // dockerClient = new DockerClient(dockerEnvironmentConfiguration.getDockerAddress());
         this.nodeManager = nodeManager;
@@ -64,7 +66,7 @@ public class DockerContainerManager extends AbstractContainerManager {
 
     @Override
     protected void registerExistingContainers() {
-        for (com.github.dockerjava.api.model.Container dockerContainer : getDockerClient().listContainersCmd().withShowAll(true).exec()) {
+        /*for (com.github.dockerjava.api.model.Container dockerContainer : getDockerClient().listContainersCmd().withShowAll(true).exec()) {
             try {
                 Image image = getImageManager().findImage(null, null); // dockerContainer.getImageForMongo()); // TODO: extract the environment and the image configuration somehow
                 InspectContainerResponse containerInspectResponse = getDockerClient().inspectContainerCmd(dockerContainer.getId()).exec();
@@ -72,19 +74,21 @@ public class DockerContainerManager extends AbstractContainerManager {
             } catch (Exception e) {
                 LOGGER.error("An error occurred loading details of container", e);
             }
-        }
+        }*/
     }
 
     @Override
-    public Container findContainerById(Environment env, ImageConfiguration imageConf, String containerId) throws DenvException {
+    public Container findContainerById(Environment env, EnvironmentConfiguration envConf,
+                                       ImageConfiguration imageConf, String containerId) throws DenvException {
         com.github.dockerjava.api.model.Container dockerContainer = findContainerById(containerId);
-        return convertContainer(env, imageConf, dockerContainer);
+        return convertContainer(env, envConf, imageConf, dockerContainer);
     }
 
     @Override
-    public Container findContainerByName(Environment env, ImageConfiguration imageConf, String containerName) throws DenvException {
+    public Container findContainerByName(Environment env, EnvironmentConfiguration envConf,
+                                         ImageConfiguration imageConf, String containerName) throws DenvException {
         com.github.dockerjava.api.model.Container dockerContainer = findContainerByName(containerName);
-        return convertContainer(env, imageConf, dockerContainer);
+        return convertContainer(env, envConf, imageConf, dockerContainer);
     }
 
     private com.github.dockerjava.api.model.Container findContainerById(String containerId) throws ContainerizationException {
@@ -117,11 +121,12 @@ public class DockerContainerManager extends AbstractContainerManager {
         return null;
     }
 
-    private Container convertContainer(Environment env, ImageConfiguration imageConf, com.github.dockerjava.api.model.Container dockerContainer) throws DenvException {
+    private Container convertContainer(Environment env, EnvironmentConfiguration envConf,
+                                       ImageConfiguration imageConf, com.github.dockerjava.api.model.Container dockerContainer) throws DenvException {
         if (dockerContainer != null) {
             try {
                 InspectContainerResponse containerDetails = getDockerClient().inspectContainerCmd(dockerContainer.getId()).exec();
-                Image image = getImageManager().findImage(env, imageConf);
+                Image image = getImageManager().findImage(envConf, env.getVersion(), imageConf);
                 DockerContainer container = new DockerContainer(dockerContainer, containerDetails, image);
                 fillVariables(env, imageConf, container);
                 return container;
@@ -273,15 +278,25 @@ public class DockerContainerManager extends AbstractContainerManager {
     }
 
     @Override
-    public void saveContainerAsEnvironmentImage(Environment env, ImageConfiguration imageConf, Container container) throws DenvException {
-        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+    public void saveContainerAsEnvironmentImage(Environment env, EnvironmentConfiguration envConf,
+                                                ImageConfiguration imageConf, Container container) throws DenvException {
+        String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(env.getVersion(), imageConf);
         saveContainer(env, container, imageName, imageVersion);
     }
 
     @Override
     public void saveContainer(Environment env, Container container, String imageName) throws ContainerizationException {
-        saveContainer(env, container, imageName, env.getVersion());
+        if (imageName.contains(":")) {
+            String[] toks = imageName.split(":");
+            if (toks.length == 2) {
+                saveContainer(env, container, toks[0], toks[1]);
+            } else {
+                throw new ContainerizationException("Invalid name for image : " + imageName);
+            }
+        } else {
+            saveContainer(env, container, imageName, env.getVersion());
+        }
     }
 
     public void saveContainer(Environment env, Container container, String imageName, String tag) throws ContainerizationException {

@@ -46,8 +46,8 @@ public class DockerManager extends AbstractContainerizedEnvironmentRuntimeManage
         ContainerizedEnvironmentRuntimeInfo runtimeInfo = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
         for (ImageConfiguration imageConf : envConf.getImages().values()) {
             ContainerRuntimeInfo containerRuntimeInfo = runtimeInfo.getContainerRuntimeInfo(imageConf.getId());
-            Container container = getContainerManager().findContainerById(env, imageConf, containerRuntimeInfo.getId());
-            String snapshotImageName = getNamingStrategy().generateImageName(env, imageConf, snapshotName);
+            Container container = getContainerManager().findContainerById(env,envConf, imageConf, containerRuntimeInfo.getId());
+            String snapshotImageName = getNamingStrategy().generateImageName(envConf, imageConf, snapshotName);
             getContainerManager().saveContainer(env, container, snapshotImageName);
         }
     }

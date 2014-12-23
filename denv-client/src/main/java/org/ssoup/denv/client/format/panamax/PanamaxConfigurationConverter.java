@@ -26,69 +26,76 @@ public class PanamaxConfigurationConverter {
         envConf.setDescription(panamaxAppConfiguration.getDescription());
         envConf.setBuilderEnvConfId(panamaxAppConfiguration.getBuilderEnvConfId());
         for (PanamaxApplicationConfiguration.Image image : panamaxAppConfiguration.getImages()) {
-            ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
-            appImage.setId(image.getName().replace(" ", "_").replace(".", "_"));
-            appImage.setName(image.getName());
-            appImage.setDescription(image.getDescription());
-            appImage.setSource(image.getSource());
-            appImage.setBuildCommand(image.getBuildCommand());
-            appImage.setTargetImage(image.getTargetImage());
+            ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl envImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
+            envImage.setId(image.getName().replace(" ", "_").replace(".", "_"));
+            envImage.setName(image.getName());
+            envImage.setDescription(image.getDescription());
+            envImage.setSource(image.getSource());
+            envImage.setCommand(image.getCommmand());
+            envImage.setBuildCommand(image.getBuildCommand());
+            envImage.setServicesToVersionWhenBuildSucceeds(image.getServicesToVersionWhenBuildSucceeds());
+            envImage.setTargetImage(image.getTargetImage());
             // environment variables
-            appImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
+            envImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
             if (image.getEnvironment() != null) {
                 for (PanamaxApplicationConfiguration.EnvironmentVariable environmentVariable : image.getEnvironment()) {
                     ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl();
                     appEnvironmentVariable.setVariable(environmentVariable.getVariable());
                     appEnvironmentVariable.setValue(environmentVariable.getValue());
-                    appImage.getEnvironment().add(appEnvironmentVariable);
+                    envImage.getEnvironment().add(appEnvironmentVariable);
                 }
             }
             // links
-            appImage.setLinks(new ArrayList<ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl>());
+            envImage.setLinks(new ArrayList<ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl>());
             if (image.getLinks() != null) {
                 for (PanamaxApplicationConfiguration.Link link : image.getLinks()) {
                     ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl appLink = new ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl();
                     appLink.setService(link.getService());
                     appLink.setAlias(link.getAlias());
-                    appImage.getLinks().add(appLink);
+                    envImage.getLinks().add(appLink);
                 }
             }
             // ports
-            appImage.setPorts(new ArrayList<ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl>());
+            envImage.setPorts(new ArrayList<ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl>());
             if (image.getPorts() != null) {
                 for (PanamaxApplicationConfiguration.Port port : image.getPorts()) {
                     ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl appPort = new ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl();
                     appPort.setHostPort(port.getHost_port());
                     appPort.setContainerPort(port.getContainer_port());
-                    appImage.getPorts().add(appPort);
+                    envImage.getPorts().add(appPort);
                 }
             }
             // volumes
-            appImage.setVolumes(new ArrayList<ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl>());
+            envImage.setVolumes(new ArrayList<ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl>());
             if (image.getVolumes() != null) {
                 for (PanamaxApplicationConfiguration.Volume vol : image.getVolumes()) {
                     ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl appVolume = new ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl();
                     appVolume.setHostPath(vol.getHost_path());
                     appVolume.setContainerPath(vol.getContainer_path());
-                    appImage.getVolumes().add(appVolume);
+                    envImage.getVolumes().add(appVolume);
                 }
             }
             // denv variables
-            appImage.setVariables(new ArrayList<ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl>());
+            envImage.setVariables(new ArrayList<ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl>());
             if (image.getVariables() != null) {
                 for (PanamaxApplicationConfiguration.DenvVariable var : image.getVariables()) {
                     ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl denvVariable = new ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl();
                     denvVariable.setVariable(var.getVariable());
                     denvVariable.setValue(var.getValue());
-                    appImage.getVariables().add(denvVariable);
+                    envImage.getVariables().add(denvVariable);
                 }
             }
-            if (appImage.getPorts().size() > 0) {
-                appImage.setInitialDesiredState(ContainerDesiredState.RESPONDING);
+
+            if (envImage.getBuildCommand() != null && envImage.getServicesToVersionWhenBuildSucceeds() != null) {
+                envImage.setInitialDesiredState(ContainerDesiredState.SUCCEEDED);
             } else {
-                appImage.setInitialDesiredState(ContainerDesiredState.STARTED);
+                if (envImage.getPorts().size() > 0) {
+                    envImage.setInitialDesiredState(ContainerDesiredState.RESPONDING);
+                } else {
+                    envImage.setInitialDesiredState(ContainerDesiredState.STARTED);
+                }
             }
-            envConf.addImage(appImage);
+            envConf.addImage(envImage);
         }
         return envConf;
     }

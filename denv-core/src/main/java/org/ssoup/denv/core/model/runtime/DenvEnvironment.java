@@ -28,6 +28,8 @@ public abstract class DenvEnvironment implements Environment {
      * true for build environments
      */
     private boolean builder;
+    private String builderTargetEnvConfId;
+    private String builderTargetVersion;
 
     // Runtime info
     // map appId => Application
@@ -46,6 +48,8 @@ public abstract class DenvEnvironment implements Environment {
         this.desiredState = env.getDesiredState();
         this.node = env.getNode();
         this.builder = env.isBuilder();
+        this.builderTargetEnvConfId = env.getBuilderTargetEnvConfId();
+        this.builderTargetVersion = env.getBuilderTargetVersion();
     }
 
     public DenvEnvironment(String id, String name, String environmentConfigurationId, NodeConfiguration node) {
@@ -128,6 +132,10 @@ public abstract class DenvEnvironment implements Environment {
         this.version = version;
     }
 
+    public static String buildVersionId(String envConfId, String version) {
+        return envConfId + ":" + version;
+    }
+
     @Override
     public String getSnapshotName() {
         return snapshotName;
@@ -161,5 +169,31 @@ public abstract class DenvEnvironment implements Environment {
 
     public void setBuilder(boolean builder) {
         this.builder = builder;
+    }
+
+    @Override
+    public String getBuilderTargetEnvConfId() {
+        return builderTargetEnvConfId;
+    }
+
+    public void setBuilderTargetEnvConfId(String builderTargetEnvConfId) {
+        this.builderTargetEnvConfId = builderTargetEnvConfId;
+    }
+
+    @Override
+    public String getBuilderTargetVersion() {
+        return builderTargetVersion;
+    }
+
+    public void setBuilderTargetVersion(String builderTargetVersion) {
+        this.builderTargetVersion = builderTargetVersion;
+    }
+
+    @Override
+    public String getBuilderTarget() {
+        if (builderTargetEnvConfId != null && builderTargetVersion != null) {
+            return buildVersionId(builderTargetEnvConfId, builderTargetVersion);
+        }
+        return null;
     }
 }

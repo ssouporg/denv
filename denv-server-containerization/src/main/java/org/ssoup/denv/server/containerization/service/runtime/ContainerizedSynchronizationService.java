@@ -17,6 +17,7 @@ import org.ssoup.denv.server.containerization.exception.ContainerNotFoundExcepti
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
+import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.persistence.EnvironmentRepository;
 import org.ssoup.denv.server.persistence.VersionRepository;
@@ -38,6 +39,8 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     private NamingStrategy namingStrategy;
 
+    private VersioningPolicy versioningPolicy;
+
     @Autowired
     protected ContainerizedSynchronizationService(EnvironmentRepository environmentRepository,
                                                   EnvironmentConfigRepository environmentConfigRepository,
@@ -45,12 +48,14 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                                                   EnvironmentManager environmentManager,
                                                   ImageManager imageManager,
                                                   ContainerManager containerManager,
-                                                  NamingStrategy namingStrategy) {
+                                                  NamingStrategy namingStrategy,
+                                                  VersioningPolicy versioningPolicy) {
         super(environmentRepository, environmentConfigRepository, versionRepository);
         this.environmentManager = environmentManager;
         this.imageManager = imageManager;
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
+        this.versioningPolicy = versioningPolicy;
     }
 
     @Override
@@ -58,15 +63,20 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         DenvEnvironment denv = ((DenvEnvironment) env);
         if (envConf == null) {
             // configuration has been lost => put environment in inconsistent state
-            denv.setActualState(EnvironmentState.INCONSISTENT);
+            denv.setActualState(EnvironmentState.CONF_UNKNOWN);
             return;
         }
 
-        ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration)envConf;
-        ContainerizedEnvironmentRuntimeInfo cenvInfo = (ContainerizedEnvironmentRuntimeInfo)env.getRuntimeInfo();
+        ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+        ContainerizedEnvironmentRuntimeInfo cenvInfo = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
         boolean allContainersInDesiredState = true;
         boolean allContainersStopped = true;
-        boolean allContainersDeleted = true;
+        boolean allContainersUndeployed = true;
+        boolean atLeastOneContainersUndeployed = false;
+        boolean atLeastOneContainerStarted = false;
+        boolean atLeastOneContainerStarting = false;
+        boolean atLeastOneContainerSucceeded = false;
+        boolean atLeastOneContainerFailed = false;
         for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
             ContainerRuntimeInfo containerInfo = cenvInfo.getContainerRuntimeInfo(imageConf.getId());
             if (containerInfo == null) {
@@ -75,13 +85,23 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                 cenvInfo.setContainerRuntimeInfo(imageConf.getId(), containerInfo);
             }
             if (containerInfo.getId() != null) {
-                Container container = containerManager.findContainerById(env, imageConf, containerInfo.getId());
+                Container container = containerManager.findContainerById(env, envConf, imageConf, containerInfo.getId());
                 if (container != null) {
-                    allContainersDeleted = false;
+                    allContainersUndeployed = false;
                     updateRuntimeInfoFromRunningContainer(imageConf, (ContainerRuntimeInfoImpl) containerInfo, container);
+                    if (containerInfo.getActualState().isStarted()) {
+                        atLeastOneContainerStarted = true;
+                    } else if (containerInfo.getActualState() == ContainerState.STARTING) {
+                        atLeastOneContainerStarting = true;
+                    } else if (containerInfo.getActualState() == ContainerState.SUCCEEDED) {
+                        atLeastOneContainerSucceeded = true;
+                    } else if (containerInfo.getActualState() == ContainerState.FAILED) {
+                        atLeastOneContainerFailed = true;
+                    }
                 } else {
                     containerInfo.setId(null);
                     containerInfo.setActualState(ContainerState.UNDEPLOYED);
+                    atLeastOneContainersUndeployed = true;
                 }
             }
             if (!containerInfo.getDesiredState().isSatisfiedBy(containerInfo.getActualState())) {
@@ -91,16 +111,53 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                 allContainersStopped = false;
             }
         }
-        if (env.getDesiredState() == EnvironmentDesiredState.STARTED) {
-            if (allContainersInDesiredState) {
-                denv.setActualState(EnvironmentState.STARTED);
-            } else {
-                denv.setActualState(EnvironmentState.STARTING);
+
+        if (allContainersInDesiredState) {
+            if (denv.getDesiredState() == EnvironmentDesiredState.STARTED) {
+                if (atLeastOneContainerStarted) {
+                    denv.setActualState(EnvironmentState.STARTED);
+                }
+            } else if (denv.getDesiredState() == EnvironmentDesiredState.SUCCEEDED) {
+                if (atLeastOneContainerSucceeded) {
+                    denv.setActualState(EnvironmentState.SUCCEEDED);
+                }
             }
+        } else if (atLeastOneContainerFailed) {
+            denv.setActualState(EnvironmentState.FAILED);
+        } else if (atLeastOneContainerStarting) {
+            denv.setActualState(EnvironmentState.STARTING);
         } else if (allContainersStopped) {
             denv.setActualState(EnvironmentState.STOPPED);
-        } else if (allContainersDeleted) {
-            denv.setActualState(EnvironmentState.DELETED);
+        } else if (atLeastOneContainersUndeployed) {
+            if (denv.getDesiredState() == EnvironmentDesiredState.DELETED) {
+                if (allContainersUndeployed) {
+                    denv.setActualState(EnvironmentState.DELETED);
+                } else {
+                    denv.setActualState(EnvironmentState.DELETING);
+                }
+            }
+        } else {
+            if (atLeastOneContainerStarted) {
+                denv.setActualState(EnvironmentState.STARTING);
+            } else {
+                denv.setActualState(EnvironmentState.CREATED);
+            }
+        }
+    }
+
+    @Override
+    protected void updateActualState(EnvironmentConfiguration envConf, EnvironmentConfigurationVersion envConfVersion) throws DenvException {
+        ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+        boolean allImagesFound = true;
+        for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
+            Image image = imageManager.findImage(envConf, envConfVersion.getVersion(), imageConf);
+            if (image == null) {
+                allImagesFound = false;
+                break;
+            }
+        }
+        if (allImagesFound) {
+            ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.AVAILABLE);
         }
     }
 
@@ -128,19 +185,31 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                     containerInfo.setActualState(ContainerState.NOT_RESPONDING);
                 }
             } else if ( containerInfo.getActualState() != ContainerState.KILLED_BY_DENV &&
-                    containerInfo.getActualState() != ContainerState.KILLED_BY_DENV) {
-                containerInfo.setActualState(ContainerState.STOPPED);
+                    containerInfo.getActualState() != ContainerState.KILLED_BY_USER) {
+                if (container.getExitStatus() != null) {
+                    if (container.getExitStatus() == 0) {
+                        containerInfo.setActualState(ContainerState.SUCCEEDED);
+                    } else {
+                        containerInfo.setActualState(ContainerState.FAILED);
+                    }
+                } else {
+                    containerInfo.setActualState(ContainerState.STOPPED);
+                }
             }
         }
     }
 
     @Override
     protected void moveTowardsDesiredState(Environment env, EnvironmentConfiguration envConf) throws DenvException {
+        DenvEnvironment denv = ((DenvEnvironment) env);
         EnvironmentDesiredState ed = env.getDesiredState();
-        if (ed == EnvironmentDesiredState.STARTED) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.STARTING);
-            ContainerizedEnvironmentRuntimeInfo cenv = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
-            ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+        ContainerizedEnvironmentRuntimeInfo cenv = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
+        ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+        if (ed == EnvironmentDesiredState.STARTED || // STARTED desired state => keep alive,restarting if necessary
+                // execute once desired state(s) => execute only once
+                (ed.toBeExecutedOnce() && (env.getActualState() == EnvironmentState.CREATED || env.getActualState() == EnvironmentState.STARTING)))
+        {
+            denv.setActualState(EnvironmentState.STARTING);
             for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
                 ContainerRuntimeInfo containerInfo = cenv.getContainerRuntimeInfo(imageConf.getId());
                 ContainerDesiredState d = containerInfo.getDesiredState();
@@ -149,27 +218,33 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                     if (a.isDeployed()) {
                         containerManager.deleteContainer(env, containerInfo.getId());
                     }
-                } else if (d == ContainerDesiredState.STARTED || d == ContainerDesiredState.RESPONDING) {
-                    startContainer(env, cenv, imageConf, containerInfo);
+                } else if (d == ContainerDesiredState.STARTED ||
+                           d == ContainerDesiredState.SUCCEEDED ||
+                           d == ContainerDesiredState.RESPONDING) {
+                    if (env.isBuilder()) {
+                        if (imageConf.getBuildCommand() != null) {
+                            String buildCommand = imageConf.getBuildCommand();
+                            buildCommand = buildCommand.replace("${TARGET_VERSION}", env.getBuilderTargetVersion());
+                            startContainer(env, envConf, cenv, imageConf, containerInfo, buildCommand);
+                        }
+                    } else {
+                        startContainer(env, envConf, cenv, imageConf, containerInfo);
+                    }
                 } else if (d == ContainerDesiredState.STOPPED) {
-                    stopContainer(env, cenv, imageConf, containerInfo);
+                    stopContainer(env, envConf, cenv, imageConf, containerInfo);
                 }
             }
         } else if (ed == EnvironmentDesiredState.STOPPED) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.STOPPING);
-            ContainerizedEnvironmentRuntimeInfo cenv = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
-            ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+            denv.setActualState(EnvironmentState.STOPPING);
             for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
                 ContainerRuntimeInfo containerInfo = cenv.getContainerRuntimeInfo(imageConf.getId());
                 ContainerState a = containerInfo.getActualState();
                 if (a.isStarted()) {
-                    stopContainer(env, cenv, imageConf, containerInfo);
+                    stopContainer(env, envConf, cenv, imageConf, containerInfo);
                 }
             }
         } else if (ed == EnvironmentDesiredState.DELETED) {
-            ((DenvEnvironment) env).setActualState(EnvironmentState.DELETING);
-            ContainerizedEnvironmentRuntimeInfo cenv = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
-            ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+            denv.setActualState(EnvironmentState.DELETING);
             for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
                 ContainerRuntimeInfo containerInfo = cenv.getContainerRuntimeInfo(imageConf.getId());
                 ContainerState a = containerInfo.getActualState();
@@ -177,11 +252,37 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                     deleteContainer(env, containerInfo);
                 }
             }
+        } else if (ed == EnvironmentDesiredState.SUCCEEDED) {
+            if (env.isBuilder() && env.getActualState() == EnvironmentState.SUCCEEDED) {
+                // save built containers into persistent images
+                for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
+                    if (imageConf.getBuildCommand() != null && imageConf.getServicesToVersionWhenBuildSucceeds() != null) {
+                        for (String serviceToVersion : imageConf.getServicesToVersionWhenBuildSucceeds()) {
+                            ImageConfiguration serviceImageConf = cenvConf.getImages().get(serviceToVersion);
+                            Image image = imageManager.findImage(serviceImageConf.getTargetImage(), serviceImageConf);
+                            if (image == null) {
+                                ContainerRuntimeInfo containerInfo = cenv.getContainerRuntimeInfo(serviceToVersion);
+                                Container containerToVersion = containerManager.findContainerById(env, envConf, serviceImageConf, containerInfo.getId());
+                                String imageName = serviceImageConf.getTargetImage();
+                                imageName = imageName.replace("${TARGET_VERSION}", env.getBuilderTargetVersion());
+                                containerManager.saveContainer(env, containerToVersion, imageName);
+                            }
+                        }
+                    }
+                }
+                // delete builder environment after successful build
+                denv.setDesiredState(EnvironmentDesiredState.DELETED);
+            }
         }
     }
 
-    protected Container startContainer(Environment env, ContainerizedEnvironmentRuntimeInfo cenv,
+    protected Container startContainer(Environment env, EnvironmentConfiguration envConf, ContainerizedEnvironmentRuntimeInfo cenv,
                                         ImageConfiguration imageConf, ContainerRuntimeInfo containerInfo) throws DenvException {
+        return startContainer(env, envConf, cenv, imageConf, containerInfo, imageConf.getCommand());
+    }
+
+    protected Container startContainer(Environment env, EnvironmentConfiguration envConf, ContainerizedEnvironmentRuntimeInfo cenv,
+                                       ImageConfiguration imageConf, ContainerRuntimeInfo containerInfo, String command) throws DenvException {
         ContainerState a = containerInfo.getActualState();
         boolean allLinkedContainersListening = true;
         if (imageConf.getLinks() != null) {
@@ -199,12 +300,12 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         Container container = null;
         if (allLinkedContainersListening) {
             if (a == null || !a.isDeployed()) {
-                container = deployContainer(env, cenv, imageConf, containerInfo);
+                container = deployContainer(env, envConf, cenv, imageConf, containerInfo, command);
                 containerInfo.setId(container.getId());
                 containerManager.startContainer(env, container);
                 containerInfo.setActualState(ContainerState.STARTING);
             } else if (a.isStopped()) {
-                container = containerManager.findContainerById(env, imageConf, containerInfo.getId());
+                container = containerManager.findContainerById(env, envConf, imageConf, containerInfo.getId());
                 containerManager.startContainer(env, container);
                 containerInfo.setActualState(ContainerState.STARTING);
             }
@@ -212,24 +313,21 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         return container;
     }
 
-    protected Container deployContainer(Environment env, ContainerizedEnvironmentRuntimeInfo cenv,
-                                   ImageConfiguration imageConf, ContainerRuntimeInfo containerInfo) throws DenvException {
-        Image image = imageManager.findOrBuildImage(env, imageConf);
-        String command = null; // getCmd(env, serviceConf);
+    protected Container deployContainer(Environment env, EnvironmentConfiguration envConf, ContainerizedEnvironmentRuntimeInfo cenv,
+                                   ImageConfiguration imageConf, ContainerRuntimeInfo containerInfo, String command) throws DenvException {
+        Image image = imageManager.findOrBuildImage(envConf, env.getVersion(), imageConf);
         String containerName = namingStrategy.generateContainerName(env, imageConf);
         Container container = containerManager.createContainer(env, containerName, imageConf, image, command);
         cenv.setContainerRuntimeInfo(imageConf.getId(), containerInfo);
         return container;
     }
 
-    protected Container stopContainer(Environment env, ContainerizedEnvironmentRuntimeInfo cenv,
+    protected Container stopContainer(Environment env, EnvironmentConfiguration envConf, ContainerizedEnvironmentRuntimeInfo cenv,
                                        ImageConfiguration imageConf, ContainerRuntimeInfo containerInfo) throws DenvException {
         ContainerState a = containerInfo.getActualState();
         Container container = null;
-        if (!a.isDeployed()) {
-            container = deployContainer(env, cenv, imageConf, containerInfo);
-        } else if (a.isStarted()) {
-            container = containerManager.findContainerById(env, imageConf, containerInfo.getId());
+        if (a.isDeployed()) {
+            container = containerManager.findContainerById(env, envConf, imageConf, containerInfo.getId());
             containerManager.stopContainer(env, container);
             containerInfo.setActualState(ContainerState.STOPPING);
         }
@@ -249,15 +347,21 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
     @Override
     protected void moveTowardsDesiredState(EnvironmentConfiguration envConf, EnvironmentConfigurationVersion envConfVersion)
             throws DenvException {
+        EnvironmentConfigurationVersionImpl ecv = (EnvironmentConfigurationVersionImpl)envConfVersion;
         EnvironmentConfigVersionDesiredState cd = envConfVersion.getDesiredState();
         if (cd == EnvironmentConfigVersionDesiredState.AVAILABLE) {
             if (envConfVersion.getActualState() == EnvironmentConfigVersionState.CREATED) {
                 ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
                 if (cenvConf.getBuilderEnvConfId() == null) {
-                    throw new DenvException("Builder environment configuration not specified");
+                    ecv.setActualState(EnvironmentConfigVersionState.BUILD_ERROR);
+                    ecv.setBuildError("Builder environment configuration not specified");
+                } else {
+                    EnvironmentConfiguration builderEnvConf = (EnvironmentConfiguration)getEnvironmentConfigRepository().findOne(cenvConf.getBuilderEnvConfId());
+                    DenvContainerizedEnvironment env = (DenvContainerizedEnvironment)
+                            this.environmentManager.createBuildEnvironment(builderEnvConf, envConf.getId(), envConfVersion.getVersion());
+                    ecv.setActualState(EnvironmentConfigVersionState.BUILDING);
+                    ecv.setBuildEnvId(env.getId());
                 }
-                ((EnvironmentConfigurationVersionImpl)envConfVersion).setActualState(EnvironmentConfigVersionState.BUILDING);
-                this.environmentManager.createBuildEnvironment(envConf);
             }
         }
     }

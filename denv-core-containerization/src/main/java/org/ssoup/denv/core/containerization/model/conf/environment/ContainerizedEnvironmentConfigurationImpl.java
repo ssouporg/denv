@@ -32,7 +32,9 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
         private String name;
         private String source;
         private String description;
+        private String command;
         private String buildCommand;
+        private Collection<String> servicesToVersionWhenBuildSucceeds;
         private String targetImage;
         private boolean privileged;
         private Collection<EnvironmentVariableConfigurationImpl> environment;
@@ -51,6 +53,8 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
             this.source = imageConf.getSource();
             this.description = imageConf.getDescription();
             this.buildCommand = imageConf.getBuildCommand();
+            this.command = imageConf.getCommand();
+            this.servicesToVersionWhenBuildSucceeds = imageConf.getServicesToVersionWhenBuildSucceeds();
             this.targetImage = imageConf.getTargetImage();
             this.environment = (Collection<EnvironmentVariableConfigurationImpl>) imageConf.getEnvironment();
             this.privileged = imageConf.isPrivileged();
@@ -168,6 +172,24 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
 
         public void setTargetImage(String targetImage) {
             this.targetImage = targetImage;
+        }
+
+        @Override
+        public Collection<String> getServicesToVersionWhenBuildSucceeds() {
+            return servicesToVersionWhenBuildSucceeds;
+        }
+
+        public void setServicesToVersionWhenBuildSucceeds(Collection<String> servicesToVersionWhenBuildSucceeds) {
+            this.servicesToVersionWhenBuildSucceeds = servicesToVersionWhenBuildSucceeds;
+        }
+
+        @Override
+        public String getCommand() {
+            return command;
+        }
+
+        public void setCommand(String command) {
+            this.command = command;
         }
     }
 

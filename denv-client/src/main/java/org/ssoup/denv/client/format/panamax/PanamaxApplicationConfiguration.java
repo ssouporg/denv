@@ -30,7 +30,9 @@ public class PanamaxApplicationConfiguration {
         private String name;
         private String source;
         private String description;
+        private String commmand;
         private String buildCommand;
+        private Collection<String> servicesToVersionWhenBuildSucceeds;
         private String targetImage;
         private Collection<EnvironmentVariable> environment;
         private Collection<Link> links;
@@ -143,6 +145,22 @@ public class PanamaxApplicationConfiguration {
 
         public void setTargetImage(String targetImage) {
             this.targetImage = targetImage;
+        }
+
+        public Collection<String> getServicesToVersionWhenBuildSucceeds() {
+            return servicesToVersionWhenBuildSucceeds;
+        }
+
+        public void setServicesToVersionWhenBuildSucceeds(Collection<String> servicesToVersionWhenBuildSucceeds) {
+            this.servicesToVersionWhenBuildSucceeds = servicesToVersionWhenBuildSucceeds;
+        }
+
+        public String getCommmand() {
+            return commmand;
+        }
+
+        public void setCommmand(String commmand) {
+            this.commmand = commmand;
         }
     }
 

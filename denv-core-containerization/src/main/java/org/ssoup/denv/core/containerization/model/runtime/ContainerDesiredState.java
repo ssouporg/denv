@@ -8,6 +8,7 @@ public enum ContainerDesiredState {
     UNDEPLOYED,
     STOPPED,
     STARTED,
+    SUCCEEDED,
     RESPONDING;
 
     public boolean isSatisfiedBy(ContainerState containerActualState) {
@@ -22,6 +23,9 @@ public enum ContainerDesiredState {
         if (this == STARTED) {
             return containerActualState == ContainerState.RESPONDING ||
                     containerActualState == ContainerState.NOT_RESPONDING;
+        }
+        if (this == SUCCEEDED) {
+            return containerActualState == ContainerState.SUCCEEDED;
         }
         if (this == RESPONDING) {
             return containerActualState == ContainerState.RESPONDING;

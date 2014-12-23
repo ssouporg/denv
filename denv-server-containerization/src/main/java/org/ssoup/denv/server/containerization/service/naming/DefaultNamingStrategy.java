@@ -39,7 +39,6 @@ public class DefaultNamingStrategy implements NamingStrategy {
                 // if the image source contains a version, ignore it
                 return toks[0];
             } else {
-                // otherwise use the environment version
                 return imageConf.getSource();
             }
         } else {
@@ -48,18 +47,18 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String generateImageName(Environment env, ImageConfiguration imageConf) {
-        return generateImageName(env, imageConf, env.getSnapshotName());
-    }
-
-    @Override
-    public String generateImageName(Environment env, ImageConfiguration imageConf, String snapshotName) {
-        EnvironmentConfiguration envConf = (EnvironmentConfiguration) this.environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
+    public String generateImageName(EnvironmentConfiguration envConf, ImageConfiguration imageConf, String snapshotName) {
         String imageName = generateImageName(envConf, imageConf);
         if (snapshotName != null) {
             imageName += SEPARATOR + snapshotName;
         }
         return imageName;
+    }
+
+    @Override
+    public String generateImageName(Environment env, ImageConfiguration imageConf) {
+        EnvironmentConfiguration envConf = (EnvironmentConfiguration) environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
+        return generateImageName(envConf, imageConf, env.getSnapshotName());
     }
 
     @Override

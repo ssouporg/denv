@@ -24,8 +24,8 @@ import java.util.List;
 @Parameters(commandNames = "vers", separators = "=", commandDescription = "List all available versions of an environment configuration")
 public class CommandVers implements DenvCommand {
 
-    @Parameter(description = "Id of the configuration", required = true)
-    private List<String> envConfIds;
+    @Parameter(names={"-c", "--conf"}, description = "Id of the configuration", required = true)
+    private String envConfId;
 
     private DenvConsole console;
 
@@ -40,14 +40,10 @@ public class CommandVers implements DenvCommand {
     @Override
     public void execute() throws DenvCLIException {
         try {
-            for (String envConfId : envConfIds) {
-                /* TODO
-               ContainerizedEnvironmentConfiguration envConf = denvClient.availableVersions(envConfId);
-               console.listVersions(envConf);
-                 */
-            }
+            PagedResources vers = denvClient.listVers(envConfId);
+            console.printVers(vers.getContent());
         } catch (Exception e) {
-            throw new DenvCLIException("An error occurred retrieving configuration versions", e);
+            throw new DenvCLIException("An error occurred retrieving environment versions", e);
         }
     }
 }

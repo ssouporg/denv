@@ -15,7 +15,7 @@ public interface NamingStrategy {
     String generateImageName(EnvironmentConfiguration envConf, ImageConfiguration imageConf) throws DenvException;
     String generateImageName(Environment env, ImageConfiguration imageConf) throws DenvException;
 
-    String generateImageName(Environment env, ImageConfiguration imageConf, String snapshotName);
+    String generateImageName(EnvironmentConfiguration envConf, ImageConfiguration imageConf, String snapshotName);
 
     String generateContainerName(Environment env, String image) throws DenvException;
     String generateContainerName(Environment env, ImageConfiguration imageConf) throws DenvException;

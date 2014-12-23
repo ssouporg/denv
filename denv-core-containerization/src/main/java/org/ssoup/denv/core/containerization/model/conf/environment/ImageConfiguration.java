@@ -14,7 +14,9 @@ public interface ImageConfiguration {
     String getId();
     String getName();
     String getDescription();
+    String getCommand();
     String getBuildCommand();
+    Collection<String> getServicesToVersionWhenBuildSucceeds();
     String getTargetImage();
     String getSource();
     boolean isPrivileged();

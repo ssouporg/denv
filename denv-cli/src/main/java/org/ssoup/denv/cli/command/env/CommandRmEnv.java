@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Service @Order(13)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Parameters(commandNames = "rm", separators = "=", commandDescription = "Remove an environment")
+@Parameters(commandNames = "rmenv", separators = "=", commandDescription = "Remove an environment")
 public class CommandRmEnv implements DenvCommand {
 
     @Parameter(description = "Ids of the environments to remove", required = true)

@@ -25,6 +25,7 @@ import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.DesiredStateNotReachedException;
 import org.ssoup.denv.core.exception.ResourceNotFoundException;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationImpl;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersionImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
@@ -187,6 +188,31 @@ public class DenvClient {
         ResponseEntity<Void> res = sendDeleteEnvConfigRequest(envConfId);
     }
 
+    ///
+    /// Versions related methods
+    ///
+    public void addVersion(String envConfId, String version) {
+        ResponseEntity<Void> res = sendAddVersionRequest(envConfId, version);
+    }
+
+    public PagedResources<EnvironmentConfigurationVersionImpl> listVers(String envConfId) {
+        ResponseEntity<PagedResources<EnvironmentConfigurationVersionImpl>> res = sendGetVersionListRequest(envConfId);
+        return res.getBody();
+    }
+
+    public EnvironmentConfigurationVersionImpl getVersion(String envConfId, String version) {
+        ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> res = sendGetVersionRequest(envConfId, version);
+        return res.getBody().getContent();
+    }
+
+    public void deleteVersion(String envConfId, String version) {
+        ResponseEntity<Void> res = sendDeleteVersionRequest(envConfId, version);
+    }
+
+    ///
+    /// Snapshots related methods
+    ///
+
     public void saveSnapshot(String envId, String snapshotName) {
         sendSaveSnapshotRequest(envId, snapshotName);
     }
@@ -244,6 +270,7 @@ public class DenvClient {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", HATEOAS_MEDIA_TYPE.toString());
         headers.add("Accept", HATEOAS_MEDIA_TYPE.toString());
+        headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         //headers.add("Content-type", MediaType.APPLICATION_JSON_VALUE);
         // headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         return headers;
@@ -357,6 +384,10 @@ public class DenvClient {
         );
     }
 
+    ///
+    /// Snapshots related methods
+    ///
+
     protected ResponseEntity<Void> sendSaveSnapshotRequest(String envId, String snapshotName) {
         return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENVS + DenvApiEndpoints.ENV_SAVE_SNAPSHOT,
@@ -368,19 +399,52 @@ public class DenvClient {
     }
 
     ///
-    /// Versions related methods
+    /// Versions related internal methods
     ///
-    public void buildVersion(String envConfId, String version) {
-        ResponseEntity<Void> res = sendBuildRequest(envConfId, version);
-    }
 
-    protected ResponseEntity<Void> sendBuildRequest(String envConfId, String version) {
+    protected ResponseEntity<Void> sendAddVersionRequest(String envConfId, String version) {
         return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS,
                 HttpMethod.POST,
                 new HttpEntity<String>(version, defaultRequestHeaders()),
                 Void.class,
                 envConfId
+        );
+    }
+
+    protected ResponseEntity<PagedResources<EnvironmentConfigurationVersionImpl>> sendGetVersionListRequest(String envConfId) {
+        ParameterizedTypeReference<PagedResources<EnvironmentConfigurationVersionImpl>> parameterizedTypeReference =
+                new ParameterizedTypeReference<PagedResources<EnvironmentConfigurationVersionImpl>>() {
+                };
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS,
+                HttpMethod.GET,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                parameterizedTypeReference,
+                envConfId
+        );
+    }
+
+    protected ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> sendGetVersionRequest
+            (String envConfId, String version) {
+        ParameterizedTypeReference<Resource<EnvironmentConfigurationVersionImpl>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<EnvironmentConfigurationVersionImpl>>() {};
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS + "/{version}",
+                HttpMethod.GET,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                parameterizedTypeReference,
+                envConfId, version
+        );
+    }
+
+    protected ResponseEntity<Void> sendDeleteVersionRequest(String envConfId, String version) {
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS + "/{version}",
+                HttpMethod.DELETE,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                Void.class,
+                envConfId, version
         );
     }
 }

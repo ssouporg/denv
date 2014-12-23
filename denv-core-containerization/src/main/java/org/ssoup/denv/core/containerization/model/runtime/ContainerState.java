@@ -9,6 +9,8 @@ public enum ContainerState {
     STOPPED,
     STARTING,
     STOPPING,
+    SUCCEEDED,
+    FAILED,
     RESPONDING,
     NOT_RESPONDING,
     KILLED_BY_USER,
@@ -24,6 +26,6 @@ public enum ContainerState {
     }
 
     public boolean isStopped() {
-        return this == STOPPED || this == KILLED_BY_USER || this == KILLED_BY_DENV;
+        return this == STOPPED || this == SUCCEEDED || this == FAILED || this == KILLED_BY_USER || this == KILLED_BY_DENV;
     }
 }

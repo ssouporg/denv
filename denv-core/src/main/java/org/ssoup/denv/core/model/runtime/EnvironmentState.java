@@ -8,13 +8,15 @@ public enum EnvironmentState {
     CREATED,
     STARTING,
     STARTED,
+    SUCCEEDED,
+    FAILED,
     STOPPING,
     STOPPED,
     DELETING,
     DELETED,
-    INCONSISTENT;
+    CONF_UNKNOWN;
 
     public boolean canCreateSnapshot() {
-        return this == STARTED || this == STOPPED;
+        return this == STARTED || this == SUCCEEDED || this == FAILED || this == STOPPED;
     }
 }

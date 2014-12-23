@@ -14,4 +14,6 @@ public interface EnvironmentConfigurationVersion {
     String getVersion();
     EnvironmentConfigVersionState getActualState();
     EnvironmentConfigVersionDesiredState getDesiredState();
+    String getBuildEnvId();
+    String getBuildError();
 }

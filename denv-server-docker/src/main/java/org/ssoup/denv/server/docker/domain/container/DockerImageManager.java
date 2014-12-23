@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
@@ -49,9 +50,9 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     }
 
     @Override
-    public Image findImage(Environment env, ImageConfiguration imageConf) throws DenvException {
-        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+    public Image findImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
+        String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(version, imageConf);
         com.github.dockerjava.api.model.Image dockerImage = this.findDockerImage(imageName, imageVersion);
         if (dockerImage != null) {
             return new DockerImage(imageConf, dockerImage);
@@ -59,9 +60,9 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
         return null;
     }
 
-    /*@Override
-    public Image findImage(String imageName) throws DenvException {
-        com.github.dockerjava.common.model.Image dockerImage;
+    @Override
+    public Image findImage(String imageName, ImageConfiguration imageConf) throws DenvException {
+        com.github.dockerjava.api.model.Image dockerImage;
         String[] toks = imageName.split(":");
         if (toks.length == 2) {
             dockerImage = this.findDockerImage(toks[0], toks[1]);
@@ -70,10 +71,10 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
         }
 
         if (dockerImage != null) {
-            return new DockerImage(dockerImage);
+            return new DockerImage(imageConf, dockerImage);
         }
         return null;
-    }*/
+    }
 
     private com.github.dockerjava.api.model.Image findDockerImage(String imageName, String tag) throws ContainerizationException {
         try {
@@ -97,10 +98,10 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     }
 
     @Override
-    protected Image buildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
+    protected Image buildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
         // try to pull the image from docker registry
-        String imageName = this.getNamingStrategy().generateImageName(env, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(env, imageConf);
+        String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(version, imageConf);
         PullImageCmd pullImageCommand = getDockerClient().pullImageCmd(imageName);
         if (imageVersion != null) {
             pullImageCommand.withTag(imageVersion);
@@ -113,10 +114,10 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
         } catch(IOException ex) {
         }
 
-        Image image = this.findImage(env, imageConf);
+        Image image = this.findImage(envConf, version, imageConf);
         if (image == null) {
             // otherwise try to create the image with an image builder
-            image = super.buildImage(env, imageConf);
+            image = super.buildImage(envConf, version, imageConf);
         }
         return image;
     }

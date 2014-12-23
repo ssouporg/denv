@@ -8,6 +8,7 @@ import org.ssoup.denv.core.containerization.model.runtime.ContainerDesiredState;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -27,34 +28,36 @@ public class FigConfigurationConverter {
         envConf.setBuilderEnvConfId(builderEnvConfId);
         for (String serviceName : figAppConfiguration.keySet()) {
             FigServiceConfiguration serviceConfiguration = figAppConfiguration.get(serviceName);
-            ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl appImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
-            appImage.setId(serviceName.replace(" ", "_").replace(".", "_"));
-            appImage.setName(serviceName);
-            appImage.setSource(serviceConfiguration.getImage());
-            appImage.setBuildCommand(serviceConfiguration.getBuildCommand());
-            appImage.setTargetImage(serviceConfiguration.getTargetImage());
-            appImage.setPrivileged(serviceConfiguration.isPrivileged());
+            ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl envImage = new ContainerizedEnvironmentConfigurationImpl.ImageConfigurationImpl();
+            envImage.setId(serviceName.replace(" ", "_").replace(".", "_"));
+            envImage.setName(serviceName);
+            envImage.setSource(serviceConfiguration.getImage());
+            envImage.setCommand(serviceConfiguration.getCommand());
+            envImage.setBuildCommand(serviceConfiguration.getBuildCommand());
+            envImage.setServicesToVersionWhenBuildSucceeds(serviceConfiguration.getServicesToVersionWhenBuildSucceeds());
+            envImage.setTargetImage(serviceConfiguration.getTargetImage());
+            envImage.setPrivileged(serviceConfiguration.isPrivileged());
             // environment variables
-            appImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
+            envImage.setEnvironment(new ArrayList<ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl>());
             if (serviceConfiguration.getEnvironment() != null) {
                 for (String environmentVariableName : serviceConfiguration.getEnvironment().keySet()) {
                     ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl appEnvironmentVariable = new ContainerizedEnvironmentConfigurationImpl.EnvironmentVariableConfigurationImpl();
                     appEnvironmentVariable.setVariable(environmentVariableName);
                     appEnvironmentVariable.setValue(serviceConfiguration.getEnvironment().get(environmentVariableName));
-                    appImage.getEnvironment().add(appEnvironmentVariable);
+                    envImage.getEnvironment().add(appEnvironmentVariable);
                 }
             }
             // links
-            appImage.setLinks(new ArrayList<ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl>());
+            envImage.setLinks(new ArrayList<ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl>());
             if (serviceConfiguration.getLinks() != null) {
                 for (String link : serviceConfiguration.getLinks()) {
                     ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl appLink = new ContainerizedEnvironmentConfigurationImpl.LinkConfigurationImpl();
                     appLink.setService(link);
-                    appImage.getLinks().add(appLink);
+                    envImage.getLinks().add(appLink);
                 }
             }
             // ports
-            appImage.setPorts(new ArrayList<ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl>());
+            envImage.setPorts(new ArrayList<ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl>());
             if (serviceConfiguration.getPorts() != null) {
                 for (String port : serviceConfiguration.getPorts()) {
                     ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl appPort = new ContainerizedEnvironmentConfigurationImpl.PortConfigurationImpl();
@@ -65,11 +68,11 @@ public class FigConfigurationConverter {
                     } else {
                         appPort.setContainerPort(Integer.parseInt(port));
                     }
-                    appImage.getPorts().add(appPort);
+                    envImage.getPorts().add(appPort);
                 }
             }
             // volumes
-            appImage.setVolumes(new ArrayList<ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl>());
+            envImage.setVolumes(new ArrayList<ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl>());
             if (serviceConfiguration.getVolumes() != null) {
                 for (String vol : serviceConfiguration.getVolumes()) {
                     ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl appVolume = new ContainerizedEnvironmentConfigurationImpl.VolumeConfigurationImpl();
@@ -80,26 +83,30 @@ public class FigConfigurationConverter {
                     } else {
                         appVolume.setContainerPath(vol);
                     }
-                    appImage.getVolumes().add(appVolume);
+                    envImage.getVolumes().add(appVolume);
                 }
             }
             // denv variables
-            appImage.setVariables(new ArrayList<ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl>());
+            envImage.setVariables(new ArrayList<ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl>());
             if (serviceConfiguration.getVariables() != null) {
                 for (String denvVariableName : serviceConfiguration.getVariables().keySet()) {
                     ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl denvVariable = new ContainerizedEnvironmentConfigurationImpl.DenvVariableConfigurationImpl();
                     denvVariable.setVariable(denvVariableName);
                     denvVariable.setValue(serviceConfiguration.getVariables().get(denvVariableName));
-                    appImage.getVariables().add(denvVariable);
+                    envImage.getVariables().add(denvVariable);
                 }
             }
 
-            if (appImage.getPorts().size() > 0) {
-                appImage.setInitialDesiredState(ContainerDesiredState.RESPONDING);
+            if (envImage.getBuildCommand() != null && envImage.getServicesToVersionWhenBuildSucceeds() != null) {
+                envImage.setInitialDesiredState(ContainerDesiredState.SUCCEEDED);
             } else {
-                appImage.setInitialDesiredState(ContainerDesiredState.STARTED);
+                if (envImage.getPorts().size() > 0) {
+                    envImage.setInitialDesiredState(ContainerDesiredState.RESPONDING);
+                } else {
+                    envImage.setInitialDesiredState(ContainerDesiredState.STARTED);
+                }
             }
-            envConf.addImage(appImage);
+            envConf.addImage(envImage);
         }
         return envConf;
     }

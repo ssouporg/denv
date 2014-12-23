@@ -32,4 +32,7 @@ public interface Environment {
     EnvironmentRuntimeInfo getRuntimeInfo();
 
     boolean isBuilder();
+    String getBuilderTarget();
+    String getBuilderTargetEnvConfId();
+    String getBuilderTargetVersion();
 }

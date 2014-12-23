@@ -12,7 +12,7 @@ import org.ssoup.denv.core.model.runtime.Environment;
 public class IdentityVersioningPolicy implements VersioningPolicy {
 
     @Override
-    public String getImageVersion(Environment env, ImageConfiguration imageConf) {
+    public String getImageVersion(String envVersion, ImageConfiguration imageConf) {
         if (imageConf.getSource() != null) {
             String[] toks = imageConf.getSource().split(":");
             if (toks.length == 2) {
@@ -20,10 +20,10 @@ public class IdentityVersioningPolicy implements VersioningPolicy {
                 return toks[1];
             } else {
                 // otherwise use the environment version
-                return env.getVersion();
+                return envVersion;
             }
         } else {
-            return env.getVersion();
+            return envVersion;
         }
     }
 }

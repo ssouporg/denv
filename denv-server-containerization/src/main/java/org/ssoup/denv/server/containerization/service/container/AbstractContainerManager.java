@@ -85,8 +85,12 @@ public abstract class AbstractContainerManager implements ContainerManager {
     protected String resolveDenvVariable(String value, Container container) {
         if (value.startsWith("MAPPED_PORT ")) {
             int port = Integer.parseInt(value.substring("MAPPED_PORT ".length()));
-            int mappedPort = container.getPortMapping().get(port);
-            return "" + mappedPort;
+            if (container.getPortMapping().containsKey(port)) {
+                int mappedPort = container.getPortMapping().get(port);
+                return "" + mappedPort;
+            } else {
+                return "";
+            }
         }
         return value;
     }

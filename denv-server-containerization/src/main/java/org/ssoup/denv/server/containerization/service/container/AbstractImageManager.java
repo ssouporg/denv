@@ -1,6 +1,7 @@
 package org.ssoup.denv.server.containerization.service.container;
 
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
@@ -28,10 +29,10 @@ public abstract class AbstractImageManager implements ImageManager {
     }
 
     @Override
-    public Image findOrBuildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
-        Image image = this.findImage(env, imageConf);
+    public Image findOrBuildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
+        Image image = this.findImage(envConf, version, imageConf);
         if (image == null) {
-            image = buildImage(env, imageConf);
+            image = buildImage(envConf, version, imageConf);
         }
         if (image == null) {
             throw new DenvException("Could not find or build image " + imageConf.getId());
@@ -39,7 +40,7 @@ public abstract class AbstractImageManager implements ImageManager {
         return image;
     }
 
-    protected Image buildImage(Environment env, ImageConfiguration imageConf) throws DenvException {
+    protected Image buildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
         /*
         Image baseImage = this.findImage(conf.getString("baseImage"));
         // A) Go via Rundeck
@@ -53,7 +54,7 @@ public abstract class AbstractImageManager implements ImageManager {
             // Container container = containerizationManager.startNewContainer(env, baseImage, command);
         getContainerManager().saveContainerAsApplicationImage(env, container, appConf, "Web");
         */
-        return this.findImage(env, imageConf);
+        return this.findImage(envConf, version, imageConf);
     }
 
     protected ImageInfo extractImageInfoFromName(String imageName) throws DenvException {

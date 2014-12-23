@@ -42,7 +42,7 @@ public class CommandAddConf implements DenvCommand {
     @Parameter(names={"-i", "--id"}, description = "Identifier of the configuration to add")
     private String envConfId;
 
-    @Parameter(names={"-b", "--id"}, description = "Identifier of the configuration of the builder environment")
+    @Parameter(names={"-b", "--builder"}, description = "Identifier of the configuration of the builder environment")
     private String builderEnvConfId;
 
     @Parameter(names={"-f", "--format"}, description = "Configuration format")

@@ -1,5 +1,6 @@
 package org.ssoup.denv.client.format.fig;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -11,6 +12,7 @@ public class FigServiceConfiguration {
     private String build;
     private String command;
     private String buildCommand;
+    private Collection<String> servicesToVersionWhenBuildSucceeds;
     private String targetImage;
     private String image;
     private String[] ports;
@@ -206,5 +208,13 @@ public class FigServiceConfiguration {
 
     public void setTargetImage(String targetImage) {
         this.targetImage = targetImage;
+    }
+
+    public Collection<String> getServicesToVersionWhenBuildSucceeds() {
+        return servicesToVersionWhenBuildSucceeds;
+    }
+
+    public void setServicesToVersionWhenBuildSucceeds(Collection<String> servicesToVersionWhenBuildSucceeds) {
+        this.servicesToVersionWhenBuildSucceeds = servicesToVersionWhenBuildSucceeds;
     }
 }

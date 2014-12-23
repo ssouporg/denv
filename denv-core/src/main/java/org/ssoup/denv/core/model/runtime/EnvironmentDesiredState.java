@@ -7,6 +7,11 @@ package org.ssoup.denv.core.model.runtime;
 public enum EnvironmentDesiredState {
 
     STARTED,
+    SUCCEEDED,
     STOPPED,
-    DELETED
+    DELETED;
+
+    public boolean toBeExecutedOnce() {
+        return this == SUCCEEDED;
+    }
 }

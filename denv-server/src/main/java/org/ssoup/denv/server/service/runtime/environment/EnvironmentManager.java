@@ -22,5 +22,5 @@ public interface EnvironmentManager {
 
     void addEventHandler(EnvsEventHandler eventHandler);
 
-    Environment createBuildEnvironment(EnvironmentConfiguration envConf);
+    Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf, String targetEnvConfId, String targetVersion);
 }

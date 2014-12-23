@@ -24,7 +24,7 @@ import java.util.List;
 public class CommandRmConf implements DenvCommand {
 
     @Parameter(description = "Ids of the configurations to remove")
-    private List<String> appIds;
+    private List<String> envConfIds;
 
     private DenvConsole console;
 
@@ -38,11 +38,11 @@ public class CommandRmConf implements DenvCommand {
 
     @Override
     public void execute() throws DenvCLIException {
-        for (String appId : appIds) {
+        for (String envConfId : envConfIds) {
             try {
-                denvClient.deleteEnvConfig(appId);
+                denvClient.deleteEnvConfig(envConfId);
             } catch (Exception e) {
-                throw new DenvCLIException( "An error occurred removing configuration " + appId, e);
+                throw new DenvCLIException( "An error occurred removing configuration " + envConfId, e);
             }
         }
     }

@@ -5,7 +5,6 @@ import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigVersionState;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.persistence.EnvironmentRepository;
@@ -36,6 +35,13 @@ public abstract class AbstractSynchronizationService<T extends Environment, V ex
                 environmentRepository.updateActualState(env.getId(), env.getActualState(), env.getRuntimeInfo());
             }
         }
+
+        for (V envConfVersion : versionRepository.findAll()) {
+            if (envConfVersion.getActualState() != EnvironmentConfigVersionState.DELETED) {
+                updateActualState(envConfVersion);
+                versionRepository.save(envConfVersion);
+            }
+        }
     }
 
     protected void updateActualState(Environment env) throws DenvException {
@@ -43,31 +49,48 @@ public abstract class AbstractSynchronizationService<T extends Environment, V ex
         updateActualState(env, envConf);
     }
 
+    protected void updateActualState(EnvironmentConfigurationVersion envConfVersion) throws DenvException {
+        EnvironmentConfiguration envConf = environmentConfigRepository.findOne(envConfVersion.getEnvConfId());
+        updateActualState(envConf, envConfVersion);
+    }
+
     protected abstract void updateActualState(Environment env, EnvironmentConfiguration envConf) throws DenvException;
+
+    protected abstract void updateActualState(EnvironmentConfiguration envConf,
+                                              EnvironmentConfigurationVersion envConfVersion) throws DenvException;
 
     @Override
     public void moveTowardsDesiredState() throws DenvException {
         for (T env : environmentRepository.findAll()) {
-            if (env.getActualState() == EnvironmentState.DELETED) {
-                environmentRepository.deletePermanently(env);
-            } else {
-                moveTowardsDesiredState(env);
-                environmentRepository.updateActualState(env.getId(), env.getActualState(), env.getRuntimeInfo());
+            try {
+                if (env.getActualState() == EnvironmentState.DELETED) {
+                    environmentRepository.deletePermanently(env);
+                } else {
+                    moveTowardsDesiredState(env);
+                    environmentRepository.updateActualState(env.getId(), env.getActualState(), env.getRuntimeInfo());
+                    environmentRepository.updateDesiredState(env.getId(), env.getDesiredState());
+                }
+            } catch (DenvException ex) {
+                ex.printStackTrace();
             }
         }
 
         for (V envConfVersion : versionRepository.findAll()) {
-            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.DELETED) {
-                versionRepository.delete(envConfVersion);
-            } else {
-                moveTowardsDesiredState(envConfVersion);
-                versionRepository.save(envConfVersion);
+            try {
+                if (envConfVersion.getActualState() == EnvironmentConfigVersionState.DELETED) {
+                    versionRepository.delete(envConfVersion);
+                } else {
+                    moveTowardsDesiredState(envConfVersion);
+                    versionRepository.save(envConfVersion);
+                }
+            } catch (DenvException ex) {
+                ex.printStackTrace();
             }
         }
     }
 
     protected void moveTowardsDesiredState(Environment env) throws DenvException {
-        if (env.getActualState() != EnvironmentState.INCONSISTENT) {
+        if (env.getActualState() != EnvironmentState.CONF_UNKNOWN) {
             EnvironmentConfiguration envConf = environmentConfigRepository.findOne(env.getEnvironmentConfigurationId());
             if (envConf != null) {
                 moveTowardsDesiredState(env, envConf);
@@ -87,4 +110,16 @@ public abstract class AbstractSynchronizationService<T extends Environment, V ex
 
     protected abstract void moveTowardsDesiredState(EnvironmentConfiguration envConf,
                                                     EnvironmentConfigurationVersion envConfVersion) throws DenvException;
+
+    public EnvironmentRepository<T> getEnvironmentRepository() {
+        return environmentRepository;
+    }
+
+    public EnvironmentConfigRepository<? extends EnvironmentConfiguration> getEnvironmentConfigRepository() {
+        return environmentConfigRepository;
+    }
+
+    public VersionRepository<V> getVersionRepository() {
+        return versionRepository;
+    }
 }

@@ -11,6 +11,7 @@ import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
+import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
 
 import java.util.List;
 
@@ -18,23 +19,29 @@ import java.util.List;
  * User: ALB
  * Date: 14/09/14 17:07
  */
-@Service @Order(33)
+@Service @Order(31)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Parameters(commandNames = "rmver", separators = "=", commandDescription = "Remove a version of an environment configuration")
-public class CommandRmVer implements DenvCommand {
+@Parameters(commandNames = "addver", separators = "=", commandDescription = "Adds a new version of an environment")
+public class CommandAddVer implements DenvCommand {
 
-    @Parameter(description = "Versions of the environment configuration to remove", required = true)
+    @Parameter(description = "Version of the environment to add", required = true)
     private List<String> versions;
 
     @Parameter(names={"-c", "--conf"}, description = "Id of the configuration", required = true)
     private String envConfId;
+
+    @Parameter(names={"-w", "--wait"}, description = "Wait for operation to complete")
+    private boolean wait;
+
+    @Parameter(names={"-m", "--max"}, description = "Maximum wait time in millis")
+    private int maxWaitTimeInMillis = 60000;
 
     private DenvConsole console;
 
     private DenvClient denvClient;
 
     @Autowired
-    public CommandRmVer(DenvConsole console, DenvClient denvClient) {
+    public CommandAddVer(DenvConsole console, DenvClient denvClient) {
         this.console = console;
         this.denvClient = denvClient;
     }
@@ -43,10 +50,13 @@ public class CommandRmVer implements DenvCommand {
     public void execute() throws DenvCLIException {
         for (String version : versions) {
             try {
-                denvClient.deleteVersion(envConfId, version);
+                denvClient.addVersion(envConfId, version);
+                /* TODO
+                if (waitForBuild) {
+                    denvClient.waitForBuild(envConfId, version, maxWaitForBuildTimeInMillis);
+                }*/
             } catch (Exception e) {
-                throw new DenvCLIException("An error occurred removing environment configuration version " +
-                        envConfId + ":" + version, e);
+                throw new DenvCLIException("An error occurred adding environment version " + version + " of " + envConfId, e);
             }
         }
     }
