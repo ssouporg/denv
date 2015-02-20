@@ -8,11 +8,11 @@ import org.ssoup.denv.core.model.runtime.Environment;
  * User: ALB
  * Date: 28/02/14 10:00
  */
-@Service
+// @Service
 public class IdentityVersioningPolicy implements VersioningPolicy {
 
     @Override
-    public String getImageVersion(String envVersion, ImageConfiguration imageConf) {
+    public String getImageVersion(String envConfId, String envVersion, ImageConfiguration imageConf) {
         if (imageConf.getSource() != null) {
             String[] toks = imageConf.getSource().split(":");
             if (toks.length == 2) {

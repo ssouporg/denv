@@ -1,5 +1,6 @@
 package org.ssoup.denv.cli.command.version;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
 import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: ALB
@@ -29,6 +32,9 @@ public class CommandAddVer implements DenvCommand {
 
     @Parameter(names={"-c", "--conf"}, description = "Id of the configuration", required = true)
     private String envConfId;
+
+    @DynamicParameter(names = "-D", description = "Version specific variables")
+    private Map<String, String> variables = new HashMap<String, String>();
 
     @Parameter(names={"-w", "--wait"}, description = "Wait for operation to complete")
     private boolean wait;
@@ -50,7 +56,7 @@ public class CommandAddVer implements DenvCommand {
     public void execute() throws DenvCLIException {
         for (String version : versions) {
             try {
-                denvClient.addVersion(envConfId, version);
+                denvClient.addVersion(envConfId, version, variables);
                 /* TODO
                 if (waitForBuild) {
                     denvClient.waitForBuild(envConfId, version, maxWaitForBuildTimeInMillis);

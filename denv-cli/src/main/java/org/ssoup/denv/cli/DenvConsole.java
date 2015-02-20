@@ -148,8 +148,8 @@ public class DenvConsole {
 
     public void printVers(Collection<? extends EnvironmentConfigurationVersion> vers) {
         // see http://stackoverflow.com/questions/15215326/how-can-i-create-ascii-table-in-java-in-a-console
-        String leftAlignTitleFormat = "%-20s %-20s %-20s %-20s %-18s %-18s %n";
-        String leftAlignFormat = "%-20s %-20s %-20s %-20s %-18s %-18s %n";
+        String leftAlignTitleFormat = "%-20s %-20s %-20s %-30s %-28s %-18s %n";
+        String leftAlignFormat = "%-20s %-20s %-20s %-30s %-28s %-18s %n";
 
         out.format(leftAlignTitleFormat, "VERSION ID", "CONFIGURATION ID", "VERSION", "BUILD ENV ID", "ACTUAL STATE", "DESIRED STATE");
         for (EnvironmentConfigurationVersion ver : vers) {
@@ -167,6 +167,18 @@ public class DenvConsole {
         printKey(leftAlignFormat, "Configuration id", ver.getEnvConfId());
         printKey(leftAlignFormat, "Version", ver.getVersion());
         printKey(leftAlignFormat, "Build environment id", ver.getBuildEnvId());
+        out.println();
+        String leftAlignTitleFormatVar = "%-20s %-50s %n";
+        String leftAlignFormatVar = "%-20s %-50s %n";
+        out.format(leftAlignTitleFormatVar, "VARIABLE", "VALUE");
+        Map<String, String> vars = ver.getVariables();
+        if (vars != null) {
+            for (String var : vars.keySet()) {
+                String val = vars.get(var);
+                if (val == null) val = "";
+                out.format(leftAlignFormatVar, var, val);
+            }
+        }
         out.println();
     }
 

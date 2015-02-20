@@ -9,6 +9,7 @@ public enum EnvironmentConfigVersionState {
     BUILDING,
     BUILD_ERROR,
     AVAILABLE,
+    NOT_AVAILABLE_ANY_MORE,
     DELETING,
     DELETED
 }

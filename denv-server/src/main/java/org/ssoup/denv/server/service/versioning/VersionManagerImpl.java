@@ -12,6 +12,8 @@ import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersio
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.server.persistence.VersionRepository;
 
+import java.util.Map;
+
 /**
  * User: ALB
  * Date: 15/12/2014 10:27
@@ -27,10 +29,10 @@ public class VersionManagerImpl implements VersionManager {
     }
 
     @Override
-    public void addVersion(EnvironmentConfiguration envConf, String version) {
+    public void addVersion(EnvironmentConfiguration envConf, String version, Map<String, String> variables) {
         EnvironmentConfigurationVersionImpl envConfVersion = new EnvironmentConfigurationVersionImpl(
                 DenvEnvironment.buildVersionId(envConf.getId(), version),
-                envConf.getId(), version);
+                envConf.getId(), version, variables);
         versionRepository.save(envConfVersion);
     }
 

@@ -24,15 +24,17 @@ import org.ssoup.denv.core.containerization.model.runtime.*;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.DesiredStateNotReachedException;
 import org.ssoup.denv.core.exception.ResourceNotFoundException;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigVersionState;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationImpl;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersionImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
 
-import javax.annotation.PostConstruct;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -44,6 +46,7 @@ import static org.junit.Assert.assertNotNull;
 public class DenvClient {
 
     public static final long CHECK_STATE_INTERVAL_IN_MILLIS = 3000;
+    public static final long CHECK_VERSION_STATE_INTERVAL_IN_MILLIS = 3000;
 
     private Logger logger = LoggerFactory.getLogger(DenvClient.class);
 
@@ -191,8 +194,8 @@ public class DenvClient {
     ///
     /// Versions related methods
     ///
-    public void addVersion(String envConfId, String version) {
-        ResponseEntity<Void> res = sendAddVersionRequest(envConfId, version);
+    public void addVersion(String envConfId, String version, Map<String, String> variables) {
+        ResponseEntity<Void> res = sendAddVersionRequest(envConfId, version, variables);
     }
 
     public PagedResources<EnvironmentConfigurationVersionImpl> listVers(String envConfId) {
@@ -200,13 +203,45 @@ public class DenvClient {
         return res.getBody();
     }
 
-    public EnvironmentConfigurationVersionImpl getVersion(String envConfId, String version) {
-        ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> res = sendGetVersionRequest(envConfId, version);
-        return res.getBody().getContent();
+    public EnvironmentConfigurationVersionImpl getVersion(String envConfId, String version) throws ResourceNotFoundException {
+        try {
+            ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> res = sendGetVersionRequest(envConfId, version);
+            return res.getBody().getContent();
+        } catch (HttpStatusCodeException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new ResourceNotFoundException("Version " + envConfId + ":" + version + " does not exist");
+            }
+            throw ex;
+        }
     }
 
     public void deleteVersion(String envConfId, String version) {
         ResponseEntity<Void> res = sendDeleteVersionRequest(envConfId, version);
+    }
+
+    public EnvironmentConfigurationVersion waitForVersionBuild(String envConfId, String version, long maxWaitInMillis) throws DenvException {
+        EnvironmentConfigurationVersion envConfVersion = null;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            String errorMessage = null;
+            envConfVersion = getVersion(envConfId, version);
+            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.AVAILABLE) {
+                break;
+            } else {
+                if (System.currentTimeMillis() - startTime + CHECK_VERSION_STATE_INTERVAL_IN_MILLIS > maxWaitInMillis) {
+                    errorMessage = "Version " + envConfId + ":" + version + " is not AVAILABLE, " +
+                            "its currently in state " + envConfVersion.getActualState();
+                    throw new DesiredStateNotReachedException(errorMessage);
+                }
+
+                try {
+                    Thread.sleep(CHECK_STATE_INTERVAL_IN_MILLIS);
+                } catch (InterruptedException e) {
+                }
+                continue;
+            }
+        }
+        return envConfVersion;
     }
 
     ///
@@ -402,13 +437,14 @@ public class DenvClient {
     /// Versions related internal methods
     ///
 
-    protected ResponseEntity<Void> sendAddVersionRequest(String envConfId, String version) {
+    protected ResponseEntity<Void> sendAddVersionRequest(String envConfId, String version, Map<String, String> variables) {
         return hateoasRestTemplate.exchange(
-                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS,
+                getBaseUrl() + DenvApiEndpoints.ENV_CONFIG_VERSIONS + DenvApiEndpoints.ENV_CONFIG_VERSION,
                 HttpMethod.POST,
-                new HttpEntity<String>(version, defaultRequestHeaders()),
+                new HttpEntity<Map<String, String>>(variables, defaultRequestHeaders()),
                 Void.class,
-                envConfId
+                envConfId,
+                version
         );
     }
 

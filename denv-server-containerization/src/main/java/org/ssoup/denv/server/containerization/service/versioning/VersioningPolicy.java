@@ -8,5 +8,5 @@ import org.ssoup.denv.core.model.runtime.Environment;
  * Date: 28/02/14 10:00
  */
 public interface VersioningPolicy {
-    String getImageVersion(String envVersion, ImageConfiguration imageConf);
+    String getImageVersion(String envConfId, String envVersion, ImageConfiguration imageConf);
 }

@@ -281,7 +281,7 @@ public class DockerContainerManager extends AbstractContainerManager {
     public void saveContainerAsEnvironmentImage(Environment env, EnvironmentConfiguration envConf,
                                                 ImageConfiguration imageConf, Container container) throws DenvException {
         String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(env.getVersion(), imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(envConf.getId(), env.getVersion(), imageConf);
         saveContainer(env, container, imageName, imageVersion);
     }
 

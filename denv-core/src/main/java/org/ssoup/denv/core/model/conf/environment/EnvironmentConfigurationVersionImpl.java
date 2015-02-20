@@ -1,5 +1,8 @@
 package org.ssoup.denv.core.model.conf.environment;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: ALB
  * Date: 15/12/14 10:04
@@ -13,14 +16,16 @@ public class EnvironmentConfigurationVersionImpl implements EnvironmentConfigura
     private EnvironmentConfigVersionDesiredState desiredState;
     private String buildEnvId;
     private String buildError;
+    private Map<String, String> variables = new HashMap<String, String>();
 
     public EnvironmentConfigurationVersionImpl() {
     }
 
-    public EnvironmentConfigurationVersionImpl(String id, String envConfId, String version) {
+    public EnvironmentConfigurationVersionImpl(String id, String envConfId, String version, Map<String, String> variables) {
         this.id = id;
         this.envConfId = envConfId;
         this.version = version;
+        this.variables = variables;
         this.state = EnvironmentConfigVersionState.CREATED;
         this.desiredState = EnvironmentConfigVersionDesiredState.AVAILABLE;
     }
@@ -83,5 +88,27 @@ public class EnvironmentConfigurationVersionImpl implements EnvironmentConfigura
 
     public void setBuildError(String buildError) {
         this.buildError = buildError;
+    }
+
+    @Override
+    public Map<String, String> getVariables() {
+        return this.variables;
+    }
+
+    @Override
+    public String getVariable(String variableName) {
+        return this.variables.get(variableName);
+    }
+
+    public void setVariable(String variableName, String value) {
+        this.variables.put(variableName, value);
+    }
+
+    @Override
+    public String substituteVariables(String v) {
+        for (String var : getVariables().keySet()) {
+            v = v.replace("${" + var + "}", getVariable(var));
+        }
+        return v;
     }
 }

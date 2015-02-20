@@ -29,10 +29,10 @@ public abstract class AbstractImageManager implements ImageManager {
     }
 
     @Override
-    public Image findOrBuildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
-        Image image = this.findImage(envConf, version, imageConf);
+    public Image findOrBuildImage(EnvironmentConfiguration envConf, String envVersion, ImageConfiguration imageConf) throws DenvException {
+        Image image = this.findImage(envConf, envVersion, imageConf);
         if (image == null) {
-            image = buildImage(envConf, version, imageConf);
+            image = buildImage(envConf, envVersion, imageConf);
         }
         if (image == null) {
             throw new DenvException("Could not find or build image " + imageConf.getId());
@@ -40,7 +40,7 @@ public abstract class AbstractImageManager implements ImageManager {
         return image;
     }
 
-    protected Image buildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
+    protected Image buildImage(EnvironmentConfiguration envConf, String envVersion, ImageConfiguration imageConf) throws DenvException {
         /*
         Image baseImage = this.findImage(conf.getString("baseImage"));
         // A) Go via Rundeck
@@ -54,7 +54,7 @@ public abstract class AbstractImageManager implements ImageManager {
             // Container container = containerizationManager.startNewContainer(env, baseImage, command);
         getContainerManager().saveContainerAsApplicationImage(env, container, appConf, "Web");
         */
-        return this.findImage(envConf, version, imageConf);
+        return this.findImage(envConf, envVersion, imageConf);
     }
 
     protected ImageInfo extractImageInfoFromName(String imageName) throws DenvException {

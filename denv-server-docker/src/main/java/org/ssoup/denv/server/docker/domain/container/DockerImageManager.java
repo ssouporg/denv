@@ -50,9 +50,9 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     }
 
     @Override
-    public Image findImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
+    public Image findImage(EnvironmentConfiguration envConf, String envVersion, ImageConfiguration imageConf) throws DenvException {
         String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(version, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(envConf.getId(), envVersion, imageConf);
         com.github.dockerjava.api.model.Image dockerImage = this.findDockerImage(imageName, imageVersion);
         if (dockerImage != null) {
             return new DockerImage(imageConf, dockerImage);
@@ -101,7 +101,7 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     protected Image buildImage(EnvironmentConfiguration envConf, String version, ImageConfiguration imageConf) throws DenvException {
         // try to pull the image from docker registry
         String imageName = this.getNamingStrategy().generateImageName(envConf, imageConf);
-        String imageVersion = getVersioningPolicy().getImageVersion(version, imageConf);
+        String imageVersion = getVersioningPolicy().getImageVersion(envConf.getId(), version, imageConf);
         PullImageCmd pullImageCommand = getDockerClient().pullImageCmd(imageName);
         if (imageVersion != null) {
             pullImageCommand.withTag(imageVersion);

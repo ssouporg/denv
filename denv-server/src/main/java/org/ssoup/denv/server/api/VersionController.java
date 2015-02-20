@@ -25,6 +25,8 @@ import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.service.runtime.runtime.EnvironmentRuntimeManager;
 import org.ssoup.denv.server.service.versioning.VersionManager;
 
+import java.util.Map;
+
 /**
  * User: ALB
  * Date: 15/12/14 09:21
@@ -46,12 +48,13 @@ public class VersionController extends AbstractController {
         this.versionManager = versionManager;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value = DenvApiEndpoints.ENV_CONFIG_VERSION, method = RequestMethod.POST)
     public @ResponseBody
-    ResponseEntity<Void> addVersion(@PathVariable String envConfId, @RequestBody String version) throws DenvException {
+    ResponseEntity<Void> addVersion(@PathVariable String envConfId, @PathVariable String version,
+                                    @RequestBody Map<String, String> variables) throws DenvException {
         EnvironmentConfiguration envConf = (EnvironmentConfiguration) environmentConfigRepository.findOne(envConfId);
-        version = version.replace("\"", ""); // removes the quotes in the request body
-        versionManager.addVersion(envConf, version);
+        // version = version.replace("\"", ""); // removes the quotes in the request body
+        versionManager.addVersion(envConf, version, variables);
         return new ResponseEntity<Void>(super.defaultResponseHeaders(), HttpStatus.ACCEPTED);
     }
 

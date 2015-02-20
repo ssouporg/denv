@@ -11,6 +11,8 @@ import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
 import org.ssoup.denv.client.DenvClient;
+import org.ssoup.denv.core.exception.ResourceNotFoundException;
+import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 
 import java.util.List;
 
@@ -40,6 +42,13 @@ public class CommandRmEnv implements DenvCommand {
     public void execute() throws DenvCLIException {
         for (String envId : envIds) {
             try {
+                try {
+                    denvClient.getEnv(envId);
+                } catch (ResourceNotFoundException ex) {
+                    console.println("Could not find environemt " + envId);
+                    continue;
+                }
+
                 denvClient.deleteEnvironment(envId);
             } catch (Exception e) {
                 throw new DenvCLIException("An error occurred removing environment " + envId, e);
