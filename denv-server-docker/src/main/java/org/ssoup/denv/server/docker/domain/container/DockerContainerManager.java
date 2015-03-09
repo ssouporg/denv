@@ -334,7 +334,7 @@ public class DockerContainerManager extends AbstractContainerManager {
     public boolean isContainerListeningOnPort(Container container, PortConfiguration port) {
         DockerNodeConfiguration dockerNodeConfiguration = (DockerNodeConfiguration)nodeManager.getDefaultNode();
         Integer hostPort = container.getPortMapping().get(port.getContainerPort());
-        return serverListening(dockerNodeConfiguration.getDockerHost(), hostPort);
+        return hostPort != null && serverListening(dockerNodeConfiguration.getDockerHost(), hostPort);
     }
 
     private boolean serverListening(String host, int port)

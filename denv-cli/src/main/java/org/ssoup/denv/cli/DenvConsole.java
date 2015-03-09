@@ -45,6 +45,10 @@ public class DenvConsole {
         }
     }
 
+    public void println() {
+        out.println();
+    }
+
     public void println(String str) {
         out.println(str);
     }

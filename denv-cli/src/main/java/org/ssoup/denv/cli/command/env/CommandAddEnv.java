@@ -31,7 +31,7 @@ public class CommandAddEnv implements DenvCommand {
     @Parameter(names={"-c", "--conf"}, description = "Id of the configuration", required = true)
     private String envConfId;
 
-    @Parameter(names={"-v", "--version"}, description = "Environment version")
+    @Parameter(names={"-v", "--version"}, description = "Environment version", required = true)
     private String version;
 
     @Parameter(names={"-s", "--snapshot"}, description = "Environment snapshot name")

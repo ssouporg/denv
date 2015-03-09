@@ -45,6 +45,10 @@ public class CommandEnv implements DenvCommand {
             for (String envId : envIds) {
                 DenvEnvironment env = denvClient.getEnv(envId);
                 console.printEnv(env);
+                console.println();
+                console.println("Variables:");
+                console.println();
+                console.printVariables(env);
             }
         } catch (Exception e) {
             throw new DenvCLIException("An error occurred retrieving environments", e);
