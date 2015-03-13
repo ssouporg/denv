@@ -105,12 +105,16 @@ public class DenvClient {
             } if (env.getDesiredState() == EnvironmentDesiredState.STARTED) {
                 if (env instanceof DenvContainerizedEnvironment) {
                     DenvContainerizedEnvironment cenv = (DenvContainerizedEnvironment) env;
-                    for (ContainerRuntimeInfo containerRuntimeInfo : cenv.getRuntimeInfo().getContainersRuntimeInfo().values()) {
-                        if (!containerRuntimeInfo.getDesiredState().isSatisfiedBy(containerRuntimeInfo.getActualState())) {
-                            desiredStateReached = false;
-                            errorMessage = "Container " + containerRuntimeInfo.getId() + " should be in state " + containerRuntimeInfo.getDesiredState() +
-                                    " but is currently in state " + containerRuntimeInfo.getActualState();
-                            break;
+                    if (cenv.getRuntimeInfo() == null || cenv.getRuntimeInfo().getContainersRuntimeInfo() == null) {
+                        desiredStateReached = false;
+                    } else {
+                        for (ContainerRuntimeInfo containerRuntimeInfo : cenv.getRuntimeInfo().getContainersRuntimeInfo().values()) {
+                            if (!containerRuntimeInfo.getDesiredState().isSatisfiedBy(containerRuntimeInfo.getActualState())) {
+                                desiredStateReached = false;
+                                errorMessage = "Container " + containerRuntimeInfo.getId() + " should be in state " + containerRuntimeInfo.getDesiredState() +
+                                        " but is currently in state " + containerRuntimeInfo.getActualState();
+                                break;
+                            }
                         }
                     }
                 } else {
@@ -180,10 +184,9 @@ public class DenvClient {
     }
 
     public String createOrUpdateContainerizedEnvConfig(ContainerizedEnvironmentConfiguration envConf) {
-        ResponseEntity<String> res = sendCreateOrUpdateContainerizedEnvConfigRequest(envConf);
-        String location = res.getHeaders().getLocation().getPath();
-        // location will be something like: http://localhost:8080/applicationConfigs/{appConfId}
-        String envConfId = location.substring(location.lastIndexOf('/') + 1);
+        ResponseEntity<Void> res = sendCreateOrUpdateContainerizedEnvConfigRequest(envConf);
+        assertNotNull(res.getHeaders().getLocation());
+        String envConfId = res.getHeaders().getLocation().getPath();
         return envConfId;
     }
 
@@ -375,12 +378,12 @@ public class DenvClient {
     /// Application Config related internal methods
     ///
 
-    protected ResponseEntity<String> sendCreateOrUpdateContainerizedEnvConfigRequest(ContainerizedEnvironmentConfiguration envConf) {
+    protected ResponseEntity<Void> sendCreateOrUpdateContainerizedEnvConfigRequest(ContainerizedEnvironmentConfiguration envConf) {
         return hateoasRestTemplate.exchange(
                 getBaseUrl() + DenvApiEndpoints.ENV_CONFIGS,
                 HttpMethod.POST,
                 new HttpEntity<EnvironmentConfigurationImpl>(new ContainerizedEnvironmentConfigurationImpl(envConf), defaultRequestHeaders()),
-                String.class
+                Void.class
         );
     }
 

@@ -64,7 +64,7 @@ public abstract class AbstractSynchronizationService<T extends Environment, V ex
         for (T env : environmentRepository.findAll()) {
             try {
                 if (env.getActualState() == EnvironmentState.DELETED) {
-                    environmentRepository.deletePermanently(env);
+                    environmentRepository.delete(env);
                 } else {
                     moveTowardsDesiredState(env);
                     environmentRepository.updateActualState(env.getId(), env.getActualState(), env.getRuntimeInfo());

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
-import org.ssoup.denv.server.service.versioning.VersionManager;
+import org.ssoup.denv.server.service.versioning.VersionService;
 
 /**
  * User: ALB
@@ -14,10 +14,10 @@ import org.ssoup.denv.server.service.versioning.VersionManager;
 public class ExplicitVersioningPolicy implements VersioningPolicy {
 
     public static final String VERSION_SUFFIX = "_VERSION";
-    private VersionManager versionManager;
+    private VersionService versionManager;
 
     @Autowired
-    public ExplicitVersioningPolicy(VersionManager versionManager) {
+    public ExplicitVersioningPolicy(VersionService versionManager) {
         this.versionManager = versionManager;
     }
 

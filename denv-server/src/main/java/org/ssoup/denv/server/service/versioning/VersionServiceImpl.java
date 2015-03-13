@@ -2,10 +2,8 @@ package org.ssoup.denv.server.service.versioning;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersionImpl;
@@ -19,12 +17,12 @@ import java.util.Map;
  * Date: 15/12/2014 10:27
  */
 @Service
-public class VersionManagerImpl implements VersionManager {
+public class VersionServiceImpl implements VersionService {
 
     private VersionRepository versionRepository;
 
     @Autowired
-    public VersionManagerImpl(VersionRepository versionRepository) {
+    public VersionServiceImpl(VersionRepository versionRepository) {
         this.versionRepository = versionRepository;
     }
 

@@ -21,9 +21,9 @@ import org.ssoup.denv.server.containerization.service.versioning.VersioningPolic
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.persistence.EnvironmentRepository;
 import org.ssoup.denv.server.persistence.VersionRepository;
-import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
+import org.ssoup.denv.server.service.runtime.environment.EnvironmentService;
 import org.ssoup.denv.server.service.runtime.sync.AbstractSynchronizationService;
-import org.ssoup.denv.server.service.versioning.VersionManager;
+import org.ssoup.denv.server.service.versioning.VersionService;
 
 /**
  * User: ALB
@@ -32,7 +32,7 @@ import org.ssoup.denv.server.service.versioning.VersionManager;
 @Service
 public class ContainerizedSynchronizationService extends AbstractSynchronizationService {
 
-    private EnvironmentManager environmentManager;
+    private EnvironmentService environmentService;
 
     private ImageManager imageManager;
 
@@ -40,7 +40,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     private NamingStrategy namingStrategy;
 
-    private VersionManager versionManager;
+    private VersionService versionManager;
 
     private VersioningPolicy versioningPolicy;
 
@@ -48,13 +48,13 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
     protected ContainerizedSynchronizationService(EnvironmentRepository environmentRepository,
                                                   EnvironmentConfigRepository environmentConfigRepository,
                                                   VersionRepository versionRepository,
-                                                  EnvironmentManager environmentManager,
+                                                  EnvironmentService environmentService,
                                                   ImageManager imageManager,
                                                   ContainerManager containerManager,
                                                   NamingStrategy namingStrategy,
-                                                  VersionManager versionManager, VersioningPolicy versioningPolicy) {
+                                                  VersionService versionManager, VersioningPolicy versioningPolicy) {
         super(environmentRepository, environmentConfigRepository, versionRepository);
-        this.environmentManager = environmentManager;
+        this.environmentService = environmentService;
         this.imageManager = imageManager;
         this.containerManager = containerManager;
         this.namingStrategy = namingStrategy;
@@ -376,7 +376,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                 } else {
                     EnvironmentConfiguration builderEnvConf = (EnvironmentConfiguration)getEnvironmentConfigRepository().findOne(cenvConf.getBuilderEnvConfId());
                     DenvContainerizedEnvironment env = (DenvContainerizedEnvironment)
-                            this.environmentManager.createBuildEnvironment(builderEnvConf, envConf.getId(), envConfVersion.getVersion());
+                            this.environmentService.createBuildEnvironment(builderEnvConf, envConf.getId(), envConfVersion.getVersion());
                     ecv.setActualState(EnvironmentConfigVersionState.BUILDING);
                     ecv.setBuildEnvId(env.getId());
                 }

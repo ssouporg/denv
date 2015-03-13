@@ -1,7 +1,6 @@
 package org.ssoup.denv.server.persistence;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
+import org.ssoup.denv.server.service.runtime.environment.EnvironmentService;
 
 /**
  * User: ALB
@@ -9,7 +8,7 @@ import org.ssoup.denv.server.service.runtime.environment.EnvironmentManager;
  */
 public class DenvEnvironmentRepositoryImpl {
 
-    private EnvironmentManager environmentManager;
+    private EnvironmentService environmentService;
 /*
     @Autowired
     public DenvEnvironmentRepositoryImpl(EnvironmentConfigRepository environmentConfigRepository, EnvironmentManager environmentManager) {

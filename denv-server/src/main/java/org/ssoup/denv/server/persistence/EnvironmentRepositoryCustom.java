@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.persistence;
 
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
@@ -11,26 +12,9 @@ import org.ssoup.denv.core.model.runtime.EnvironmentState;
  */
 public interface EnvironmentRepositoryCustom<T extends Environment> {
 
-    /**
-     * Create/update an environment in both the runtime engine and the persisted environment repository.
-     *
-     * @param env The environment to be created/updated
-     * @return the created/updated environment
-     */
-    public T saveEnvironment(T env);
-
-    /**
-     * Only persist the environment, without communicating to the runtime engine
-     * @param env
-     * @return the saved environment
-     */
-    T saveOnly(Environment env);
+    T newEnvironmentInstance(Environment env, EnvironmentConfiguration envConf);
 
     void updateActualState(String envId, EnvironmentState actualState, EnvironmentRuntimeInfo runtimeInfo);
 
     void updateDesiredState(String envId, EnvironmentDesiredState desiredState);
-
-    void deleteEnvironment(T env);
-
-    void deletePermanently(T env);
 }

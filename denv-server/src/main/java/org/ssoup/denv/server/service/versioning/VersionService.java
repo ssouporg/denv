@@ -13,7 +13,7 @@ import java.util.Map;
  * User: ALB
  * Date: 15/12/2014 09:22
  */
-public interface VersionManager {
+public interface VersionService {
 
     void addVersion(EnvironmentConfiguration envConf, String version, Map<String, String> variables);
     EnvironmentConfigurationVersion getVersion(String envConfId, String version);

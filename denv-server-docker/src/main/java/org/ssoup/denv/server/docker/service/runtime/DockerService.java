@@ -10,9 +10,8 @@ import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerRuntimeInfo;
 import org.ssoup.denv.core.containerization.model.runtime.ContainerizedEnvironmentRuntimeInfo;
 import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.Environment;
-import org.ssoup.denv.server.containerization.service.runtime.AbstractContainerizedEnvironmentRuntimeManager;
+import org.ssoup.denv.server.containerization.service.runtime.AbstractContainerizedEnvironmentRuntimeService;
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
@@ -23,12 +22,12 @@ import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
  * Date: 05/09/13 17:39
  */
 @Service
-public class DockerManager extends AbstractContainerizedEnvironmentRuntimeManager {
+public class DockerService extends AbstractContainerizedEnvironmentRuntimeService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DockerManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DockerService.class);
 
     @Autowired
-    public DockerManager(EnvironmentConfigRepository environmentConfigRepository, ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+    public DockerService(EnvironmentConfigRepository environmentConfigRepository, ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
         super(environmentConfigRepository, imageManager, containerManager, namingStrategy);
         // this.dockerClient = new DockerClient(dockerEnvironmentConfiguration.getDockerAddress());
     }

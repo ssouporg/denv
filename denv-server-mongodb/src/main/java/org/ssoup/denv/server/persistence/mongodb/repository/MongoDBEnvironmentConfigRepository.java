@@ -10,7 +10,6 @@ import org.ssoup.denv.server.persistence.mongodb.domain.config.MongoEnvironmentC
  * User: ALB
  * Date: 06/09/14 19:42
  */
-@RepositoryRestResource(collectionResourceRel = "environmentConfigs", path = DenvApiEndpoints.ENV_CONFIGS)
 public interface MongoDBEnvironmentConfigRepository extends MongoRepository<MongoEnvironmentConfigurationImpl, String>,
         EnvironmentConfigRepository<MongoEnvironmentConfigurationImpl> {
 }

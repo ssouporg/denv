@@ -3,7 +3,6 @@ serf:
   image: ctlc/serf
   ports:
     - 7373
-    - 7946
 lb:
   image: ctlc/haproxy-serf
   ports:

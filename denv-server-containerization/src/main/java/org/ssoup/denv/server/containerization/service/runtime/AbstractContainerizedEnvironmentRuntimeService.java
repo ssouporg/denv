@@ -3,8 +3,6 @@ package org.ssoup.denv.server.containerization.service.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ssoup.denv.core.containerization.model.runtime.*;
-import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
-import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
@@ -17,9 +15,9 @@ import java.io.InputStream;
  * User: ALB
  * Date: 05/09/13 17:39
  */
-public abstract class AbstractContainerizedEnvironmentRuntimeManager implements ContainerizedEnvironmentRuntimeManager {
+public abstract class AbstractContainerizedEnvironmentRuntimeService implements ContainerizedEnvironmentRuntimeService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContainerizedEnvironmentRuntimeManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContainerizedEnvironmentRuntimeService.class);
 
     private EnvironmentConfigRepository environmentConfigRepository;
 
@@ -29,7 +27,7 @@ public abstract class AbstractContainerizedEnvironmentRuntimeManager implements 
 
     private NamingStrategy namingStrategy;
 
-    public AbstractContainerizedEnvironmentRuntimeManager(EnvironmentConfigRepository environmentConfigRepository, ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
+    public AbstractContainerizedEnvironmentRuntimeService(EnvironmentConfigRepository environmentConfigRepository, ImageManager imageManager, ContainerManager containerManager, NamingStrategy namingStrategy) {
         this.environmentConfigRepository = environmentConfigRepository;
         this.imageManager = imageManager;
         this.containerManager = containerManager;
