@@ -3,6 +3,8 @@ denv
 
 A manager of software environments.
 
+[![Circle CI](https://circleci.com/gh/alebellu/denv.svg?style=svg)](https://circleci.com/gh/alebellu/denv)
+
 # Architecture
 
 <a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
