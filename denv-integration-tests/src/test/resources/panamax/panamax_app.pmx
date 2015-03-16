@@ -28,8 +28,7 @@ images:
     - variable: MYSQL_ROOT_PASSWORD
       value: pass@word01
   ports:
-  - host_port: 3306
-    container_port: 3306
+  - container_port: 3306
   category: DB Tier
   type: mysql
 - name: WP
@@ -44,7 +43,6 @@ images:
   - service: DB
     alias: DB_1
   ports:
-  - host_port: 8080
-    container_port: 80
+  - container_port: 80
   category: Web Tier
   type: wordpress

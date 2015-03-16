@@ -9,6 +9,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.ssoup.denv.Denv;
+import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.ResourceNotFoundException;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
 import org.ssoup.denv.core.model.runtime.Environment;
@@ -108,7 +109,7 @@ public class DenvCLITest extends DenvTestBase {
     }
 
     @Test
-    public void testAddAndStartRemoteConf() throws IOException, ResourceNotFoundException {
+    public void testAddAndStartRemoteConf() throws IOException, DenvException {
         String envConfId = null;
         try {
             runCLICommand("addconf", new String[]{PANAMAX_ENV_CONF_URL, "-f", "panamax", "--envs", INTEGRATION_ENV_ID});

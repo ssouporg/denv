@@ -43,8 +43,8 @@ public class ContainerizedEnvironmentService extends AbstractEnvironmentService<
     }
 
     @Override
-    public Environment updateEnvironment(Environment actualEnv, Environment env) throws DenvException {
-        DenvContainerizedEnvironment acenv = (DenvContainerizedEnvironment)super.updateEnvironment(actualEnv, env);
+    public Environment updateEnvironment(Environment env) throws DenvException {
+        DenvContainerizedEnvironment acenv = (DenvContainerizedEnvironment)super.updateEnvironment(env);
         DenvContainerizedEnvironment cenv = (DenvContainerizedEnvironment)env;
         acenv.setRuntimeInfo(cenv.getRuntimeInfo());
         return acenv;

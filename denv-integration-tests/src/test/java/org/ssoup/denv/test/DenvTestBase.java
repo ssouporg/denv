@@ -77,7 +77,7 @@ public abstract class DenvTestBase {
         ContainerizedEnvironmentConfiguration appConf = denvClient.getContainerizedEnvConfig(FIG_ENV_CONF_ID);
         assertNotNull(appConf);
         assertNotNull(appConf.getImages());
-        assertEquals(4, appConf.getImages().size());
+        assertEquals(2, appConf.getImages().size());
     }
 
     protected void registerPanamaxAppConfig() throws IOException {
@@ -146,8 +146,9 @@ public abstract class DenvTestBase {
         denvClient.updateEnvironment(env);
     }
 
-    protected void deleteEnvironment(String envId) {
+    protected void deleteEnvironment(String envId) throws DenvException {
         denvClient.deleteEnvironment(envId);
+        denvClient.waitForEnvironmentDeleted(envId, MAX_WAIT_FOR_DESIRED_STATE_IN_MILLIS);
     }
 
     protected void runCLICommand(String command) {

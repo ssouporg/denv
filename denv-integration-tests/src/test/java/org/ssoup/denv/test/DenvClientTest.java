@@ -45,13 +45,13 @@ public class DenvClientTest extends DenvTestBase {
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
-            deleteEnvironment(INTEGRATION_ENV_ID);
-            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
+            //deleteEnvironment(INTEGRATION_ENV_ID);
+            //deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
-    public void runFigAndPanamaxApps() throws Exception {
+    public void runFigAndPanamaxEnvs() throws Exception {
         registerFigAppConfig();
         registerPanamaxAppConfig();
 

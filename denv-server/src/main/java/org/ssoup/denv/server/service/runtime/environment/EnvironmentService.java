@@ -29,7 +29,7 @@ public interface EnvironmentService {
     /*
      * Other operations
      */
-    Environment updateEnvironment(Environment actualEnv, Environment env) throws DenvException;
+    Environment updateEnvironment(Environment env) throws DenvException;
     void registerExistingEnvironments() throws DenvException;
     void addEventHandler(EnvsEventHandler eventHandler);
     Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf, String targetEnvConfId, String targetVersion);

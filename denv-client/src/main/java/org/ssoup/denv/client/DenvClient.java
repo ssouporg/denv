@@ -102,7 +102,8 @@ public class DenvClient {
             env = getEnv(envId);
             if (env.getDesiredState() == EnvironmentDesiredState.STOPPED) {
                 desiredStateReached = (env.getActualState() == EnvironmentState.STOPPED);
-            } if (env.getDesiredState() == EnvironmentDesiredState.STARTED) {
+            }
+            if (env.getDesiredState() == EnvironmentDesiredState.STARTED) {
                 if (env instanceof DenvContainerizedEnvironment) {
                     DenvContainerizedEnvironment cenv = (DenvContainerizedEnvironment) env;
                     if (cenv.getRuntimeInfo() == null || cenv.getRuntimeInfo().getContainersRuntimeInfo() == null) {
@@ -136,6 +137,28 @@ public class DenvClient {
                 } catch (InterruptedException e) {
                 }
                 continue;
+            }
+        }
+        return env;
+    }
+
+    public DenvEnvironment waitForEnvironmentDeleted(String envId, long maxWaitInMillis) throws DenvException {
+        DenvEnvironment env = null;
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            try {
+                getEnv(envId);
+
+                if (System.currentTimeMillis() - startTime + CHECK_STATE_INTERVAL_IN_MILLIS > maxWaitInMillis) {
+                    throw new DesiredStateNotReachedException();
+                }
+
+                try {
+                    Thread.sleep(CHECK_STATE_INTERVAL_IN_MILLIS);
+                } catch (InterruptedException e) {
+                }
+            } catch (ResourceNotFoundException ex) {
+                break;
             }
         }
         return env;

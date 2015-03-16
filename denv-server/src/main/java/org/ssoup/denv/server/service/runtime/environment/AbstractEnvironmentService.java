@@ -57,8 +57,8 @@ public abstract class AbstractEnvironmentService<T extends Environment> implemen
     }
 
     @Override
-    public Environment updateEnvironment(Environment actualEnv, Environment env) throws DenvException {
-        DenvEnvironment aenv = (DenvEnvironment) actualEnv;
+    public Environment updateEnvironment(Environment env) throws DenvException {
+        DenvEnvironment aenv = (DenvEnvironment) findById(env.getId());
         aenv.setName(env.getName());
         aenv.setActualState(env.getActualState());
         aenv.setDesiredState(env.getDesiredState());

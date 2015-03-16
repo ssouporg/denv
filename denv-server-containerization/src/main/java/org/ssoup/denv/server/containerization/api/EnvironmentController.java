@@ -50,6 +50,17 @@ public class EnvironmentController extends AbstractController {
         return new ResponseEntity<Void>(headers, HttpStatus.ACCEPTED);
     }
 
+    @RequestMapping(value = "/{envId}", method = RequestMethod.PUT)
+    public @ResponseBody
+    ResponseEntity<Void> updateEnvironment(@PathVariable String envId, @RequestBody DenvContainerizedEnvironment env) throws DenvException {
+        env.setId(envId);
+        Environment createdEnv = environmentService.updateEnvironment(env);
+        // if it is an update maybe call environmentService.updateEnvironment(actualEnv, env);
+        HttpHeaders headers = super.defaultResponseHeaders();
+        headers.add("Location", createdEnv.getId());
+        return new ResponseEntity<Void>(headers, HttpStatus.ACCEPTED);
+    }
+
     @RequestMapping(method = RequestMethod.GET, produces = HATEOAS_MEDIA_TYPE_VALUE)
     public @ResponseBody
     ResponseEntity<PagedResources<DenvContainerizedEnvironment>> listEnvironments(final Pageable pageable, final PagedResourcesAssembler assembler)
