@@ -1,7 +1,7 @@
 denv
 ====
 
-A manager of software development environments.
+A manager for Docker based environments.
 
 [![Circle CI](https://circleci.com/gh/alebellu/denv.svg?style=svg)](https://circleci.com/gh/alebellu/denv)
 
