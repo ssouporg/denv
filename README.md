@@ -1,7 +1,7 @@
 denv
 ====
 
-A manager of software environments.
+A manager of software development environments.
 
 [![Circle CI](https://circleci.com/gh/alebellu/denv.svg?style=svg)](https://circleci.com/gh/alebellu/denv)
 
