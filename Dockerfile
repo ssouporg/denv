@@ -1,4 +1,3 @@
-
 FROM java:7u75-jre
 MAINTAINER Alessandro Bellucci <alebellu@ssoup.org>
 
