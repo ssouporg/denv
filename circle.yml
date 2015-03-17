@@ -3,7 +3,7 @@ dependencies:
     - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
 machine:
   pre:
-    - $CIRCLE_PROJECT_REPONAME/circle.sh pre_machine
+    - ./circle.sh pre_machine
   services:
     - mongodb
     - docker
