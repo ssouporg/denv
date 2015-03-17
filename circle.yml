@@ -2,12 +2,15 @@ dependencies:
   override:
     - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
 machine:
+  pre:
+    - $CIRCLE_PROJECT_REPONAME/circle.sh pre_machine
   services:
     - mongodb
     - docker
   environment:
     MAVEN_OPTS: -Xmx128m
-    DOCKER_HOST: tcp://127.0.0.1:2376
+    DOCKER_HOST: 127.0.0.1
+    DOCKER_PORT: 2375
 test:
   override:
     - mvn clean verify
