@@ -1,6 +1,6 @@
 dependencies:
   override:
-    - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
+    - ./circle.sh dependencies
 machine:
   pre:
     - denv/circle.sh pre_machine
