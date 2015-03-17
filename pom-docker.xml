@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>denv-standalone</artifactId>
+    <groupId>org.ssoup.denv</groupId>
+    <version>0.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Denv standalone</name>
+    <description>Denv is a manager for Docker based environments.</description>
+    <url>https://github.com/ssouporg/denv</url>
+    <licenses>
+        <license>
+            <name>Eclipse Public License</name>
+            <url>http://opensource.org/licenses/EPL-1.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>git@github.com:ssouporg/denv.git</url>
+        <connection>scm:git:git@github.com:ssouporg/denv.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>alebellu</id>
+            <name>Alessandro Bellucci</name>
+            <url>http://alebellu.ssoup.org/</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <spring-boot.version>1.1.8.RELEASE</spring-boot.version>
+    </properties>
+
+  <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>denv-server-all</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <jvmArguments>
+            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+          </jvmArguments>
+        </configuration>
+        </plugins>
+    </build>
+ </project>
