@@ -3,7 +3,7 @@ MAINTAINER Alessandro Bellucci <alebellu@ssoup.org>
 
 RUN apt-get update && apt-get -yq install maven
 
-ADD pom.xml .
+ADD pom-docker.xml .
 
 RUN mvn clean install
 
