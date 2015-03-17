@@ -1,7 +1,9 @@
 dependencies:
   override:
-    - ./circle.sh dependencies
+    - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
 machine:
+  pre:
+    - sudo sh -c "echo 'DOCKER_OPTS=\"$DOCKER_OPTS -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock\"'" >> /etc/default/docker"
   services:
     - mongodb
     - docker
