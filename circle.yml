@@ -19,3 +19,4 @@ deployment:
     branch: master
     commands:
       - mvn deploy -s settings.xml -DskipTests=true
+      - curl --data "build=true" -X POST https://registry.hub.docker.com/u/alebellu/denv/trigger/d86f3a76-f7f5-4dfc-9de0-52d01b2567ac/
