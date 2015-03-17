@@ -1,10 +1,6 @@
-dependencies:
-  override:
-    - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
 machine:
   pre:
-    - sudo sh -c "echo 'DOCKER_OPTS=\"\$DOCKER_OPTS -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock\"' >> /etc/default/docker"
-    - cat /etc/default/docker
+    - sudo sh -c "echo 'DOCKER_OPTS=\"\$DOCKER_OPTS -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock\"' >> /etc/default/docker" && cat /etc/default/docker
   services:
     - mongodb
     - docker
@@ -12,6 +8,9 @@ machine:
     MAVEN_OPTS: -Xmx128m
     DOCKER_HOST: 127.0.0.1
     DOCKER_PORT: 2375
+dependencies:
+  override:
+    - mvn clean install -Dmaven.javadoc.skip=true -DskipTests=true
 test:
   override:
     - mvn clean verify
