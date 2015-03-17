@@ -126,6 +126,8 @@ mvn versions:set -DnewVersion=0.2-SNAPSHOT
 
 mvn clean deploy
 
+Anyway snapshots are automatically deployed to Sonatype any time there is a commit on master branch (via Circle CI)
+
 - Deploy to Maven central
 
 mvn clean deploy -P release -Dhttps.protocols=SSLv3 -Dforce.http.jre.executor=true
