@@ -1,9 +1,7 @@
-denv
+denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https://circleci.com/gh/ssouporg/denv)
 ====
 
 A manager for Docker based environments.
-
-[![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=svg)](https://circleci.com/gh/ssouporg/denv)
 
 # Architecture
 
