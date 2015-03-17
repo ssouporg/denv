@@ -6,8 +6,30 @@
 
     <artifactId>denv</artifactId>
     <groupId>org.ssoup.denv</groupId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>Denv</name>
+    <description>Denv is a manager for Docker based environments.</description>
+    <url>https://github.com/ssouporg/denv</url>
+    <licenses>
+        <license>
+            <name>Eclipse Public License</name>
+            <url>http://opensource.org/licenses/EPL-1.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>git@github.com:ssouporg/denv.git</url>
+        <connection>scm:git:git@github.com:ssouporg/denv.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>alebellu</id>
+            <name>Alessandro Bellucci</name>
+            <url>http://alebellu.ssoup.org/</url>
+        </developer>
+    </developers>
 
     <modules>
         <module>denv-core</module>
@@ -80,26 +102,6 @@
         </plugins>
     </build>
 
-    <url>https://github.com/ssouporg/denv</url>
-    <licenses>
-        <license>
-            <name>Eclipse Public License</name>
-            <url>http://opensource.org/licenses/EPL-1.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>git@github.com:ssouporg/denv.git</url>
-        <connection>scm:git:git@github.com:ssouporg/denv.git</connection>
-    </scm>
-    <developers>
-        <developer>
-            <id>alebellu</id>
-            <name>Alessandro Bellucci</name>
-            <url>http://alebellu.ssoup.org/</url>
-        </developer>
-    </developers>
-
     <profiles>
         <profile>
             <id>release</id>
@@ -150,4 +152,3 @@
         </profile>
     </profiles>
 </project>
-

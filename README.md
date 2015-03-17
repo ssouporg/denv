@@ -117,3 +117,17 @@ github:alebellu:denv:examples/expert-system-env.denv :
 	EXPOSE ex/expert-system
 
 denv add github:alebellu:ex:ex/expert-system-env
+
+# (For contributors) Artifact Deploy
+
+- Change Denv version in all pom.xml files
+
+mvn versions:set -DnewVersion=0.2-SNAPSHOT
+
+- Deploy snapshot to Sonatype
+
+mvn clean deploy
+
+- Deploy to Maven central
+
+mvn clean deploy -P release -Dhttps.protocols=SSLv3 -Dforce.http.jre.executor=true

@@ -24,7 +24,7 @@ public class DenvClientTest extends DenvTestBase {
 
     @Test
     public void runFigApp() throws Exception {
-        registerFigAppConfig();
+        registerFigEnvConfig();
 
         try {
             createEnvironment(INTEGRATION_ENV_ID, FIG_ENV_CONF_ID);
@@ -38,31 +38,32 @@ public class DenvClientTest extends DenvTestBase {
 
     @Test
     public void runPanamaxApp() throws Exception {
-        registerPanamaxAppConfig();
+        registerPanamaxEnvConfig();
 
         try {
             createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
         } finally {
-            //deleteEnvironment(INTEGRATION_ENV_ID);
-            //deleteEnvConfig(PANAMAX_ENV_CONF_ID);
+            deleteEnvironment(INTEGRATION_ENV_ID);
+            deleteEnvConfig(PANAMAX_ENV_CONF_ID);
         }
     }
 
     @Test
     public void runFigAndPanamaxEnvs() throws Exception {
-        registerFigAppConfig();
-        registerPanamaxAppConfig();
+        registerFigEnvConfig();
+        registerPanamaxEnvConfig();
 
         try {
             createEnvironment(INTEGRATION_ENV_ID, FIG_ENV_CONF_ID);
-
-            updateEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
+            createEnvironment(INTEGRATION_ENV2_ID, PANAMAX_ENV_CONF_ID);
 
             listEnvironmentsAndCheckFor(INTEGRATION_ENV_ID);
+            listEnvironmentsAndCheckFor(INTEGRATION_ENV2_ID);
         } finally {
             deleteEnvironment(INTEGRATION_ENV_ID);
+            deleteEnvironment(INTEGRATION_ENV2_ID);
             deleteEnvConfig(PANAMAX_ENV_CONF_ID);
             deleteEnvConfig(FIG_ENV_CONF_ID);
         }

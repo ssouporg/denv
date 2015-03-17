@@ -32,6 +32,7 @@ import static org.junit.Assert.*;
 public abstract class DenvTestBase {
 
     public static final String INTEGRATION_ENV_ID = "integration";
+    public static final String INTEGRATION_ENV2_ID = "integration2";
 
     public static final String[] FIG_ENV_LABELS = {"Fig", "Wordpress", "Integration"};
     public static final String FIG_ENV_CONF_ID = "figTestApp";
@@ -39,7 +40,7 @@ public abstract class DenvTestBase {
 
     public static final String[] PANAMAX_ENV_LABELS = {"Panamax", "Wordpress", "Integration"};
     public static final String PANAMAX_ENV_CONF_ID = "Wordpress_with_MySQL";
-    public static final String PANAMAX_ENV_CONF_URL = "https://raw.githubusercontent.com/CenturyLinkLabs/panamax-public-templates/master/drupal_7.28_with_mysql.pmx";
+    public static final String PANAMAX_ENV_CONF_URL = "https://raw.githubusercontent.com/CenturyLinkLabs/panamax-public-templates/master/drupal_7.34_with_mysql.pmx";
     public static final String PANAMAX_ENV_FILE_NAME = "panamax/panamax_app.pmx";
 
     public static final long MAX_WAIT_FOR_DESIRED_STATE_IN_MILLIS = 120000;
@@ -54,10 +55,10 @@ public abstract class DenvTestBase {
     private DenvConsole denvConsole;
 
     @Inject
-    private PanamaxConfigurationConverter panamaxDenvApplicationConfigurationConverter;
+    private PanamaxConfigurationConverter panamaxConfigurationConverter;
 
     @Inject
-    private FigConfigurationConverter figDenvApplicationConfigurationConverter;
+    private FigConfigurationConverter figConfigurationConverter;
 
     @Before
     public void init() {
@@ -65,34 +66,34 @@ public abstract class DenvTestBase {
         MockitoAnnotations.initMocks(this);
     }
 
-    protected void registerFigAppConfig() throws IOException {
-        String figApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(FIG_ENV_FILE_NAME));
+    protected void registerFigEnvConfig() throws IOException {
+        String figEnvironmentConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(FIG_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
-        ContainerizedEnvironmentConfiguration applicationConfiguration = figDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_ID, null, figApplicationConfiguration);
-        denvClient.createOrUpdateContainerizedEnvConfig(applicationConfiguration);
+        ContainerizedEnvironmentConfiguration environmentConfiguration = figConfigurationConverter.convertEnvironmentConfiguration(FIG_ENV_CONF_ID, FIG_ENV_CONF_ID, null, figEnvironmentConfiguration);
+        denvClient.createOrUpdateContainerizedEnvConfig(environmentConfiguration);
         PagedResources page = denvClient.listEnvConfigs();
         assertNotNull(page);
         assertTrue(page.getMetadata().getTotalElements() > 0);
         //assertTrue(page.getContent().contains(FIG_ENV_CONF_ID));
-        ContainerizedEnvironmentConfiguration appConf = denvClient.getContainerizedEnvConfig(FIG_ENV_CONF_ID);
-        assertNotNull(appConf);
-        assertNotNull(appConf.getImages());
-        assertEquals(2, appConf.getImages().size());
+        ContainerizedEnvironmentConfiguration envConf = denvClient.getContainerizedEnvConfig(FIG_ENV_CONF_ID);
+        assertNotNull(envConf);
+        assertNotNull(envConf.getImages());
+        assertEquals(2, envConf.getImages().size());
     }
 
-    protected void registerPanamaxAppConfig() throws IOException {
-        String panamaxApplicationConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(PANAMAX_ENV_FILE_NAME));
+    protected void registerPanamaxEnvConfig() throws IOException {
+        String panamaxEnvironmentConfiguration = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream(PANAMAX_ENV_FILE_NAME));
         // when(adminClient.deployApplication(appName, appConf)).thenReturn();
-        ContainerizedEnvironmentConfiguration envConf = panamaxDenvApplicationConfigurationConverter.convertEnvironmentConfiguration(panamaxApplicationConfiguration);
-        denvClient.createOrUpdateContainerizedEnvConfig(envConf);
+        ContainerizedEnvironmentConfiguration environmentConfiguration = panamaxConfigurationConverter.convertEnvironmentConfiguration(panamaxEnvironmentConfiguration);
+        denvClient.createOrUpdateContainerizedEnvConfig(environmentConfiguration);
         PagedResources page = denvClient.listEnvConfigs();
         assertNotNull(page);
         assertTrue(page.getMetadata().getTotalElements() > 0);
         //assertTrue(page.getContent().contains(PANAMAX_ENV_CONF_ID));
-        ContainerizedEnvironmentConfiguration appConf = denvClient.getContainerizedEnvConfig(PANAMAX_ENV_CONF_ID);
-        assertNotNull(appConf);
-        assertNotNull(appConf.getImages());
-        assertEquals(2, appConf.getImages().size());
+        ContainerizedEnvironmentConfiguration envConf = denvClient.getContainerizedEnvConfig(PANAMAX_ENV_CONF_ID);
+        assertNotNull(envConf);
+        assertNotNull(envConf.getImages());
+        assertEquals(2, envConf.getImages().size());
     }
 
     protected void deleteEnvConfig(String envConfId) {

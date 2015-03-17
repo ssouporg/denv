@@ -48,9 +48,6 @@ public class CommandAddConf implements DenvCommand {
     @Parameter(names={"-f", "--format"}, description = "Configuration format")
     private String sourceFormat;
 
-    @Parameter(names={"-e", "--envs"}, description = "Ids of the environments to create", variableArity = true)
-    private List<String> envIds = new ArrayList<String>();
-
     private DenvConsole console;
 
     private DenvClient denvClient;
@@ -129,17 +126,6 @@ public class CommandAddConf implements DenvCommand {
             console.println(appConfId);
         } catch (Exception ex) {
             throw new DenvCLIException("An error occurred: " + ex.getMessage(), ex);
-        }
-
-        // if the runtime must be deployed/started on one or more environments
-        if (envIds.size() > 0) {
-            for (String envId : envIds) {
-                try {
-                    denvClient.createEnvironment(envId, envConf.getId());
-                } catch (Exception e) {
-                    throw new DenvCLIException("An error occurred creating environment " + envId + ": " + e.getMessage(), e);
-                }
-            }
         }
     }
 }

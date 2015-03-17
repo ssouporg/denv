@@ -9,10 +9,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.ssoup.denv.Denv;
-import org.ssoup.denv.core.exception.DenvException;
-import org.ssoup.denv.core.exception.ResourceNotFoundException;
-import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
-import org.ssoup.denv.core.model.runtime.Environment;
 
 import java.io.IOException;
 
@@ -34,10 +30,10 @@ public class DenvCLITest extends DenvTestBase {
 
     @Test
     public void testAddEnv() throws Exception {
-        registerPanamaxAppConfig();
+        registerPanamaxEnvConfig();
 
         try {
-            runCLICommand("add", INTEGRATION_ENV_ID, "-c", PANAMAX_ENV_CONF_ID, "-w", "-m", "" + (2 * 3600 * 1000));
+            runCLICommand("addenv", "-c", PANAMAX_ENV_CONF_ID, "-w", "-m", "" + (2 * 3600 * 1000), INTEGRATION_ENV_ID);
             String out = getConsoleOutput();
             assertEquals("", out);
 
@@ -50,7 +46,7 @@ public class DenvCLITest extends DenvTestBase {
 
     @Test
     public void testListEnvs() throws Exception {
-        registerPanamaxAppConfig();
+        registerPanamaxEnvConfig();
 
         try {
             createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
@@ -66,12 +62,12 @@ public class DenvCLITest extends DenvTestBase {
 
     @Test
     public void testRemoveEnv() throws Exception {
-        registerPanamaxAppConfig();
+        registerPanamaxEnvConfig();
 
         try {
             createEnvironment(INTEGRATION_ENV_ID, PANAMAX_ENV_CONF_ID);
 
-            runCLICommand("rm", INTEGRATION_ENV_ID);
+            runCLICommand("rmenv",  "-w", "-m", "" + (2 * 3600 * 1000), INTEGRATION_ENV_ID);
             String out = getConsoleOutput();
             assertEquals("", out);
 
@@ -84,7 +80,7 @@ public class DenvCLITest extends DenvTestBase {
     @Test
     public void testConfs() throws IOException {
         try {
-            registerPanamaxAppConfig();
+            registerPanamaxEnvConfig();
 
             runCLICommand("confs");
             String out = getConsoleOutput();
@@ -96,32 +92,12 @@ public class DenvCLITest extends DenvTestBase {
 
     @Test
     public void testAddRemoteConf() throws IOException {
-        String appConfId = null;
+        String envConfId = null;
         try {
             runCLICommand("addconf", new String[]{PANAMAX_ENV_CONF_URL, "-f", "panamax"});
             assertEquals("", getConsoleErrorOutput());
-            appConfId = getConsoleOutput().trim();
-        } finally {
-            if (appConfId != null) {
-                deleteEnvConfig(appConfId);
-            }
-        }
-    }
-
-    @Test
-    public void testAddAndStartRemoteConf() throws IOException, DenvException {
-        String envConfId = null;
-        try {
-            runCLICommand("addconf", new String[]{PANAMAX_ENV_CONF_URL, "-f", "panamax", "--envs", INTEGRATION_ENV_ID});
-            assertEquals("", getConsoleErrorOutput());
             envConfId = getConsoleOutput().trim();
-
-            Environment env = getEnv(INTEGRATION_ENV_ID);
-            assertNotNull(env);
-            EnvironmentRuntimeInfo envInfo = env.getRuntimeInfo();
-            assertNotNull(envInfo);
         } finally {
-            deleteEnvironment(INTEGRATION_ENV_ID);
             if (envConfId != null) {
                 deleteEnvConfig(envConfId);
             }

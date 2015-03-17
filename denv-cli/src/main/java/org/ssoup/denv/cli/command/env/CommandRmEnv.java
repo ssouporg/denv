@@ -28,6 +28,12 @@ public class CommandRmEnv implements DenvCommand {
     @Parameter(description = "Ids of the environments to remove", required = true)
     private List<String> envIds;
 
+    @Parameter(names={"-w", "--wait"}, description = "Wait for environment to be deleted")
+    private boolean waitForDesiredState;
+
+    @Parameter(names={"-m", "--max"}, description = "Maximum wait time for desired state in millis")
+    private int maxWaitForDesiredStateTimeInMillis = 60000;
+
     private DenvConsole console;
 
     private DenvClient denvClient;
@@ -50,6 +56,9 @@ public class CommandRmEnv implements DenvCommand {
                 }
 
                 denvClient.deleteEnvironment(envId);
+                if (waitForDesiredState) {
+                    denvClient.waitForEnvironmentDeleted(envId, maxWaitForDesiredStateTimeInMillis);
+                }
             } catch (Exception e) {
                 throw new DenvCLIException("An error occurred removing environment " + envId, e);
             }
