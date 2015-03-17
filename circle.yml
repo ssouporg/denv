@@ -2,8 +2,6 @@ dependencies:
   override:
     - ./circle.sh dependencies
 machine:
-  pre:
-    - denv/circle.sh pre_machine
   services:
     - mongodb
     - docker
