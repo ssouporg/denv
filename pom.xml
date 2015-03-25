@@ -40,6 +40,7 @@
         <module>denv-server-rundeck</module>
         <module>denv-server-docker</module>
         <module>denv-server-mongodb</module>
+        <module>denv-server-all</module>
         <module>denv-cli</module>
         <module>denv-web</module>
         <module>denv-integration-tests</module>
