@@ -8,4 +8,4 @@ ADD pom-docker.xml ./pom.xml
 RUN mvn clean install
 
 EXPOSE 8080
-CMD ["mvn exec:java"]
+CMD ["/usr/bin/mvn exec:java"]
