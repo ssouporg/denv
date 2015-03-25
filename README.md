@@ -3,10 +3,23 @@ denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https
 
 A manager for Docker based environments.
 
-# Architecture
+# Installation
 
-<a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
+Pull the image from the Docker Hub.
 
+    docker pull alebellu/denv
+
+Make sure you have a MongoDB database you can use. For example you can use one from Docker Hub:
+    docker pull tutum/mongodb
+    docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no -v /home/synaptiq/data/mongodb:/data/db tutum/mongodb
+
+And run the server (replace the ip address with the one of your Docker and MongoDB host):
+
+    docker run -d -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8080:8090 alebellu/denv /usr/bin/mvn -P server exec:java
+
+Test a CLI command:
+
+    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv envs
 
 # Command Line Interface
 
@@ -29,6 +42,11 @@ Commands:
     kill        kill an application in a specific environment
 
     ps          list running applications
+
+
+# Architecture
+
+<a href="http://tinypic.com?ref=35k8njp" target="_blank"><img src="http://i61.tinypic.com/35k8njp.jpg" border="0" alt="Image and video hosting by TinyPic"></a>
 
 # Sample use case
 
