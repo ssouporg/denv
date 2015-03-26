@@ -9,6 +9,10 @@ ADD pom-standalone.xml ./pom.xml
 ADD pom-cli.xml ./pom-cli.xml
 
 RUN mvn clean install
+RUN mvn -f pom-cli.xml clean install
+
+RUN mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
+RUN echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` org.ssoup.denv.cli.Main $@" > /usr/bin/denv && chmod +x /usr/bin/denv
 
 EXPOSE 8080
-CMD ["/usr/bin/mvn" "-f" "pom-cli.xml" "exec:java"]
+CMD ["denv"]

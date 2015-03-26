@@ -7,9 +7,11 @@ A manager for Docker based environments.
 
 ![Denv L](docs/images/denv.jpg "Denv")
 
-# Installation
+# Server Installation
 
-## via Docker (suggested)
+You can choose to install the Denv server as a Docker image or as a Java application running directly on your host.
+
+## Dockerized
 
 Pull the image from the Docker Hub.
 
@@ -24,29 +26,60 @@ And run the server (replace the ip address with the one of your Docker and Mongo
 
     docker run -d -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8090:8080 alebellu/denv /usr/bin/mvn exec:java
 
-Test a CLI command:
+## Non-Dockerized
 
-    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv /usr/bin/mvn -f pom-cli.xml exec:java -Dexec.args="envs"
-
-## via Maven
-
-Download and install Maven: http://maven.apache.org/download.cgi
-Then:
+Make sure Java and Maven (http://maven.apache.org/download.cgi) are available on the host, then:
 
     mkdir denv && cd denv
     wget https://raw.githubusercontent.com/ssouporg/denv/master/pom-standalone.xml -O pom.xml
     mvn clean install
 
 Make sure you have a MongoDB database you can use.
-And run the server (replace the ip address with the one of your Docker and MongoDB host):
+And run the server (replace the ip/port with the one of your Docker and MongoDB hosts):
 
-    mvn -D "DOCKER_HOST=172.17.42.1" -D "DOCKER_PORT=4243" -D "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -P server exec:java
+    /usr/bin/mvn -D "DOCKER_HOST=172.17.42.1" -D "DOCKER_PORT=4243" -D "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" exec:java
 
-Test a CLI command:
+# CLI Installation
 
-    /usr/bin/mvn -P cli -D "DENV_SERVER_URL=http://172.17.42.1:8090" exec:java
+You can choose to install the Denv Command Line Interface (CLI) as a Docker image or as a Java application running directly on your host.
 
-# Command Line Interface
+## Dockerized
+
+Pull the image from the Docker Hub.
+
+    docker pull alebellu/denv
+
+And run the cli (replace the ip address with the one of your Docker and MongoDB host):
+
+    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv denv envs
+
+## Non-Dockerized
+
+Make sure Java and Maven (http://maven.apache.org/download.cgi) are available on the host, then:
+
+    mkdir denv && cd denv
+    wget https://raw.githubusercontent.com/ssouporg/denv/master/pom-cli.xml -O pom-cli.xml
+    mvn clean install
+
+Make sure you have a MongoDB database you can use.
+
+Run a CLI command (replace the ip/port with those of your Denv server):
+
+- via Java (faster):
+
+        /usr/bin/mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
+        echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` -D "DENV_SERVER_URL=http://172.17.42.1:8090" org.ssoup.denv.cli.Main $@" > /usr/bin/denv && chmod +x /usr/bin/denv
+
+      and:
+
+        denv envs
+
+- or via Maven:
+
+        wget https://raw.githubusercontent.com/ssouporg/denv/master/pom-cli.xml -O pom-cli.xml
+        /usr/bin/mvn -q -f pom-cli.xml -D "DENV_SERVER_URL=http://172.17.42.1:8090" exec:java -Dexec.args="envs"
+
+# Command Line Interface (CLI)
 
 Commands:
 
