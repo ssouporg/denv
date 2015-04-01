@@ -5,7 +5,7 @@ A manager for Docker based environments.
 
 # How it works
 
-![Denv L](docs/images/denv.jpg "Denv")
+![Denv L](docs/images/denv_small.jpg "Denv")
 
 # Server Installation
 
@@ -24,7 +24,7 @@ Make sure you have a MongoDB database you can use. For example you can use one f
 
 And run the server (replace the ip address with the one of your Docker and MongoDB host):
 
-    docker run -d -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8090:8080 alebellu/denv /usr/bin/mvn exec:java
+    docker run -d --restart=always -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8090:8080 alebellu/denv /usr/bin/mvn exec:java
 
 ## Non-Dockerized
 
@@ -49,9 +49,17 @@ Pull the image from the Docker Hub.
 
     docker pull alebellu/denv
 
-And run the cli (replace the ip address with the one of your Docker and MongoDB host):
+And run the cli (replace the ip/port with those of your Denv server):
 
-    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv denv envs
+    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv /bin/bash /usr/bin/denv envs
+
+For a more convenient short command (replace the ip/port with those of your Denv server):
+
+    echo -e '#''!'"/bin/bash\ndocker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv /bin/bash /usr/bin/denv \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
+
+and:
+
+    denv envs
 
 ## Non-Dockerized
 
@@ -68,7 +76,7 @@ Run a CLI command (replace the ip/port with those of your Denv server):
 - via Java (faster):
 
         /usr/bin/mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
-        echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` -D "DENV_SERVER_URL=http://172.17.42.1:8090" org.ssoup.denv.cli.Main $@" > /usr/bin/denv && chmod +x /usr/bin/denv
+        echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` -D "DENV_SERVER_URL=http://172.17.42.1:8090" org.ssoup.denv.cli.Main \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
 
       and:
 
@@ -101,16 +109,24 @@ Commands:
 
 # Artifact Deploy (For contributors)
 
-- Change Denv version in all pom.xml files
+## Snapshots
 
-mvn versions:set -DnewVersion=0.2-SNAPSHOT
+Change Denv version in all pom.xml files
 
-- Deploy snapshot to Sonatype
+    mvn versions:set -DnewVersion=0.2-SNAPSHOT
 
-mvn clean deploy
+Deploy snapshot to Sonatype
+
+    mvn clean deploy
 
 Anyway snapshots are automatically deployed to Sonatype any time there is a commit on master branch (via Circle CI)
 
-- Deploy to Maven central
+## Releases
 
-mvn clean deploy -P release -Dhttps.protocols=SSLv3 -Dforce.http.jre.executor=true
+Change Denv version in all pom.xml files
+
+    mvn versions:set -DnewVersion=0.2
+
+Deploy to Maven central
+
+    mvn clean deploy -P release -Dhttps.protocols=SSLv3 -Dforce.http.jre.executor=true
