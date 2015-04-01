@@ -12,7 +12,7 @@ RUN mvn clean install
 RUN mvn -f pom-cli.xml clean install
 
 RUN mvn dependency:build-classpath -f pom-cli.xml -Dmdep.outputFile=cp.txt
-RUN echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` org.ssoup.denv.cli.Main \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
+RUN echo '#''!'"/bin/bash\njava -cp `cat cp.txt` org.ssoup.denv.cli.Main \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
 
 EXPOSE 8080
-CMD ["/bin/bash" "/usr/bin/denv"]
+CMD ["/bin/bash","/usr/bin/denv"]

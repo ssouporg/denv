@@ -55,10 +55,7 @@ And run the cli (replace the ip/port with those of your Denv server):
 
 For a more convenient short command (replace the ip/port with those of your Denv server):
 
-    echo -e '#''!'"/bin/bash\ndocker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv /bin/bash /usr/bin/denv \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
-
-and:
-
+    alias denv='docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv'
     denv envs
 
 ## Non-Dockerized
