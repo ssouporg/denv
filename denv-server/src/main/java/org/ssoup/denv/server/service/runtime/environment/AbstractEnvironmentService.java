@@ -52,6 +52,9 @@ public abstract class AbstractEnvironmentService<T extends Environment> implemen
             throw new DenvException("Could not find environment configuration with id " + env.getEnvironmentConfigurationId());
         }
         Environment envToCreate = environmentRepository.newEnvironmentInstance(env, envConf);
+        if (envToCreate.getDesiredState() == null) {
+            ((DenvEnvironment) envToCreate).setDesiredState(EnvironmentDesiredState.STARTED);
+        }
         Environment createdEnv = environmentRepository.save(envToCreate);
         return createdEnv;
     }

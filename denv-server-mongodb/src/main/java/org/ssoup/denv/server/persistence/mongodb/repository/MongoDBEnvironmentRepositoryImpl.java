@@ -30,9 +30,7 @@ public class MongoDBEnvironmentRepositoryImpl implements EnvironmentRepositoryCu
 
     @Override
     public MongoContainerizedEnvironment newEnvironmentInstance(Environment env, EnvironmentConfiguration envConf) {
-        MongoContainerizedEnvironment createdEnv = new MongoContainerizedEnvironment((DenvContainerizedEnvironment)env, (ContainerizedEnvironmentConfiguration)envConf);
-        createdEnv.setDesiredState(EnvironmentDesiredState.STARTED);
-        return createdEnv;
+        return new MongoContainerizedEnvironment((DenvContainerizedEnvironment)env, (ContainerizedEnvironmentConfiguration)envConf);
     }
 
     @Override

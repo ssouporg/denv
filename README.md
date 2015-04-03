@@ -20,11 +20,11 @@ Pull the image from the Docker Hub.
 Make sure you have a MongoDB database you can use. For example you can use one from Docker Hub:
 
     docker pull tutum/mongodb
-    docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no -v /home/synaptiq/data/mongodb:/data/db tutum/mongodb
+    docker run -d --restart=always --name denvd-db -p 27017:27017 -p 28017:28017 -e AUTH=no -v /home/synaptiq/data/mongodb:/data/db tutum/mongodb
 
 And run the server (replace the ip address with the one of your Docker and MongoDB host):
 
-    docker run -d --restart=always -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8090:8080 alebellu/denv /usr/bin/mvn exec:java
+    docker run -d --restart=always --name denvd -e "DOCKER_HOST=172.17.42.1" -e "DOCKER_PORT=4243" -e "spring.data.mongodb.uri=mongodb://172.17.42.1/denv" -p 8090:8080 alebellu/denv /usr/bin/mvn exec:java
 
 ## Non-Dockerized
 
@@ -55,7 +55,7 @@ And run the cli (replace the ip/port with those of your Denv server):
 
 For a more convenient short command (replace the ip/port with those of your Denv server):
 
-    alias denv='docker run -e "DOCKERIZED_DENV_CLI=true" -e "DENV_SERVER_URL=http://172.17.42.1:8090" -v /:/dockerHost -v $(pwd):/dockerHostPwd alebellu/denv /bin/bash /usr/bin/denv'
+    alias denv='docker run --rm -e "DOCKERIZED_DENV_CLI=true" -e "DENV_SERVER_URL=http://172.17.42.1:8090" -v /:/dockerHost -v $(pwd):/dockerHostPwd alebellu/denv /bin/bash /usr/bin/denv'
     denv envs
 
 ## Non-Dockerized
