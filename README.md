@@ -51,11 +51,11 @@ Pull the image from the Docker Hub.
 
 And run the cli (replace the ip/port with those of your Denv server):
 
-    docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv /bin/bash /usr/bin/denv envs
+    docker run -e "DOCKERIZED_DENV_CLI=true" -e "DENV_SERVER_URL=http://172.17.42.1:8090" -v /:/dockerHost -v $(pwd):/dockerHostPwd alebellu/denv /bin/bash /usr/bin/denv envs
 
 For a more convenient short command (replace the ip/port with those of your Denv server):
 
-    alias denv='docker run -e "DENV_SERVER_URL=http://172.17.42.1:8090" alebellu/denv'
+    alias denv='docker run -e "DOCKERIZED_DENV_CLI=true" -e "DENV_SERVER_URL=http://172.17.42.1:8090" -v /:/dockerHost -v $(pwd):/dockerHostPwd alebellu/denv /bin/bash /usr/bin/denv'
     denv envs
 
 ## Non-Dockerized
@@ -73,10 +73,7 @@ Run a CLI command (replace the ip/port with those of your Denv server):
 - via Java (faster):
 
         /usr/bin/mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
-        echo -e '#''!'"/bin/bash\njava -cp `cat cp.txt` -D "DENV_SERVER_URL=http://172.17.42.1:8090" org.ssoup.denv.cli.Main \$@" > /usr/bin/denv && chmod +x /usr/bin/denv
-
-      and:
-
+        alias denv=java -cp `cat cp.txt` -D "DENV_SERVER_URL=http://172.17.42.1:8090" org.ssoup.denv.cli.Main
         denv envs
 
 - or via Maven:

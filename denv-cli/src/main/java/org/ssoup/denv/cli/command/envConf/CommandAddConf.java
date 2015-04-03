@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StreamUtils;
+import org.ssoup.denv.cli.DenvCLI;
 import org.ssoup.denv.cli.DenvConsole;
 import org.ssoup.denv.cli.command.DenvCommand;
 import org.ssoup.denv.cli.exception.DenvCLIException;
@@ -92,7 +93,7 @@ public class CommandAddConf implements DenvCommand {
                 }
             } catch (MalformedURLException ex) {
                 // try to open the source as a file
-                File sourceFile = new File(source);
+                File sourceFile = new File(DenvCLI.adjustUserPath(source));
                 try {
                     envConfStr = FileCopyUtils.copyToString(new FileReader(sourceFile));
                 } catch (FileNotFoundException e1) {

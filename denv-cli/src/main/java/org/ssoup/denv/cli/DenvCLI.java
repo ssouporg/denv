@@ -35,6 +35,21 @@ public class DenvCLI implements CommandLineRunner {
 
     public static String PROGRAM_NAME = "denv";
 
+    /**
+     * Environment variable used to distinguish a standard Denv CLI from a Dockerized Denv CLI
+     */
+    public static String DOCKERIZED_DENV_CLI = "DOCKERIZED_DENV_CLI";
+
+    /**
+     * Path to the host root folder for Dockerized Denv CLI
+     */
+    public static String DOCKERIZED_DENV_CLI_HOST_ROOT = "/dockerHost";
+
+    /**
+     * Path to the host pwd folder for Dockerized Denv CLI
+     */
+    public static String DOCKERIZED_DENV_CLI_HOST_PWD = "/dockerHostPwd";
+
     private JCommander jc;
 
     private ApplicationContext applicationContext;
@@ -48,6 +63,24 @@ public class DenvCLI implements CommandLineRunner {
     public DenvCLI(ApplicationContext applicationContext, DenvConsole console) {
         this.applicationContext = applicationContext;
         this.console = console;
+    }
+
+    /**
+     * Adjust a user specified path in case Denv CLI is running inside a Docker container.
+     *
+     * @param path The user specifiedPath
+     * @return The adjusted path
+     */
+    public static String adjustUserPath(String path) {
+        if ("true".equalsIgnoreCase(System.getenv(DenvCLI.DOCKERIZED_DENV_CLI))) {
+            if (path.startsWith("/")) {
+                return DenvCLI.DOCKERIZED_DENV_CLI_HOST_ROOT + path;
+            } else {
+                return DenvCLI.DOCKERIZED_DENV_CLI_HOST_PWD + "/" + path;
+            }
+        } else {
+            return path;
+        }
     }
 
     private void initJCommander() {
