@@ -32,5 +32,5 @@ public interface EnvironmentService {
     Environment updateEnvironment(Environment env) throws DenvException;
     void registerExistingEnvironments() throws DenvException;
     void addEventHandler(EnvsEventHandler eventHandler);
-    Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf, String targetEnvConfId, String targetVersion);
+    Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf, String targetEnvConfId, String targetVersion) throws DenvException;
 }

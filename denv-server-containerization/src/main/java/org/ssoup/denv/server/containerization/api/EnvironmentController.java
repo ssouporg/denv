@@ -50,7 +50,7 @@ public class EnvironmentController extends AbstractController {
         return new ResponseEntity<Void>(headers, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/{envId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{envId:.+}", method = RequestMethod.PUT)
     public @ResponseBody
     ResponseEntity<Void> updateEnvironment(@PathVariable String envId, @RequestBody DenvContainerizedEnvironment env) throws DenvException {
         env.setId(envId);
@@ -70,7 +70,7 @@ public class EnvironmentController extends AbstractController {
                 assembler.toResource(envsPage), super.defaultResponseHeaders(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{envId}", method = RequestMethod.GET, produces = HATEOAS_MEDIA_TYPE_VALUE)
+    @RequestMapping(value = "/{envId:.+}", method = RequestMethod.GET, produces = HATEOAS_MEDIA_TYPE_VALUE)
     public @ResponseBody
     ResponseEntity<Resource<DenvContainerizedEnvironment>> getEnvironment(@PathVariable String envId)
             throws DenvException {
@@ -83,7 +83,7 @@ public class EnvironmentController extends AbstractController {
                 super.defaultResponseHeaders(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{envId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{envId:.+}", method = RequestMethod.DELETE)
     public @ResponseBody
     ResponseEntity<Resource<DenvContainerizedEnvironment>> deleteEnvironment(@PathVariable String envId)
             throws DenvException {

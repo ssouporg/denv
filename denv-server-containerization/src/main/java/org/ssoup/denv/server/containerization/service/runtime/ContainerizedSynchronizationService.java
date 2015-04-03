@@ -154,20 +154,24 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     @Override
     protected void updateActualState(EnvironmentConfiguration envConf, EnvironmentConfigurationVersion envConfVersion) throws DenvException {
-        ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
-        boolean allImagesFound = true;
-        for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
-            Image image = imageManager.findImage(envConf, envConfVersion.getVersion(), imageConf);
-            if (image == null) {
-                allImagesFound = false;
-                break;
-            }
-        }
-        if (allImagesFound) {
-            ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.AVAILABLE);
+        if (envConfVersion.getDesiredState() == EnvironmentConfigVersionDesiredState.DELETED) {
+            ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.DELETED);
         } else {
-            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.AVAILABLE) {
-                ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.NOT_AVAILABLE_ANY_MORE);
+            ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
+            boolean allImagesFound = true;
+            for (ImageConfiguration imageConf : cenvConf.getImages().values()) {
+                Image image = imageManager.findImage(envConf, envConfVersion.getVersion(), imageConf);
+                if (image == null) {
+                    allImagesFound = false;
+                    break;
+                }
+            }
+            if (allImagesFound) {
+                ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.AVAILABLE);
+            } else {
+                if (envConfVersion.getActualState() == EnvironmentConfigVersionState.AVAILABLE) {
+                    ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.NOT_AVAILABLE_ANY_MORE);
+                }
             }
         }
     }

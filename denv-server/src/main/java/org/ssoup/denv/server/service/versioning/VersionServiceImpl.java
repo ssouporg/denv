@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.ssoup.denv.core.exception.DenvException;
+import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigVersionDesiredState;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersionImpl;
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
+import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.server.persistence.VersionRepository;
 
 import java.util.Map;
@@ -46,6 +49,6 @@ public class VersionServiceImpl implements VersionService {
 
     @Override
     public void deleteVersion(String envConfId, String version) {
-        versionRepository.delete(DenvEnvironment.buildVersionId(envConfId, version));
+        versionRepository.updateDesiredState(DenvEnvironment.buildVersionId(envConfId, version), EnvironmentConfigVersionDesiredState.DELETED);
     }
 }

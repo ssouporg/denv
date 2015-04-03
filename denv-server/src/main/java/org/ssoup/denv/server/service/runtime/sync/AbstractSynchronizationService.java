@@ -39,7 +39,7 @@ public abstract class AbstractSynchronizationService<T extends Environment, V ex
         for (V envConfVersion : versionRepository.findAll()) {
             if (envConfVersion.getActualState() != EnvironmentConfigVersionState.DELETED) {
                 updateActualState(envConfVersion);
-                versionRepository.save(envConfVersion);
+                versionRepository.updateActualState(envConfVersion.getId(), envConfVersion.getActualState());
             }
         }
     }

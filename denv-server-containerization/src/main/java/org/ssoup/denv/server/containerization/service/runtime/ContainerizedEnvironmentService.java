@@ -52,15 +52,14 @@ public class ContainerizedEnvironmentService extends AbstractEnvironmentService<
 
     @Override
     public Environment createBuildEnvironment(EnvironmentConfiguration builderEnvConf,
-                                              String targetEnvConfId, String targetVersion) {
-        EnvironmentRepository environmentRepository = applicationContext.getBean(EnvironmentRepository.class);
+                                              String targetEnvConfId, String targetVersion) throws DenvException {
         String envId = targetEnvConfId + "-" + targetVersion + "-builder";
         DenvContainerizedEnvironment env = new DenvContainerizedEnvironment(envId, envId, builderEnvConf.getId(), null, null);
         env.setDesiredState(EnvironmentDesiredState.SUCCEEDED);
         env.setBuilder(true);
         env.setBuilderTargetEnvConfId(targetEnvConfId);
         env.setBuilderTargetVersion(targetVersion);
-        return (Environment)environmentRepository.save(env);
+        return createEnvironment(env);
     }
 
     @Override

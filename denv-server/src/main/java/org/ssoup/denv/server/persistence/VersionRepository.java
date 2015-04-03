@@ -10,6 +10,7 @@ import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersio
  * Date: 06/09/14 14:14
  */
 @NoRepositoryBean
-public interface VersionRepository<T extends EnvironmentConfigurationVersion> extends PagingAndSortingRepository<T, String> {
+public interface VersionRepository<T extends EnvironmentConfigurationVersion> extends PagingAndSortingRepository<T, String>,
+        VersionRepositoryCustom<T>{
 
 }
