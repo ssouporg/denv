@@ -169,8 +169,9 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
             if (allImagesFound) {
                 ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.AVAILABLE);
             } else {
-                if (envConfVersion.getActualState() == EnvironmentConfigVersionState.AVAILABLE) {
-                    ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.NOT_AVAILABLE_ANY_MORE);
+                if (envConfVersion.getActualState() == EnvironmentConfigVersionState.CREATED ||
+                        envConfVersion.getActualState() == EnvironmentConfigVersionState.AVAILABLE) {
+                    ((EnvironmentConfigurationVersionImpl) envConfVersion).setActualState(EnvironmentConfigVersionState.NOT_AVAILABLE);
                 }
             }
         }
@@ -282,11 +283,11 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                     if (imageConf.getBuildCommand() != null && imageConf.getServicesToVersionWhenBuildSucceeds() != null) {
                         for (String serviceToVersion : imageConf.getServicesToVersionWhenBuildSucceeds()) {
                             ImageConfiguration serviceImageConf = cenvConf.getImages().get(serviceToVersion);
-                            Image image = imageManager.findImage(serviceImageConf.getTargetImage(), serviceImageConf);
+                            String imageName = environmentConfigurationVersion.substituteVariables(serviceImageConf.getTargetImage());
+                            Image image = imageManager.findImage(imageName, serviceImageConf);
                             if (image == null) {
                                 ContainerRuntimeInfo containerInfo = cenv.getContainerRuntimeInfo(serviceToVersion);
                                 Container containerToVersion = containerManager.findContainerById(env, envConf, serviceImageConf, containerInfo.getId());
-                                String imageName = environmentConfigurationVersion.substituteVariables(serviceImageConf.getTargetImage());
                                 containerManager.saveContainer(env, containerToVersion, imageName);
                             }
                         }
@@ -372,7 +373,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         EnvironmentConfigurationVersionImpl ecv = (EnvironmentConfigurationVersionImpl)envConfVersion;
         EnvironmentConfigVersionDesiredState cd = envConfVersion.getDesiredState();
         if (cd == EnvironmentConfigVersionDesiredState.AVAILABLE) {
-            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.CREATED) {
+            if (envConfVersion.getActualState() == EnvironmentConfigVersionState.NOT_AVAILABLE) {
                 ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
                 if (cenvConf.getBuilderEnvConfId() == null) {
                     ecv.setActualState(EnvironmentConfigVersionState.BUILD_ERROR);
