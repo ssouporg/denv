@@ -2,7 +2,7 @@ Denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https
 ====
 [![Docker Hub](http://dockeri.co/image/alebellu/denv)](https://registry.hub.docker.com/u/alebellu/denv/)
 
-Yet another manager for Docker based environments. [Why ?](https://github.com/ssouporg/denv/wiki/Rational)
+Yet another manager for Docker based environments. [Why](https://github.com/ssouporg/denv/wiki/Rational) ?
 
 Denv is a tool to build, deploy, launch and clone versioned Docker environments.
 
