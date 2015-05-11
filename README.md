@@ -4,7 +4,7 @@ Denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https
 
 Yet another manager for Docker based environments. [Why another one](https://github.com/ssouporg/denv/wiki/Rational) ?
 
-Go to the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page for an introduction.
+For an introduction see the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start).
 
 Denv offers:
 
