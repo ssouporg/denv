@@ -17,4 +17,5 @@ Denv offers:
 
 For an introduction see the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page.
 
+To start right away see [How to install](https://github.com/ssouporg/denv/wiki/How-to-install).
 
