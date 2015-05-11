@@ -4,5 +4,7 @@ denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https
 Yet another manager for Docker based environments. Denv offers:
 
 - A [Command Line Interface](https://github.com/ssouporg/denv/wiki/CLI-Commands)
+- A [REST API](https://github.com/ssouporg/denv/wiki/REST-API)
+- A Web Dashboard (planned)
 
 ![Denv L](docs/images/denv_small.jpg "Denv")
