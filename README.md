@@ -4,7 +4,8 @@ Denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https
 Yet another manager for Docker based environments.
 
 Denv is a tool to build, deploy, launch and clone versioned Docker environments.
-See the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page for an introduction.
+
+Go to the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page for an introduction.
 
 Denv offers:
 
