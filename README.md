@@ -15,7 +15,5 @@ Denv offers:
 
 ![Denv L](docs/images/denv_small.jpg "Denv")
 
-For an introduction see the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page.
-
-To start right away see [How to install](https://github.com/ssouporg/denv/wiki/How-to-install).
+For an introduction see the [Quick start](https://github.com/ssouporg/denv/wiki/Quick-start) page, or visit the [How to install](https://github.com/ssouporg/denv/wiki/How-to-install) section to start right away.
 
