@@ -1,4 +1,5 @@
-Denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https://circleci.com/gh/ssouporg/denv) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.ssoup.denv/denv/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.ssoup.denv/denv) [![Docker Hub](http://dockeri.co/image/alebellu/denv)](https://registry.hub.docker.com/u/alebellu/denv/)
+Denv [![Circle CI](https://circleci.com/gh/ssouporg/denv.svg?style=badge)](https://circleci.com/gh/ssouporg/denv) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.ssoup.denv/denv/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.ssoup.denv/denv)
+[![Docker Hub](http://dockeri.co/image/alebellu/denv)](https://registry.hub.docker.com/u/alebellu/denv/)
 ====
 
 Yet another manager for Docker based environments.
