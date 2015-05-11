@@ -11,6 +11,7 @@ Denv offers:
 - A [Command Line Interface](https://github.com/ssouporg/denv/wiki/CLI-Commands)
 - A [REST API](https://github.com/ssouporg/denv/wiki/REST-API)
 - A Java Client library for easier interaction with the REST API
+- A Web Console (planned)
 
 ![Denv L](docs/images/denv_small.jpg "Denv")
 
