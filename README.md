@@ -6,7 +6,7 @@ Yet another manager for Docker based environments. See [why another one](https:/
 
 Denv offers:
 
-- A server daemon which talks to a Docker engine to manage environments
+- A server daemon which talks to a Docker engine to manage multicontainer environments
 - A way to store the configuration of environments, their versions, and the runtime info about running environments
 - A way to manage the build of multiple versions of the same environment
 - A way to run and monitor the state of multicontainer Docker environments
