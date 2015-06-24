@@ -55,6 +55,7 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
             this.description = imageConf.getDescription();
             this.buildCommand = imageConf.getBuildCommand();
             this.command = imageConf.getCommand();
+            this.readyWhenRespondingOnUrl = imageConf.getReadyWhenRespondingOnUrl();
             this.servicesToVersionWhenBuildSucceeds = imageConf.getServicesToVersionWhenBuildSucceeds();
             this.targetImage = imageConf.getTargetImage();
             this.environment = (Collection<EnvironmentVariableConfigurationImpl>) imageConf.getEnvironment();

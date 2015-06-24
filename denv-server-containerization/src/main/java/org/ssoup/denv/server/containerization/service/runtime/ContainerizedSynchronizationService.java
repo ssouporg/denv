@@ -33,6 +33,7 @@ import org.ssoup.denv.server.service.runtime.environment.EnvironmentService;
 import org.ssoup.denv.server.service.runtime.sync.AbstractSynchronizationService;
 import org.ssoup.denv.server.service.versioning.VersionService;
 
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 
@@ -212,7 +213,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                         break;
                     }
                     if (imageConf.getReadyWhenRespondingOnUrl() != null) {
-                        String url = envConfVersion.substituteVariables(imageConf.getReadyWhenRespondingOnUrl());
+                        String url = containerInfo.substituteVariables(imageConf.getReadyWhenRespondingOnUrl());
                         if (url.startsWith("http") || url.startsWith("https")) {
                             try {
                                 clientHttpRequestFactory.setReadTimeout(1000); // wait at most 1 second.
@@ -223,6 +224,9 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                                     responding = false;
                                     break;
                                 }
+                            } catch (SocketTimeoutException ex) {
+                                responding = false;
+                                break;
                             } catch (Exception ex) {
                                 throw new DenvException(ex);
                             }

@@ -149,4 +149,12 @@ public class ContainerRuntimeInfoImpl implements ContainerRuntimeInfo {
     public String getVariableValue(String variable) {
         return this.variables.get(variable);
     }
+
+    @Override
+    public String substituteVariables(String v) {
+        for (String var : getVariables().keySet()) {
+            v = v.replace("${" + var + "}", getVariableValue(var));
+        }
+        return v;
+    }
 }

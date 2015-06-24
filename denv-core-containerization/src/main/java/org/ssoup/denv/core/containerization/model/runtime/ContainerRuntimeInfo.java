@@ -37,6 +37,8 @@ public interface ContainerRuntimeInfo {
 
     String getVariableValue(String variable);
 
+    String substituteVariables(String v);
+
     boolean canBeStarted();
 
     boolean canBeStopped();
