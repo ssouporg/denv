@@ -32,6 +32,7 @@ public class PanamaxConfigurationConverter {
             envImage.setDescription(image.getDescription());
             envImage.setSource(image.getSource());
             envImage.setCommand(image.getCommmand());
+            envImage.setReadyWhenRespondingOnUrl(image.getReadyWhenRespondingOnUrl());
             envImage.setBuildCommand(image.getBuildCommand());
             envImage.setServicesToVersionWhenBuildSucceeds(image.getServicesToVersionWhenBuildSucceeds());
             envImage.setTargetImage(image.getTargetImage());

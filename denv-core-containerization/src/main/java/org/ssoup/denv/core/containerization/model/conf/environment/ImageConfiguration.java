@@ -15,6 +15,7 @@ public interface ImageConfiguration {
     String getName();
     String getDescription();
     String getCommand();
+    String getReadyWhenRespondingOnUrl();
     String getBuildCommand();
     Collection<String> getServicesToVersionWhenBuildSucceeds();
     String getTargetImage();

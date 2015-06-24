@@ -33,6 +33,7 @@ public class FigConfigurationConverter {
             envImage.setName(serviceName);
             envImage.setSource(serviceConfiguration.getImage());
             envImage.setCommand(serviceConfiguration.getCommand());
+            envImage.setReadyWhenRespondingOnUrl(serviceConfiguration.getReadyWhenRespondingOnUrl());
             envImage.setBuildCommand(serviceConfiguration.getBuildCommand());
             envImage.setServicesToVersionWhenBuildSucceeds(serviceConfiguration.getServicesToVersionWhenBuildSucceeds());
             envImage.setTargetImage(serviceConfiguration.getTargetImage());

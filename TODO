@@ -1,0 +1,7 @@
+- when a version builder fails change the status of the version to BUILD_FAILED
+- add a new command `rebuild` which will put a version in status TO_REBUILD, which will then move to BUILDING
+  Prerequisite: the version must be in status BUILD_FAILED or AVAILABLE
+- add an option -a to rmver to also remove the related Docker images
+- add a precondition to rmver : no environments based on the version, and a -f option to remove everything
+- add a precondition to rmconf: no versions based on the conf, and a -f option to remove everything (also any environment based on related versions)
+

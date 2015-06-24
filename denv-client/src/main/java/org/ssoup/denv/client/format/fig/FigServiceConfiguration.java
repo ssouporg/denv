@@ -11,6 +11,7 @@ public class FigServiceConfiguration {
 
     private String build;
     private String command;
+    private String readyWhenRespondingOnUrl;
     private String buildCommand;
     private Collection<String> servicesToVersionWhenBuildSucceeds;
     private String targetImage;
@@ -216,5 +217,13 @@ public class FigServiceConfiguration {
 
     public void setServicesToVersionWhenBuildSucceeds(Collection<String> servicesToVersionWhenBuildSucceeds) {
         this.servicesToVersionWhenBuildSucceeds = servicesToVersionWhenBuildSucceeds;
+    }
+
+    public String getReadyWhenRespondingOnUrl() {
+        return readyWhenRespondingOnUrl;
+    }
+
+    public void setReadyWhenRespondingOnUrl(String readyWhenRespondingOnUrl) {
+        this.readyWhenRespondingOnUrl = readyWhenRespondingOnUrl;
     }
 }

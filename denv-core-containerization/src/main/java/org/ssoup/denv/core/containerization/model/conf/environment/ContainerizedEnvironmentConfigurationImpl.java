@@ -33,6 +33,7 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
         private String source;
         private String description;
         private String command;
+        private String readyWhenRespondingOnUrl;
         private String buildCommand;
         private Collection<String> servicesToVersionWhenBuildSucceeds;
         private String targetImage;
@@ -190,6 +191,15 @@ public class ContainerizedEnvironmentConfigurationImpl extends EnvironmentConfig
 
         public void setCommand(String command) {
             this.command = command;
+        }
+
+        @Override
+        public String getReadyWhenRespondingOnUrl() {
+            return readyWhenRespondingOnUrl;
+        }
+
+        public void setReadyWhenRespondingOnUrl(String readyWhenRespondingOnUrl) {
+            this.readyWhenRespondingOnUrl = readyWhenRespondingOnUrl;
         }
     }
 

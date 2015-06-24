@@ -31,6 +31,7 @@ public class PanamaxApplicationConfiguration {
         private String source;
         private String description;
         private String commmand;
+        private String readyWhenRespondingOnUrl;
         private String buildCommand;
         private Collection<String> servicesToVersionWhenBuildSucceeds;
         private String targetImage;
@@ -161,6 +162,14 @@ public class PanamaxApplicationConfiguration {
 
         public void setCommmand(String commmand) {
             this.commmand = commmand;
+        }
+
+        public String getReadyWhenRespondingOnUrl() {
+            return readyWhenRespondingOnUrl;
+        }
+
+        public void setReadyWhenRespondingOnUrl(String readyWhenRespondingOnUrl) {
+            this.readyWhenRespondingOnUrl = readyWhenRespondingOnUrl;
         }
     }
 

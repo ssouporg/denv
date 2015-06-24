@@ -1,6 +1,14 @@
 package org.ssoup.denv.server.containerization.service.runtime;
 
+import org.apache.commons.httpclient.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
@@ -25,6 +33,9 @@ import org.ssoup.denv.server.service.runtime.environment.EnvironmentService;
 import org.ssoup.denv.server.service.runtime.sync.AbstractSynchronizationService;
 import org.ssoup.denv.server.service.versioning.VersionService;
 
+import java.net.URI;
+import java.net.URL;
+
 /**
  * User: ALB
  * Date: 15/11/2014 20:26
@@ -44,6 +55,8 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     private VersioningPolicy versioningPolicy;
 
+    private SimpleClientHttpRequestFactory clientHttpRequestFactory;
+
     @Autowired
     protected ContainerizedSynchronizationService(EnvironmentRepository environmentRepository,
                                                   EnvironmentConfigRepository environmentConfigRepository,
@@ -52,7 +65,8 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                                                   ImageManager imageManager,
                                                   ContainerManager containerManager,
                                                   NamingStrategy namingStrategy,
-                                                  VersionService versionManager, VersioningPolicy versioningPolicy) {
+                                                  VersionService versionManager,
+                                                  VersioningPolicy versioningPolicy) {
         super(environmentRepository, environmentConfigRepository, versionRepository);
         this.environmentService = environmentService;
         this.imageManager = imageManager;
@@ -60,16 +74,20 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         this.namingStrategy = namingStrategy;
         this.versionManager = versionManager;
         this.versioningPolicy = versioningPolicy;
+        this.clientHttpRequestFactory = new SimpleClientHttpRequestFactory();
     }
 
     @Override
     protected void updateActualState(Environment env, EnvironmentConfiguration envConf) throws DenvException {
-        DenvEnvironment denv = ((DenvEnvironment) env);
+        DenvContainerizedEnvironment denv = ((DenvContainerizedEnvironment) env);
         if (envConf == null) {
             // configuration has been lost => put environment in inconsistent state
             denv.setActualState(EnvironmentState.CONF_UNKNOWN);
             return;
         }
+
+        EnvironmentConfigurationVersion envConfVersion =
+                (EnvironmentConfigurationVersion) versionManager.getVersion(denv.getEnvironmentConfigurationId(), env.getVersion());
 
         ContainerizedEnvironmentConfiguration cenvConf = (ContainerizedEnvironmentConfiguration) envConf;
         ContainerizedEnvironmentRuntimeInfo cenvInfo = (ContainerizedEnvironmentRuntimeInfo) env.getRuntimeInfo();
@@ -92,7 +110,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                 Container container = containerManager.findContainerById(env, envConf, imageConf, containerInfo.getId());
                 if (container != null) {
                     allContainersUndeployed = false;
-                    updateRuntimeInfoFromRunningContainer(imageConf, (ContainerRuntimeInfoImpl) containerInfo, container);
+                    updateRuntimeInfoFromRunningContainer(envConfVersion, imageConf, (ContainerRuntimeInfoImpl) containerInfo, container);
                     if (containerInfo.getActualState().isStarted()) {
                         atLeastOneContainerStarted = true;
                     } else if (containerInfo.getActualState() == ContainerState.STARTING) {
@@ -177,7 +195,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
         }
     }
 
-    private void updateRuntimeInfoFromRunningContainer(ImageConfiguration imageConf, ContainerRuntimeInfoImpl containerInfo, Container container) {
+    private void updateRuntimeInfoFromRunningContainer(EnvironmentConfigurationVersion envConfVersion, ImageConfiguration imageConf, ContainerRuntimeInfoImpl containerInfo, Container container) throws DenvException {
         containerInfo.setId(container.getId());
         containerInfo.setNames(container.getAllNames());
         containerInfo.setHostname(container.getHostname());
@@ -192,6 +210,25 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                     if (!containerManager.isContainerListeningOnPort(container, portConfiguration)) {
                         responding = false;
                         break;
+                    }
+                    if (imageConf.getReadyWhenRespondingOnUrl() != null) {
+                        String url = envConfVersion.substituteVariables(imageConf.getReadyWhenRespondingOnUrl());
+                        if (url.startsWith("http") || url.startsWith("https")) {
+                            try {
+                                clientHttpRequestFactory.setReadTimeout(1000); // wait at most 1 second.
+                                ClientHttpRequest request = clientHttpRequestFactory.createRequest(new URI(url), HttpMethod.GET);
+                                ClientHttpResponse response = request.execute();
+                                HttpStatus status = response.getStatusCode();
+                                if (!status.is2xxSuccessful() && !status.is3xxRedirection()) {
+                                    responding = false;
+                                    break;
+                                }
+                            } catch (Exception ex) {
+                                throw new DenvException(ex);
+                            }
+                        } else {
+                            throw new DenvException("Don't know how to verify url: " + url);
+                        }
                     }
                 }
                 if (responding) {
