@@ -1,12 +1,9 @@
 package org.ssoup.denv.server.containerization.service.runtime;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -25,7 +22,7 @@ import org.ssoup.denv.server.containerization.exception.ContainerNotFoundExcepti
 import org.ssoup.denv.server.containerization.service.container.ContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.ContainerVersioningPolicy;
 import org.ssoup.denv.server.persistence.EnvironmentConfigRepository;
 import org.ssoup.denv.server.persistence.EnvironmentRepository;
 import org.ssoup.denv.server.persistence.VersionRepository;
@@ -35,7 +32,6 @@ import org.ssoup.denv.server.service.versioning.VersionService;
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
-import java.net.URL;
 
 /**
  * User: ALB
@@ -54,7 +50,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
 
     private VersionService versionManager;
 
-    private VersioningPolicy versioningPolicy;
+    private ContainerVersioningPolicy versioningPolicy;
 
     private SimpleClientHttpRequestFactory clientHttpRequestFactory;
 
@@ -67,7 +63,7 @@ public class ContainerizedSynchronizationService extends AbstractSynchronization
                                                   ContainerManager containerManager,
                                                   NamingStrategy namingStrategy,
                                                   VersionService versionManager,
-                                                  VersioningPolicy versioningPolicy) {
+                                                  ContainerVersioningPolicy versioningPolicy) {
         super(environmentRepository, environmentConfigRepository, versionRepository);
         this.environmentService = environmentService;
         this.imageManager = imageManager;

@@ -9,13 +9,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
-import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.container.AbstractImageManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.ContainerVersioningPolicy;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.server.service.admin.AdminClient;
@@ -37,7 +36,7 @@ public class DockerImageManager extends AbstractImageManager implements ImageMan
     private NodeManager nodeManager;
 
     @Autowired
-    public DockerImageManager(AdminClient adminClient, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy, NodeManager nodeManager) {
+    public DockerImageManager(AdminClient adminClient, NamingStrategy namingStrategy, ContainerVersioningPolicy versioningPolicy, NodeManager nodeManager) {
         super(adminClient, namingStrategy, versioningPolicy);
         this.nodeManager = nodeManager;
     }

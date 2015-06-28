@@ -7,7 +7,7 @@ import org.ssoup.denv.core.containerization.model.runtime.Container;
 import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.server.containerization.exception.ContainerizationException;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.ContainerVersioningPolicy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,9 +28,9 @@ public abstract class AbstractContainerManager implements ContainerManager {
 
     private NamingStrategy namingStrategy;
 
-    private VersioningPolicy versioningPolicy;
+    private ContainerVersioningPolicy versioningPolicy;
 
-    public AbstractContainerManager(ImageManager imageManager, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy) {
+    public AbstractContainerManager(ImageManager imageManager, NamingStrategy namingStrategy, ContainerVersioningPolicy versioningPolicy) {
         this.imageManager = imageManager;
         this.namingStrategy = namingStrategy;
         this.versioningPolicy = versioningPolicy;
@@ -103,7 +103,7 @@ public abstract class AbstractContainerManager implements ContainerManager {
         return imageManager;
     }
 
-    public VersioningPolicy getVersioningPolicy() {
+    public ContainerVersioningPolicy getVersioningPolicy() {
         return versioningPolicy;
     }
 }

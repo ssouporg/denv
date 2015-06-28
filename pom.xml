@@ -44,6 +44,7 @@
         <module>denv-cli</module>
         <module>denv-web</module>
         <module>denv-integration-tests</module>
+        <module>denv-testing</module>
     </modules>
 
     <properties>

@@ -14,4 +14,6 @@ public class DenvApiEndpoints {
     // relative
     public static final String ENV_SAVE_SNAPSHOT = "/{envId}/saveSnapshot";
     public static final String ENV_CONFIG_VERSION = "/{version:.+}";
+    public static final String TEST_RESULTS = "/{envConfId}/{version}/testResults";
+    public static final String GET_LATEST_STABLE_VERSION = "/{envConfId}/getLatestStableVersion";
 }

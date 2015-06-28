@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import org.ssoup.denv.core.api.DenvApiEndpoints;
 import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfiguration;
 import org.ssoup.denv.core.containerization.model.conf.environment.ContainerizedEnvironmentConfigurationImpl;
-import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
 import org.ssoup.denv.core.containerization.model.runtime.*;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.exception.DesiredStateNotReachedException;
@@ -31,7 +30,9 @@ import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersio
 import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.core.model.runtime.EnvironmentState;
+import org.ssoup.denv.core.model.testing.TestResults;
 
+import javax.xml.ws.Response;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
@@ -268,6 +269,34 @@ public class DenvClient {
             }
         }
         return envConfVersion;
+    }
+
+    public void saveTestResults(String envConfId, String version, TestResults testResults) throws DenvException {
+        ResponseEntity<Void> res = sendSaveTestResultsRequest(envConfId, version, testResults);
+    }
+
+    public TestResults getTestResults(String envConfId, String version) throws DenvException {
+        try {
+            ResponseEntity<Resource<TestResults>> res = sendGetTestResultsRequest(envConfId, version);
+            return res.getBody().getContent();
+        } catch (HttpStatusCodeException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new ResourceNotFoundException("Version " + envConfId + ":" + version + " does not exist");
+            }
+            throw ex;
+        }
+    }
+
+    public EnvironmentConfigurationVersionImpl getLatestStableVersion(String envConfId) throws DenvException {
+        try {
+            ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> res = sendGetLatestStableVersionRequest(envConfId);
+            return res.getBody().getContent();
+        } catch (HttpStatusCodeException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new ResourceNotFoundException("Could not find versions for environment configuration " + envConfId);
+            }
+            throw ex;
+        }
     }
 
     ///
@@ -507,6 +536,45 @@ public class DenvClient {
                 new HttpEntity<Void>(defaultRequestHeaders()),
                 Void.class,
                 envConfId, version
+        );
+    }
+
+    protected ResponseEntity<Void> sendSaveTestResultsRequest(String envConfId, String version, TestResults testResults) {
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.TEST_RESULTS,
+                HttpMethod.POST,
+                new HttpEntity<TestResults>(testResults, defaultRequestHeaders()),
+                Void.class,
+                envConfId,
+                version
+        );
+    }
+
+    protected ResponseEntity<Resource<TestResults>> sendGetTestResultsRequest
+            (String envConfId, String version) {
+        ParameterizedTypeReference<Resource<TestResults>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<TestResults>>() {
+                };
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.TEST_RESULTS,
+                HttpMethod.GET,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                parameterizedTypeReference,
+                envConfId, version
+        );
+    }
+
+    protected ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> sendGetLatestStableVersionRequest
+            (String envConfId) {
+        ParameterizedTypeReference<Resource<EnvironmentConfigurationVersionImpl>> parameterizedTypeReference =
+                new ParameterizedTypeReference<Resource<EnvironmentConfigurationVersionImpl>>() {
+                };
+        return hateoasRestTemplate.exchange(
+                getBaseUrl() + DenvApiEndpoints.GET_LATEST_STABLE_VERSION,
+                HttpMethod.GET,
+                new HttpEntity<Void>(defaultRequestHeaders()),
+                parameterizedTypeReference,
+                envConfId
         );
     }
 }

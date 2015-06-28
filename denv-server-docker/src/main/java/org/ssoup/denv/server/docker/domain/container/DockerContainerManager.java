@@ -26,7 +26,7 @@ import org.ssoup.denv.server.containerization.exception.ContainerizationExceptio
 import org.ssoup.denv.server.containerization.service.container.AbstractContainerManager;
 import org.ssoup.denv.server.containerization.service.container.ImageManager;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
-import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.ContainerVersioningPolicy;
 import org.ssoup.denv.server.docker.domain.conf.DockerNodeConfiguration;
 import org.ssoup.denv.server.service.conf.node.NodeManager;
 
@@ -51,7 +51,7 @@ public class DockerContainerManager extends AbstractContainerManager {
 
     @Autowired
     public DockerContainerManager(ImageManager imageManager, NamingStrategy namingStrategy,
-                                  VersioningPolicy versioningPolicy, NodeManager nodeManager) {
+                                  ContainerVersioningPolicy versioningPolicy, NodeManager nodeManager) {
         super(imageManager, namingStrategy, versioningPolicy);
         // dockerClient = new DockerClient(dockerEnvironmentConfiguration.getDockerAddress());
         this.nodeManager = nodeManager;

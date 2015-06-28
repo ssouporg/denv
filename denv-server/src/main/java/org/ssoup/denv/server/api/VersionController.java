@@ -57,7 +57,7 @@ public class VersionController extends AbstractController {
                                                                                      final Pageable pageable,
                                                                                      final PagedResourcesAssembler assembler)
             throws DenvException {
-        Page versPage = (Page) versionService.listVers(envConfId, pageable);
+        Page versPage = (Page) versionService.listVersions(envConfId, pageable);
         return new ResponseEntity<PagedResources<EnvironmentConfigurationVersionImpl>>(
                 assembler.toResource(versPage), super.defaultResponseHeaders(), HttpStatus.OK);
     }

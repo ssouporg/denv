@@ -13,6 +13,7 @@ import org.ssoup.denv.core.model.runtime.DenvEnvironment;
 import org.ssoup.denv.core.model.runtime.EnvironmentDesiredState;
 import org.ssoup.denv.server.persistence.VersionRepository;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,8 +44,13 @@ public class VersionServiceImpl implements VersionService {
     }
 
     @Override
-    public Page<? extends EnvironmentConfigurationVersion> listVers(String envConfId, Pageable pageable) {
-        return versionRepository.findAll(pageable);
+    public Page<? extends EnvironmentConfigurationVersion> listVersions(String envConfId, Pageable pageable) {
+        return versionRepository.listByEnvConf(envConfId, pageable);
+    }
+
+    @Override
+    public List<? extends EnvironmentConfigurationVersion> listAllVersions(String envConfId) {
+        return versionRepository.listAllByEnvConf(envConfId);
     }
 
     @Override

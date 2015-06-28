@@ -3,12 +3,11 @@ package org.ssoup.denv.server.containerization.service.container;
 import org.ssoup.denv.core.containerization.model.conf.environment.ImageConfiguration;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfiguration;
 import org.ssoup.denv.core.model.runtime.EnvironmentRuntimeInfo;
-import org.ssoup.denv.core.model.runtime.Environment;
 import org.ssoup.denv.core.containerization.model.runtime.Image;
 import org.ssoup.denv.server.containerization.service.naming.NamingStrategy;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.server.service.admin.AdminClient;
-import org.ssoup.denv.server.containerization.service.versioning.VersioningPolicy;
+import org.ssoup.denv.server.containerization.service.versioning.ContainerVersioningPolicy;
 
 /**
  * User: ALB
@@ -20,9 +19,9 @@ public abstract class AbstractImageManager implements ImageManager {
 
     private NamingStrategy namingStrategy;
 
-    private VersioningPolicy versioningPolicy;
+    private ContainerVersioningPolicy versioningPolicy;
 
-    protected AbstractImageManager(AdminClient adminClient, NamingStrategy namingStrategy, VersioningPolicy versioningPolicy) {
+    protected AbstractImageManager(AdminClient adminClient, NamingStrategy namingStrategy, ContainerVersioningPolicy versioningPolicy) {
         this.adminClient = adminClient;
         this.namingStrategy = namingStrategy;
         this.versioningPolicy = versioningPolicy;
@@ -82,7 +81,7 @@ public abstract class AbstractImageManager implements ImageManager {
         return namingStrategy;
     }
 
-    public VersioningPolicy getVersioningPolicy() {
+    public ContainerVersioningPolicy getVersioningPolicy() {
         return versioningPolicy;
     }
 

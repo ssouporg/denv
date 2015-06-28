@@ -18,6 +18,7 @@ public interface EnvironmentConfigurationVersion {
     EnvironmentConfigVersionDesiredState getDesiredState();
     Map<String, String> getVariables();
     String getVariable(String variableName);
+    void setVariable(String variableName, String value);
     String substituteVariables(String v);
     String getBuildEnvId();
     String getBuildError();

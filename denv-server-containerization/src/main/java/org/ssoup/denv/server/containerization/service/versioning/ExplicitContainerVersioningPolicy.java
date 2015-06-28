@@ -11,13 +11,13 @@ import org.ssoup.denv.server.service.versioning.VersionService;
  * Date: 28/02/14 10:00
  */
 @Service
-public class ExplicitVersioningPolicy implements VersioningPolicy {
+public class ExplicitContainerVersioningPolicy implements ContainerVersioningPolicy {
 
     public static final String VERSION_SUFFIX = "_VERSION";
     private VersionService versionManager;
 
     @Autowired
-    public ExplicitVersioningPolicy(VersionService versionManager) {
+    public ExplicitContainerVersioningPolicy(VersionService versionManager) {
         this.versionManager = versionManager;
     }
 
