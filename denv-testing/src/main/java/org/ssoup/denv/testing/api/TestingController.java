@@ -39,7 +39,7 @@ public class TestingController extends AbstractController {
         return new ResponseEntity<TestResults>(testResults, HttpStatus.OK);
     }
 
-    @RequestMapping(value = DenvApiEndpoints.TEST_RESULTS, method = RequestMethod.GET)
+    @RequestMapping(value = DenvApiEndpoints.GET_LATEST_STABLE_VERSION, method = RequestMethod.GET)
     public @ResponseBody
     ResponseEntity<EnvironmentConfigurationVersion> getLatestStableVersion(@PathVariable String envConfId) throws DenvException {
         EnvironmentConfigurationVersion envConfVersion = testingService.getLatestStableVersion(envConfId);

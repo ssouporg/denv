@@ -108,7 +108,10 @@ public class EnvironmentConfigurationVersionImpl implements EnvironmentConfigura
     @Override
     public String substituteVariables(String v) {
         for (String var : getVariables().keySet()) {
-            v = v.replace("${" + var + "}", getVariable(var));
+            String value = getVariable(var);
+            if (value != null) {
+                v = v.replace("${" + var + "}", value);
+            }
         }
         return v;
     }

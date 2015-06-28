@@ -39,6 +39,11 @@ public class VersionServiceImpl implements VersionService {
     }
 
     @Override
+    public void updateVersion(EnvironmentConfigurationVersion envConfVersion) {
+        versionRepository.save(envConfVersion);
+    }
+
+    @Override
     public EnvironmentConfigurationVersion getVersion(String envConfId, String version) {
         return (EnvironmentConfigurationVersion)versionRepository.findOne(DenvEnvironment.buildVersionId(envConfId, version));
     }

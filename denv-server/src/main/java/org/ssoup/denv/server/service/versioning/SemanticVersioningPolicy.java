@@ -1,5 +1,6 @@
 package org.ssoup.denv.server.service.versioning;
 
+import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 
 import java.util.Comparator;
@@ -8,6 +9,7 @@ import java.util.Comparator;
  * User: ALB
  * Date: 28/06/2015 14:43
  */
+@Service
 public class SemanticVersioningPolicy implements VersioningPolicy {
 
     @Override

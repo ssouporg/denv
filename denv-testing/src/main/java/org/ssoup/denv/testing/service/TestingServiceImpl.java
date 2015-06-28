@@ -1,6 +1,8 @@
 package org.ssoup.denv.testing.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
 import org.ssoup.denv.core.exception.DenvException;
 import org.ssoup.denv.core.model.conf.environment.EnvironmentConfigurationVersion;
 import org.ssoup.denv.core.model.testing.TestOutcome;
@@ -11,6 +13,7 @@ import org.ssoup.denv.server.service.versioning.VersioningPolicy;
 import java.util.Collections;
 import java.util.List;
 
+@Service
 public class TestingServiceImpl implements TestingService {
 
     public static final String TEST_BUILD_NUMBER = "TEST_BUILD_NUMBER";
@@ -19,6 +22,7 @@ public class TestingServiceImpl implements TestingService {
     private VersionService versionService;
     private VersioningPolicy versioningPolicy;
 
+    @Autowired
     public TestingServiceImpl(VersionService versionService, VersioningPolicy versioningPolicy) {
         this.versionService = versionService;
         this.versioningPolicy = versioningPolicy;
@@ -29,6 +33,7 @@ public class TestingServiceImpl implements TestingService {
         EnvironmentConfigurationVersion envConfVersion = versionService.getVersion(envConfId, version);
         envConfVersion.setVariable(TEST_BUILD_NUMBER, testResults.getTestBuildNumber());
         envConfVersion.setVariable(TEST_OUTCOME, testResults.getTestOutcome().name());
+        versionService.updateVersion(envConfVersion);
     }
 
     @Override

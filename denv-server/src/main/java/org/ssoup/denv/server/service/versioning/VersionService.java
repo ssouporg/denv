@@ -17,6 +17,7 @@ import java.util.Map;
 public interface VersionService {
 
     void addVersion(EnvironmentConfiguration envConf, String version, Map<String, String> variables);
+    void updateVersion(EnvironmentConfigurationVersion envConfVersion);
     EnvironmentConfigurationVersion getVersion(String envConfId, String version);
     Page<? extends EnvironmentConfigurationVersion> listVersions(String envConfId, Pageable pageable);
     List<? extends EnvironmentConfigurationVersion> listAllVersions(String envConfId);
