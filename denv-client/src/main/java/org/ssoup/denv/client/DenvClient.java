@@ -290,7 +290,10 @@ public class DenvClient {
     public EnvironmentConfigurationVersionImpl getLatestStableVersion(String envConfId) throws DenvException {
         try {
             ResponseEntity<Resource<EnvironmentConfigurationVersionImpl>> res = sendGetLatestStableVersionRequest(envConfId);
-            return res.getBody().getContent();
+            if (res.getBody() != null) {
+                return res.getBody().getContent();
+            }
+            return null;
         } catch (HttpStatusCodeException ex) {
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                 throw new ResourceNotFoundException("Could not find versions for environment configuration " + envConfId);
