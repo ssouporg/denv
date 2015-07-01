@@ -60,15 +60,15 @@ public class ExtendedSemanticVersion implements Comparable<ExtendedSemanticVersi
     }
 
     public static ExtendedSemanticVersion valueOf(String version) {
-        final Matcher matcher = PATTERN1.matcher(version);
+        Matcher matcher = PATTERN1.matcher(version);
         if (matcher.matches()) {
             final int major = Integer.valueOf(matcher.group(1));
             final int minor = Integer.valueOf(matcher.group(2));
             final int patch = Integer.valueOf(matcher.group(3));
             return new ExtendedSemanticVersion(major, minor, patch, matcher.group(4));
         }
-        final Matcher matcher2 = PATTERN2.matcher(version);
-        if (matcher2.matches()) {
+        matcher = PATTERN2.matcher(version);
+        if (matcher.matches()) {
             final int major = Integer.valueOf(matcher.group(1));
             final int minor = Integer.valueOf(matcher.group(2));
             return new ExtendedSemanticVersion(major, minor, 0, matcher.group(3));
