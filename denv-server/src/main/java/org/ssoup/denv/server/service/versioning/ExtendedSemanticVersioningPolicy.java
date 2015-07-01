@@ -10,15 +10,15 @@ import java.util.Comparator;
  * Date: 28/06/2015 14:43
  */
 @Service
-public class SemanticVersioningPolicy implements VersioningPolicy {
+public class ExtendedSemanticVersioningPolicy implements VersioningPolicy {
 
     @Override
     public Comparator<EnvironmentConfigurationVersion> getVersionComparator() {
         return new Comparator<EnvironmentConfigurationVersion>() {
             @Override
             public int compare(EnvironmentConfigurationVersion envConfVer1, EnvironmentConfigurationVersion envConfVer2) {
-                SemanticVersion semVer1 = SemanticVersion.valueOf(envConfVer1.getVersion());
-                SemanticVersion semVer2 = SemanticVersion.valueOf(envConfVer2.getVersion());
+                ExtendedSemanticVersion semVer1 = ExtendedSemanticVersion.valueOf(envConfVer1.getVersion());
+                ExtendedSemanticVersion semVer2 = ExtendedSemanticVersion.valueOf(envConfVer2.getVersion());
                 return semVer1.compareTo(semVer2);
             }
         };
