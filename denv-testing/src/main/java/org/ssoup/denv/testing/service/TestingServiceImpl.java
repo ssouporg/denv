@@ -45,8 +45,11 @@ public class TestingServiceImpl implements TestingService {
     private TestResults getTestResults(EnvironmentConfigurationVersion envConfVersion) {
         TestResults testResults = new TestResults();
         testResults.setTestBuildNumber(envConfVersion.getVariable(TEST_BUILD_NUMBER));
-        TestOutcome testOutcome = TestOutcome.valueOf(envConfVersion.getVariable(TEST_OUTCOME));
-        testResults.setTestOutcome(testOutcome);
+        String testOutcomeStr = envConfVersion.getVariable(TEST_OUTCOME);
+        if (testOutcomeStr != null) {
+            TestOutcome testOutcome = TestOutcome.valueOf(testOutcomeStr);
+            testResults.setTestOutcome(testOutcome);
+        }
         return testResults;
     }
 
